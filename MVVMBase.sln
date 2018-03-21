@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVVMBase", "MVVMBase\MVVMBase.csproj", "{4D3661A8-A1CA-45A3-87E6-160859D9F896}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVVMBaseTest", "MVVMBaseTest\MVVMBaseTest.csproj", "{517F3982-E311-4007-AE35-9722208A224A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVVMBaseTests", "MVVMBaseTests\MVVMBaseTests.csproj", "{517F3982-E311-4007-AE35-9722208A224A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
