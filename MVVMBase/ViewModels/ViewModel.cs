@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace nkristek.MVVMBase.ViewModels
 {
@@ -32,6 +33,23 @@ namespace nkristek.MVVMBase.ViewModels
                     if (Parent != null && value)
                         Parent.IsDirty = true;
                 }
+            }
+        }
+
+        private bool _IsReadOnly;
+        /// <summary>
+        /// Indicates if this ViewModel instance is read only and it is not possible to change a property value
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return _IsReadOnly;
+            }
+
+            set
+            {
+                SetProperty(ref _IsReadOnly, value);
             }
         }
 
@@ -110,8 +128,26 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="propertyName">Name of the property which was changed</param>
         protected override void OnPropertyChanged(string propertyName)
         {
-            if (propertyName != nameof(IsDirty) && propertyName != nameof(Parent) && propertyName != nameof(View))
+            if (propertyName != nameof(IsDirty)
+             && propertyName != nameof(Parent)
+             && propertyName != nameof(View)
+             && propertyName != nameof(IsReadOnly))
                 IsDirty = true;
+        }
+
+        /// <summary>
+        /// Sets a property if <see cref="IsReadOnly"/> is not true and the value is different and raises an event on the PropertyChangedEventHandler
+        /// </summary>
+        /// <typeparam name="T">Type of the property to set</typeparam>
+        /// <param name="storage">Reference to the storage variable</param>
+        /// <param name="value">New value to set</param>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
+        protected sealed override bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (IsReadOnly && propertyName != "IsReadOnly")
+                return false;
+            return base.SetProperty(ref storage, value, propertyName);
         }
     }
 }

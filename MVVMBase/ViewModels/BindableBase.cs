@@ -36,7 +36,7 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="value">New value to set</param>
         /// <param name="propertyName">Name of the property</param>
         /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
         {
             if (EqualityComparer<T>.Default.Equals(storage, value))
                 return false;
