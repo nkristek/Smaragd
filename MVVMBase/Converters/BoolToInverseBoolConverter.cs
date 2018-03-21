@@ -4,6 +4,10 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects a <see cref="bool"/>.
+    /// Returns its opposite.
+    /// </summary>
     public class BoolToInverseBoolConverter
         : IValueConverter
     {

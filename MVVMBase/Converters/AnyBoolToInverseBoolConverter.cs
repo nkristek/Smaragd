@@ -5,6 +5,10 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects a list of <see cref="bool"/>.
+    /// Returns true if all of them are false.
+    /// </summary>
     public class AnyBoolToInverseBoolConverter
         : IMultiValueConverter
     {

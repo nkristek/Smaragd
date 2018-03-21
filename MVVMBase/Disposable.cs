@@ -3,14 +3,14 @@
 namespace nkristek.MVVMBase
 {
     /// <summary>
-    /// IDisposable implementation which provides an easier implementation of the IDisposable interface
+    /// <see cref="IDisposable"/> implementation which provides an easier way to implement the IDisposable interface
     /// </summary>
     public abstract class Disposable
         : IDisposable
     {
         /// <summary>
         /// Override to dispose managed resources.
-        /// A managed resource is another managed type, which implements IDisposable.
+        /// A managed resource is another managed type, which implements <see cref="IDisposable"/>.
         /// </summary>
         protected virtual void DisposeManagedResources() { }
 

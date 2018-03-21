@@ -5,6 +5,11 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects <see cref="object"/>.
+    /// Returns <see cref="Visibility.Visible"/> if <see cref="object.ToString"/> equals the given parameter.
+    /// Returns <see cref="Visibility.Collapsed"/> otherwise.
+    /// </summary>
     public class ObjectToStringEqualsParameterToVisibilityConverter
         : IValueConverter
     {

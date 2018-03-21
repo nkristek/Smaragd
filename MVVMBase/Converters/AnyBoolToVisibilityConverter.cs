@@ -6,6 +6,10 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects a list of <see cref="bool"/>.
+    /// Returns <see cref="Visibility.Visible"/> if any of them are true.
+    /// </summary>
     public class AnyBoolToVisibilityConverter
         : IMultiValueConverter
     {

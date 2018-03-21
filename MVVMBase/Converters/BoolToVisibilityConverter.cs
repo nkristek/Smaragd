@@ -5,6 +5,12 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects a <see cref="bool"/>.
+    /// Returns <see cref="Visibility.Visible"/> if it is true. 
+    /// Returns <see cref="Visibility.Hidden"/> if false and "Hidden" was set as the parameter.
+    /// Returns <see cref="Visibility.Collapsed"/> otherwise.
+    /// </summary>
     public class BoolToVisibilityConverter
         : IValueConverter
     {

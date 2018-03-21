@@ -6,6 +6,10 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects <see cref="IEnumerable{T}"/>.
+    /// Returns true if it not null or empty.
+    /// </summary>
     public class IEnumerableNotNullOrEmptyToBoolConverter
         : IValueConverter
     {

@@ -5,6 +5,12 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects <see cref="object"/>.
+    /// Returns <see cref="Visibility.Visible"/> if it is not null.
+    /// Returns <see cref="Visibility.Hidden"/> if it is null and "Hidden" was set as a parameter.
+    /// Returns <see cref="Visibility.Collapsed"/> otherwise.
+    /// </summary>
     public class ValueNotNullToVisibilityConverter
         : IValueConverter
     {

@@ -4,6 +4,11 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects a <see cref="DateTime"/>.
+    /// Returns <see cref="string"/> representation. 
+    /// Optionally a parameter can be set which will be used as a parameter of the <see cref="DateTime.ToString(string)"/> method.
+    /// </summary>
     public class DateTimeToStringConverter
         : IValueConverter
     {

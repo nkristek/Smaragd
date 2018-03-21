@@ -4,6 +4,10 @@ using System.Windows.Data;
 
 namespace nkristek.MVVMBase.Converters
 {
+    /// <summary>
+    /// Expects <see cref="object"/>.
+    /// Returns true if it is not null.
+    /// </summary>
     public class ValueNotNullToBoolConverter
         : IValueConverter
     {

@@ -7,7 +7,7 @@ namespace nkristek.MVVMBase.Extensions
     public static class StringExtensions
     {
         /// <summary>
-        /// Tests if the given string contains characters which are invalid for paths
+        /// Tests if the given <see cref="string"/> contains characters which are invalid for paths
         /// </summary>
         /// <param name="path">A path</param>
         /// <returns>True if the given string contains characters which are invalid for paths</returns>
@@ -17,7 +17,7 @@ namespace nkristek.MVVMBase.Extensions
         }
 
         /// <summary>
-        /// Replaces all characters in the given string which are invalid for paths
+        /// Replaces all characters in the given <see cref="string"/> which are invalid for paths
         /// </summary>
         /// <param name="path">A path</param>
         /// <param name="replacement">Replacement character</param>
@@ -29,25 +29,25 @@ namespace nkristek.MVVMBase.Extensions
         }
 
         /// <summary>
-        /// Tests if the given string contains characters which are invalid for file names
+        /// Tests if the given <see cref="string"/> contains characters which are invalid for file names
         /// </summary>
-        /// <param name="fileName">A file name</param>
+        /// <param name="filename">A file name</param>
         /// <returns>True if the given string contains characters which are invalid for file names</returns>
-        public static bool ContainsInvalidFileNameChars(this string fileName)
+        public static bool ContainsInvalidFileNameChars(this string filename)
         {
-            return String.Concat(fileName.Split(Path.GetInvalidFileNameChars())).Count() != fileName.Count();
+            return String.Concat(filename.Split(Path.GetInvalidFileNameChars())).Count() != filename.Count();
         }
 
         /// <summary>
-        /// Replaces all characters in the given string which are invalid for file names
+        /// Replaces all characters in the given <see cref="string"/> which are invalid for file names
         /// </summary>
-        /// <param name="fileName">A file name</param>
+        /// <param name="filename">A file name</param>
         /// <param name="replacement">Replacement character</param>
-        public static string ReplaceInvalidFileNameChars(this string fileName, char replacement)
+        public static string ReplaceInvalidFileNameChars(this string filename, char replacement)
         {
             foreach (var invalidChar in Path.GetInvalidFileNameChars())
-                fileName = fileName.Replace(invalidChar, replacement);
-            return fileName;
+                filename = filename.Replace(invalidChar, replacement);
+            return filename;
         }
     }
 }
