@@ -17,7 +17,7 @@ namespace nkristek.MVVMBase.ViewModels
 
         private bool _IsDirty;
         /// <summary>
-        /// Indicates if a property changed on the ViewModel and the change is not persisted
+        /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
         /// </summary>
         public bool IsDirty
         {
@@ -38,7 +38,7 @@ namespace nkristek.MVVMBase.ViewModels
 
         private bool _IsReadOnly;
         /// <summary>
-        /// Indicates if this ViewModel instance is read only and it is not possible to change a property value
+        /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value
         /// </summary>
         public bool IsReadOnly
         {
@@ -55,7 +55,7 @@ namespace nkristek.MVVMBase.ViewModels
 
         private WeakReference<ViewModel> _Parent;
         /// <summary>
-        /// The parent of this ViewModel
+        /// The parent of this <see cref="ViewModel"/>
         /// </summary>
         public ViewModel Parent
         {
@@ -75,7 +75,7 @@ namespace nkristek.MVVMBase.ViewModels
         }
 
         /// <summary>
-        /// Gets the first parent of the requested type
+        /// Gets the first parent of the requested <typeparamref name="T"/>
         /// </summary>
         /// <typeparam name="T">Type of the requested parent</typeparam>
         /// <returns>The first parent of the requested type</returns>
@@ -89,7 +89,7 @@ namespace nkristek.MVVMBase.ViewModels
         }
 
         /// <summary>
-        /// The top most parent of this ViewModel
+        /// The top most parent of this <see cref="ViewModel"/>
         /// </summary>
         public ViewModel TopMost
         {
@@ -101,7 +101,7 @@ namespace nkristek.MVVMBase.ViewModels
 
         private WeakReference<object> _View;
         /// <summary>
-        /// The View of this ViewModel. Will return the view of the parent if no set.
+        /// The View of this <see cref="ViewModel"/>. Will return the view of the parent if no set.
         /// </summary>
         public object View
         {
@@ -121,8 +121,8 @@ namespace nkristek.MVVMBase.ViewModels
         }
 
         /// <summary>
-        /// This will set the IsDirty property to true is a property was changed, 
-        /// It ignores IsDirty, Parent and View.
+        /// This will set the <see cref="IsDirty"/> property to true is a property was changed, 
+        /// It ignores <see cref="IsDirty"/>, <see cref="Parent"/>, <see cref="View"/> and <see cref="IsReadOnly"/>.
         /// Override if you want different behaviour.
         /// </summary>
         /// <param name="propertyName">Name of the property which was changed</param>
@@ -136,7 +136,7 @@ namespace nkristek.MVVMBase.ViewModels
         }
 
         /// <summary>
-        /// Sets a property if <see cref="IsReadOnly"/> is not true and the value is different and raises an event on the PropertyChangedEventHandler
+        /// Sets a property if <see cref="IsReadOnly"/> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>
         /// </summary>
         /// <typeparam name="T">Type of the property to set</typeparam>
         /// <param name="storage">Reference to the storage variable</param>

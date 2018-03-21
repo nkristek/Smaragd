@@ -13,7 +13,7 @@ namespace nkristek.MVVMBase.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Raises an event on the PropertyChangedEventHandler
+        /// Raises an event on the <see cref="PropertyChangedEventHandler"/>
         /// </summary>
         /// <param name="propertyName">Name of the property which changed</param>
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
@@ -23,13 +23,13 @@ namespace nkristek.MVVMBase.ViewModels
         }
 
         /// <summary>
-        /// Gets called after a property changed and can be safely overriden in subclasses
+        /// Gets called after a property changed and can be safely overridden in subclasses
         /// </summary>
         /// <param name="propertyName">Name of the property which changed</param>
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) { }
 
         /// <summary>
-        /// Sets a property if the value is different and raises an event on the PropertyChangedEventHandler
+        /// Sets a property value if the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>
         /// </summary>
         /// <typeparam name="T">Type of the property to set</typeparam>
         /// <param name="storage">Reference to the storage variable</param>

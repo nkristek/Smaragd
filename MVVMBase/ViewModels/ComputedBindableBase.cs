@@ -6,7 +6,7 @@ using nkristek.MVVMBase.Commands;
 namespace nkristek.MVVMBase.ViewModels
 {
     /// <summary>
-    /// Adds the functionality to use the PropertySourceAttribute above properties and CommandCanExecuteSourceAttribute above ViewModelCommand or AsyncViewModelCommand implementations
+    /// Adds the functionality to use the <see cref="PropertySourceAttribute"/> above properties and <see cref="CommandCanExecuteSourceAttribute"/> above <see cref="IRaiseCanExecuteChanged"/> implementations
     /// </summary>
     public abstract class ComputedBindableBase
         : BindableBase
