@@ -19,11 +19,21 @@ namespace nkristek.MVVMBase.Commands
             _canExecute = canExecute;
         }
 
+        /// <summary>
+        /// Indicates if <see cref="ExecuteAsync(object)"/> is allowed to execute
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public override bool CanExecute(object parameter)
         {
             return _canExecute != null ? _canExecute(parameter) : base.CanExecute(parameter);
         }
 
+        /// <summary>
+        /// Asynchronously executes the given <see cref="Predicate{T}"/>
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         protected override async Task ExecuteAsync(object parameter)
         {
             await Task.Run(() =>

@@ -13,12 +13,12 @@ namespace nkristek.MVVMBase.Commands
     {
         public AsyncViewModelCommand(TViewModel parent)
         {
-            Parent = parent;
+            Parent = parent ?? throw new ArgumentNullException("parent");
         }
 
         private WeakReference<TViewModel> _Parent;
         /// <summary>
-        /// Parent of this AsyncViewModelCommand which is used when calling CanExecute/Execute or OnThrownException
+        /// Parent of this <see cref="AsyncViewModelCommand{TViewModel}"/> which will be used as the context <see cref="ViewModel"/>
         /// </summary>
         public TViewModel Parent
         {
@@ -36,28 +36,50 @@ namespace nkristek.MVVMBase.Commands
             }
         }
 
+        /// <summary>
+        /// Override this method to indicate if <see cref="ExecuteAsync(TViewModel, object, object)"/> is allowed to execute
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         protected virtual bool CanExecute(TViewModel viewModel, object view, object parameter)
         {
             return true;
         }
 
+        /// <summary>
+        /// Asynchronous <see cref="ICommand.Execute(object)"/> which additionally includes context <see cref="ViewModel"/> and view
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         protected abstract Task ExecuteAsync(TViewModel viewModel, object view, object parameter);
 
         /// <summary>
-        /// Will be called when ExecuteAsync throws an exception
+        /// Will be called when <see cref="ExecuteAsync(TViewModel, object, object)"/> throws an <see cref="Exception"/>
         /// </summary>
         protected virtual void OnThrownException(TViewModel viewModel, object view, object parameter, Exception exception) { }
 
+        /// <summary>
+        /// This method returns the result of <see cref="CanExecute(TViewModel, object, object)"/>
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public override sealed bool CanExecute(object parameter)
         {
             return !IsWorking && CanExecute(Parent, Parent?.View, parameter);
         }
 
-        protected override sealed async Task ExecuteAsync(object parameter)
+        /// <summary>
+        /// This method executes <see cref="ExecuteAsync(TViewModel, object, object)"/>
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected sealed override async Task ExecuteAsync(object parameter)
         {
             await ExecuteAsync(Parent, Parent?.View, parameter);
         }
 
+        /// <summary>
+        /// Will be called when <see cref="ExecuteAsync(TViewModel, object, object)"/> throws an <see cref="Exception"/>
+        /// </summary>
         protected override sealed void OnThrownException(object parameter, Exception exception)
         {
             OnThrownException(Parent, Parent?.View, parameter, exception);

@@ -4,7 +4,7 @@ using nkristek.MVVMBase.ViewModels;
 namespace nkristek.MVVMBase.Commands
 {
     /// <summary>
-    ///BindableCommand implementation with ViewModel parameters in command methods
+    /// BindableCommand implementation with ViewModel parameters in command methods
     /// </summary>
     /// <typeparam name="TViewModel">Type of the parent ViewModel</typeparam>
     public abstract class ViewModelCommand<TViewModel>
