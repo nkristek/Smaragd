@@ -32,11 +32,7 @@ namespace nkristek.MVVMBase.ViewModels
         /// </summary>
         public bool IsDirty
         {
-            get
-            {
-                return _IsDirty;
-            }
-
+            get { return _IsDirty; }
             set
             {
                 if (SetProperty(ref _IsDirty, value))
@@ -95,15 +91,8 @@ namespace nkristek.MVVMBase.ViewModels
         /// </summary>
         public bool IsReadOnly
         {
-            get
-            {
-                return _IsReadOnly;
-            }
-
-            set
-            {
-                SetProperty(ref _IsReadOnly, value);
-            }
+            get { return _IsReadOnly; }
+            set { SetProperty(ref _IsReadOnly, value); }
         }
 
         /// <summary>

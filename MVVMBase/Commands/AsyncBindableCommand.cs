@@ -17,11 +17,7 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         public bool IsWorking
         {
-            get
-            {
-                return _IsWorking;
-            }
-
+            get { return _IsWorking; }
             private set
             {
                 if (SetProperty(ref _IsWorking, value))
