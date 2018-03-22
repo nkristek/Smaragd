@@ -60,6 +60,7 @@
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\DateTimeToStringConverter.cs" />
     <Compile Include="Converters\IEnumerableNotNullOrEmptyToBoolConverter.cs" />
+    <Compile Include="Converters\IEnumerableNullOrEmptyToBoolConverter.cs" />
     <Compile Include="Converters\ObjectToStringEqualsParameterToVisibilityConverter.cs" />
     <Compile Include="Converters\StringNotNullOrEmptyToBoolConverter.cs" />
     <Compile Include="Converters\StringNotNullOrEmptyToVisibilityConverter.cs" />

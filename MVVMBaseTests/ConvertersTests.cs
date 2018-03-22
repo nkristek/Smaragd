@@ -98,6 +98,18 @@ namespace nkristek.MVVMBaseTest
         }
 
         [TestMethod]
+        public void TestIEnumerableNullOrEmptyToBoolConverter()
+        {
+            var result1 = IEnumerableNullOrEmptyToBoolConverter.Instance.Convert(new[] { new object() }, typeof(bool), null, CultureInfo.CurrentCulture);
+            Assert.IsInstanceOfType(result1, typeof(bool));
+            Assert.IsFalse((bool)result1);
+
+            var result2 = IEnumerableNullOrEmptyToBoolConverter.Instance.Convert(Enumerable.Empty<object>(), typeof(bool), null, CultureInfo.CurrentCulture);
+            Assert.IsInstanceOfType(result2, typeof(bool));
+            Assert.IsTrue((bool)result2);
+        }
+
+        [TestMethod]
         public void TestObjectToStringEqualsParameterToVisibilityConverter()
         {
             Assert.AreEqual(Visibility.Visible, ObjectToStringEqualsParameterToVisibilityConverter.Instance.Convert("equal", typeof(Visibility), "equal", CultureInfo.CurrentCulture));
