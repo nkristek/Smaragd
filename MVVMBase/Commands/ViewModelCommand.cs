@@ -53,7 +53,7 @@ namespace nkristek.MVVMBase.Commands
             return CanExecute(Parent, Parent?.View, parameter);
         }
 
-        protected override sealed void ExecuteSync(object parameter)
+        public override sealed void ExecuteSync(object parameter)
         {
             ExecuteSync(Parent, Parent?.View, parameter);
         }

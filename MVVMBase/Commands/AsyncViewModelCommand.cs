@@ -72,7 +72,7 @@ namespace nkristek.MVVMBase.Commands
         /// This method executes <see cref="ExecuteAsync(TViewModel, object, object)"/>
         /// </summary>
         /// <param name="parameter"></param>
-        protected sealed override async Task ExecuteAsync(object parameter)
+        public sealed override async Task ExecuteAsync(object parameter)
         {
             await ExecuteAsync(Parent, Parent?.View, parameter);
         }

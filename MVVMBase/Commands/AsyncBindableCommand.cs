@@ -32,7 +32,7 @@ namespace nkristek.MVVMBase.Commands
         /// <returns></returns>
         public virtual bool CanExecute(object parameter)
         {
-            return true;
+            return !IsWorking;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        protected abstract Task ExecuteAsync(object parameter);
+        public abstract Task ExecuteAsync(object parameter);
 
         /// <summary>
         /// Will be called when <see cref="ExecuteAsync(object)"/> throws an <see cref="Exception"/>
