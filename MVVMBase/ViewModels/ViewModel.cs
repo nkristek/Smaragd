@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace nkristek.MVVMBase.ViewModels
@@ -180,21 +181,20 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="e">EventArgs</param>
         private void _ChildViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if (_ViewModelProperties.Contains(e.PropertyName))
+                return;
+
             var childViewModel = sender as ViewModel;
             if (childViewModel == null)
                 return;
 
             if (!_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
-
-            if (!_ViewModelProperties.Contains(e.PropertyName))
-            {
-                var childViewModelPropertyName = _ChildViewModelPropertyMapping[childViewModel];
-                RaisePropertyChanged(childViewModelPropertyName);
-            }
+            
+            var childViewModelPropertyName = _ChildViewModelPropertyMapping[childViewModel];
+            RaisePropertyChanged(childViewModelPropertyName);
         }
-
-
+        
         private readonly Dictionary<ObservableCollection<ViewModel>, string> _ChildViewModelCollectionPropertyMapping = new Dictionary<ObservableCollection<ViewModel>, string>();
 
         /// <summary>
@@ -214,10 +214,11 @@ namespace nkristek.MVVMBase.ViewModels
                 return;
 
             _ChildViewModelCollectionPropertyMapping.Add(childViewModelCollection, propertyName);
-            childViewModelCollection.CollectionChanged += _ChildViewModelCollection_CollectionChanged;
 
             foreach (var childViewModel in childViewModelCollection)
                 RegisterChildViewModel(childViewModel, propertyName);
+
+            childViewModelCollection.CollectionChanged += _ChildViewModelCollection_CollectionChanged;
         }
 
         /// <summary>
@@ -237,14 +238,15 @@ namespace nkristek.MVVMBase.ViewModels
                 return;
 
             _ChildViewModelCollectionPropertyMapping.Remove(childViewModelCollection);
-            childViewModelCollection.CollectionChanged -= _ChildViewModelCollection_CollectionChanged;
 
             foreach (var childViewModel in childViewModelCollection)
                 UnregisterChildViewModel(childViewModel, propertyName);
+
+            childViewModelCollection.CollectionChanged -= _ChildViewModelCollection_CollectionChanged;
         }
 
         /// <summary>
-        /// This method iterates over changes in the collection and registers/unregisters child <see cref="ViewModel"/> instances accordingly
+        /// This method raises a PropertyChanged event when the collection changes and iterates over changes in the collection and registers/unregisters child <see cref="ViewModel"/> instances accordingly
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -258,17 +260,15 @@ namespace nkristek.MVVMBase.ViewModels
                 return;
 
             var childViewModelCollectionPropertyName = _ChildViewModelCollectionPropertyMapping[childViewModelCollection];
-            OnPropertyChanged(childViewModelCollectionPropertyName);
-
-            if (e.NewItems != null)
-                foreach (var newItem in e.NewItems)
-                    if (newItem is ViewModel childViewModel)
-                        RegisterChildViewModel(childViewModel, nameof(childViewModelCollectionPropertyName));
+            RaisePropertyChanged(childViewModelCollectionPropertyName);
 
             if (e.OldItems != null)
-                foreach (var oldItem in e.OldItems)
-                    if (oldItem is ViewModel childViewModel)
-                        UnregisterChildViewModel(childViewModel, nameof(childViewModelCollectionPropertyName));
+                foreach (var oldItem in e.OldItems.OfType<ViewModel>())
+                    UnregisterChildViewModel(oldItem, childViewModelCollectionPropertyName);
+
+            if (e.NewItems != null)
+                foreach (var newItem in e.NewItems.OfType<ViewModel>())
+                    RegisterChildViewModel(newItem, childViewModelCollectionPropertyName);
         }
 
         /// <summary>
