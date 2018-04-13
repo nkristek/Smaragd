@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/MVVMBase</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>First release on Nuget.org.</releaseNotes>
+    <releaseNotes>This release adds childviewmodel support.</releaseNotes>
     <copyright>Copyright 2018 Niclas Kristek</copyright>
   </metadata>
 </package>
