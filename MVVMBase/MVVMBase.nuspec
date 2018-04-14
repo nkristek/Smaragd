@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/MVVMBase</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release adds childviewmodel support.</releaseNotes>
+    <releaseNotes>This release introduces a lot of refactoring in base classes. It also removes helper classes and extensions which are not essential for a MVVM based application.</releaseNotes>
     <copyright>Copyright 2018 Niclas Kristek</copyright>
   </metadata>
 </package>
