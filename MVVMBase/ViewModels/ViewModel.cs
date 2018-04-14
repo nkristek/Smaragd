@@ -180,16 +180,5 @@ namespace nkristek.MVVMBase.ViewModels
             var childViewModelPropertyName = _ChildViewModelPropertyMapping[childViewModel];
             RaisePropertyChanged(childViewModelPropertyName);
         }
-        
-        /// <summary>
-        /// Gets the first parent of the requested <typeparamref name="T"/>
-        /// </summary>
-        /// <typeparam name="T">Type of the requested parent</typeparam>
-        /// <returns>The first parent of the requested type</returns>
-        public T FirstParentOfType<T>() where T : ViewModel
-        {
-            var parent = Parent;
-            return parent as T ?? parent?.FirstParentOfType<T>();
-        }
     }
 }
