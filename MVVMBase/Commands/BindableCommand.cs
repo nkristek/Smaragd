@@ -28,7 +28,7 @@ namespace nkristek.MVVMBase.Commands
         {
             try
             {
-                ExecuteSync(parameter);
+                DoExecute(parameter);
             }
             catch (Exception exception)
             {
@@ -44,7 +44,7 @@ namespace nkristek.MVVMBase.Commands
         /// Synchronous <see cref="ICommand.Execute(object)"/>
         /// </summary>
         /// <param name="parameter"></param>
-        public abstract void ExecuteSync(object parameter);
+        public abstract void DoExecute(object parameter);
 
         /// <summary>
         /// Will be called when <see cref="ExecuteSync(object)"/> throws an <see cref="Exception"/>
@@ -61,13 +61,11 @@ namespace nkristek.MVVMBase.Commands
             add
             {
                 _internalCanExecuteChanged += value;
-                CommandManager.RequerySuggested += value;
             }
 
             remove
             {
                 _internalCanExecuteChanged -= value;
-                CommandManager.RequerySuggested -= value;
             }
         }
 

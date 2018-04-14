@@ -49,6 +49,7 @@
     <Compile Include="Commands\AsyncViewModelCommand.cs" />
     <Compile Include="Commands\BindableCommand.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\IAsyncCommand.cs" />
     <Compile Include="Commands\IRaiseCanExecuteChanged.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Commands\ViewModelCommand.cs" />

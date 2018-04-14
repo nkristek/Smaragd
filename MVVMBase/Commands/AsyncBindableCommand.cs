@@ -9,7 +9,7 @@ namespace nkristek.MVVMBase.Commands
     /// An asynchronous <see cref="ICommand"/> implementation with <see cref="INotifyPropertyChanged"/> support
     /// </summary>
     public abstract class AsyncBindableCommand
-        : ComputedBindableBase, ICommand, IRaiseCanExecuteChanged
+        : ComputedBindableBase, IAsyncCommand, IRaiseCanExecuteChanged
     {
         private bool _IsWorking;
         /// <summary>
@@ -36,15 +36,25 @@ namespace nkristek.MVVMBase.Commands
         }
 
         /// <summary>
-        /// This method executes <see cref="ExecuteAsync(object)"/>
+        /// This method is a requirement for <see cref="ICommand"/> and executes <see cref="ExecuteAsync(object)"/>
         /// </summary>
-        /// <param name="parameter"></param>
+        /// <param name="parameter">Optional parameter</param>
         public async void Execute(object parameter)
+        {
+            await ExecuteAsync(parameter);
+        }
+
+        /// <summary>
+        /// Execute this command asynchrously
+        /// </summary>
+        /// <param name="parameter">Optional parameter</param>
+        /// <returns></returns>
+        public async Task ExecuteAsync(object parameter)
         {
             try
             {
                 IsWorking = true;
-                await ExecuteAsync(parameter);
+                await DoExecute(parameter);
             }
             catch (Exception exception)
             {
@@ -61,11 +71,11 @@ namespace nkristek.MVVMBase.Commands
         }
 
         /// <summary>
-        /// Asynchronous <see cref="ICommand.Execute(object)"/>
+        /// Asynchronous <see cref="ICommand.Execute(object)"/> implementation
         /// </summary>
-        /// <param name="parameter"></param>
+        /// <param name="parameter">Optional parameter</param>
         /// <returns></returns>
-        public abstract Task ExecuteAsync(object parameter);
+        protected abstract Task DoExecute(object parameter);
 
         /// <summary>
         /// Will be called when <see cref="ExecuteAsync(object)"/> throws an <see cref="Exception"/>
@@ -82,13 +92,11 @@ namespace nkristek.MVVMBase.Commands
             add
             {
                 _internalCanExecuteChanged += value;
-                CommandManager.RequerySuggested += value;
             }
 
             remove
             {
                 _internalCanExecuteChanged -= value;
-                CommandManager.RequerySuggested -= value;
             }
         }
 

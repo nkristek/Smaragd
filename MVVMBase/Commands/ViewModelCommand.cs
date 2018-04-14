@@ -35,32 +35,32 @@ namespace nkristek.MVVMBase.Commands
             }
         }
 
-        protected virtual bool CanExecute(TViewModel viewModel, object view, object parameter)
+        protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
         }
 
-        protected abstract void ExecuteSync(TViewModel viewModel, object view, object parameter);
+        protected abstract void DoExecute(TViewModel viewModel, object parameter);
 
         /// <summary>
         /// Will be called when Execute throws an exception
         /// </summary>
         /// <returns></returns>
-        protected virtual void OnThrownException(TViewModel viewModel, object view, object parameter, Exception exception) { }
+        protected virtual void OnThrownException(TViewModel viewModel, object parameter, Exception exception) { }
 
         public override sealed bool CanExecute(object parameter)
         {
-            return CanExecute(Parent, Parent?.View, parameter);
+            return CanExecute(Parent, parameter);
         }
 
-        public override sealed void ExecuteSync(object parameter)
+        public override sealed void DoExecute(object parameter)
         {
-            ExecuteSync(Parent, Parent?.View, parameter);
+            DoExecute(Parent, parameter);
         }
 
         protected override sealed void OnThrownException(object parameter, Exception exception)
         {
-            OnThrownException(Parent, Parent?.View, parameter, exception);
+            OnThrownException(Parent, parameter, exception);
         }
     }
 }

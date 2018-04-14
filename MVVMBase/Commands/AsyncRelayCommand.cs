@@ -34,7 +34,7 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(object parameter)
+        protected override async Task DoExecute(object parameter)
         {
             await Task.Run(() =>
             {

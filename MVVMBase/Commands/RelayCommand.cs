@@ -33,7 +33,7 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        protected override void ExecuteSync(object parameter)
+        protected override void DoExecute(object parameter)
         {
             _execute?.Invoke(parameter);
         }
