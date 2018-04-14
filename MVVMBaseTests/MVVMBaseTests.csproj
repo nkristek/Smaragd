@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConvertersTests.cs" />
     <Compile Include="DateTimeXmlTests.cs" />
     <Compile Include="DisposableTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
