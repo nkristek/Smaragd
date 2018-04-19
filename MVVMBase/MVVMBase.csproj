@@ -58,7 +58,6 @@
     <Compile Include="ViewModels\DialogModel.cs" />
     <Compile Include="ViewModels\PropertySourceAttribute.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
