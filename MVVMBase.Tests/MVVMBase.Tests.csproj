@@ -48,7 +48,20 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\AsyncBindableCommandTests.cs" />
+    <Compile Include="Commands\AsyncCommandTests.cs" />
+    <Compile Include="Commands\AsyncRelayCommandTests.cs" />
+    <Compile Include="Commands\AsyncViewModelCommandTests.cs" />
+    <Compile Include="Commands\BindableCommandTests.cs" />
+    <Compile Include="Commands\CommandTests.cs" />
+    <Compile Include="Commands\RelayCommandTests.cs" />
+    <Compile Include="Commands\ViewModelCommandTests.cs" />
+    <Compile Include="ViewModels\BindableBaseTests.cs" />
+    <Compile Include="ViewModels\ComputedBindableBaseTests.cs" />
+    <Compile Include="ViewModels\DialogModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\ValidatingViewModelTests.cs" />
+    <Compile Include="ViewModels\ViewModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
