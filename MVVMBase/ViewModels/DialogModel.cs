@@ -1,6 +1,7 @@
 ﻿namespace nkristek.MVVMBase.ViewModels
 {
-    public abstract class DialogModel : ViewModel
+    public abstract class DialogModel 
+        : ValidatingViewModel
     {
         private string _title;
         /// <summary>
