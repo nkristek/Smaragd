@@ -53,7 +53,7 @@ namespace nkristek.MVVMBase.Commands
             return CanExecute(Parent, parameter);
         }
 
-        public sealed override void DoExecute(object parameter)
+        protected sealed override void DoExecute(object parameter)
         {
             DoExecute(Parent, parameter);
         }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Input;
+using nkristek.MVVMBase.Commands;
 
 namespace nkristek.MVVMBase.ViewModels
 {

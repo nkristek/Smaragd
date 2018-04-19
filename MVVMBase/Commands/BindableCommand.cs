@@ -44,7 +44,7 @@ namespace nkristek.MVVMBase.Commands
         /// Synchronous <see cref="ICommand.Execute(object)"/>
         /// </summary>
         /// <param name="parameter"></param>
-        public abstract void DoExecute(object parameter);
+        protected abstract void DoExecute(object parameter);
 
         /// <summary>
         /// Will be called when <see cref="DoExecute(object)"/> throws an <see cref="Exception"/>

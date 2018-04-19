@@ -21,11 +21,8 @@ namespace nkristek.MVVMBase.ViewModels
             get => _isDirty;
             set
             {
-                if (SetProperty(ref _isDirty, value))
-                {
-                    if (Parent != null && value)
-                        Parent.IsDirty = true;
-                }
+                if (SetProperty(ref _isDirty, value) && value && Parent != null)
+                    Parent.IsDirty = true;
             }
         }
 
@@ -68,6 +65,8 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="propertyName">Name of the property which was changed</param>
         protected override void OnPropertyChanged(string propertyName)
         {
+            base.OnPropertyChanged(propertyName);
+
             if (!GetIsDirtyIgnoredPropertyNames().Contains(propertyName))
                 IsDirty = true;
         }

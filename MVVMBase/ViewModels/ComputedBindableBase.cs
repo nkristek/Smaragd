@@ -11,7 +11,7 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ComputedBindableBase
         : BindableBase
     {
-        protected ComputedBindableBase()
+        public ComputedBindableBase()
         {
             var declaredProperties = GetType().GetTypeInfo().DeclaredProperties.ToList();
 
@@ -78,11 +78,7 @@ namespace nkristek.MVVMBase.ViewModels
                 {
                     try
                     {
-                        var field = type.GetProperty(commandNameToNotify);
-                        if (field == null)
-                            continue;
-
-                        var value = field.GetValue(this);
+                        var value = type.GetProperty(commandNameToNotify)?.GetValue(this);
                         (value as IRaiseCanExecuteChanged)?.RaiseCanExecuteChanged();
                     }
                     catch { }

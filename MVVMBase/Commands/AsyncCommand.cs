@@ -22,7 +22,7 @@ namespace nkristek.MVVMBase.Commands
         /// <returns></returns>
         public virtual bool CanExecute(object parameter)
         {
-            return true;
+            return !IsWorking;
         }
 
         /// <summary>

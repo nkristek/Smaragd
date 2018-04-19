@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using nkristek.MVVMBase.ViewModels;
 
 namespace nkristek.MVVMBase.Commands
