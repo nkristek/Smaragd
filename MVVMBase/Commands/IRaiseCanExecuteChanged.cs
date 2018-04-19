@@ -1,6 +1,8 @@
-﻿namespace nkristek.MVVMBase.Commands
+﻿using System.Windows.Input;
+
+namespace nkristek.MVVMBase.Commands
 {
-    public interface IRaiseCanExecuteChanged
+    public interface IRaiseCanExecuteChanged: ICommand
     {
         /// <summary>
         /// Raises a CanExecuteChanged event
