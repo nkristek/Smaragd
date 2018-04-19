@@ -25,14 +25,17 @@ namespace nkristek.MVVMBase.Tests.Commands
 
             protected override async Task DoExecute(TestViewModel viewModel, object parameter)
             {
-                if (viewModel == null)
-                    throw new ArgumentNullException(nameof(viewModel));
+                await Task.Run(() =>
+                {
+                    if (viewModel == null)
+                        throw new ArgumentNullException(nameof(viewModel));
 
-                if (parameter == null)
-                    throw new ArgumentNullException(nameof(parameter));
+                    if (parameter == null)
+                        throw new ArgumentNullException(nameof(parameter));
 
-                if (viewModel != parameter)
-                    throw new Exception("invalid parameter");
+                    if (viewModel != parameter)
+                        throw new Exception("invalid parameter");
+                });
             }
         }
 
@@ -43,7 +46,7 @@ namespace nkristek.MVVMBase.Tests.Commands
 
             protected override async Task DoExecute(TestViewModel viewModel, object parameter)
             {
-                throw new Exception();
+                await Task.Run(() => throw new Exception());
             }
 
             public bool OnThrownExceptionWasCalled { get; private set; }
