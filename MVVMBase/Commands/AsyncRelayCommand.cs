@@ -26,7 +26,7 @@ namespace nkristek.MVVMBase.Commands
         /// <returns></returns>
         public override bool CanExecute(object parameter)
         {
-            return _canExecute != null ? _canExecute(parameter) : base.CanExecute(parameter);
+            return _canExecute?.Invoke(parameter) ?? base.CanExecute(parameter);
         }
 
         /// <summary>

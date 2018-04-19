@@ -14,18 +14,18 @@ namespace nkristek.MVVMBase.Commands
 
         public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException("execute");
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
         /// <summary>
-        /// Indicates if <see cref="ExecuteSync(object)"/> is allowed to execute
+        /// Indicates if <see cref="DoExecute(object)"/> is allowed to execute
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
         public override bool CanExecute(object parameter)
         {
-            return _canExecute != null ? _canExecute(parameter) : base.CanExecute(parameter);
+            return _canExecute?.Invoke(parameter) ?? base.CanExecute(parameter);
         }
 
         /// <summary>

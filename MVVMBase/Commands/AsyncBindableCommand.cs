@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using nkristek.MVVMBase.ViewModels;
@@ -11,16 +12,16 @@ namespace nkristek.MVVMBase.Commands
     public abstract class AsyncBindableCommand
         : ComputedBindableBase, IAsyncCommand, IRaiseCanExecuteChanged
     {
-        private bool _IsWorking;
+        private bool _isWorking;
         /// <summary>
         /// Indicates if <see cref="ExecuteAsync(object)"/> is running
         /// </summary>
         public bool IsWorking
         {
-            get { return _IsWorking; }
+            get => _isWorking;
             private set
             {
-                if (SetProperty(ref _IsWorking, value))
+                if (SetProperty(ref _isWorking, value))
                     RaiseCanExecuteChanged();
             }
         }
@@ -89,15 +90,8 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         public event EventHandler CanExecuteChanged
         {
-            add
-            {
-                _internalCanExecuteChanged += value;
-            }
-
-            remove
-            {
-                _internalCanExecuteChanged -= value;
-            }
+            add => _internalCanExecuteChanged += value;
+            remove => _internalCanExecuteChanged -= value;
         }
 
         /// <summary>

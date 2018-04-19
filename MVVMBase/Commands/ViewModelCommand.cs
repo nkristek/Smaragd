@@ -10,9 +10,9 @@ namespace nkristek.MVVMBase.Commands
     public abstract class ViewModelCommand<TViewModel>
         : BindableCommand where TViewModel : ViewModel
     {
-        public ViewModelCommand(TViewModel parent)
+        protected ViewModelCommand(TViewModel parent)
         {
-            Parent = parent;
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
 
         private WeakReference<TViewModel> _Parent;
@@ -48,17 +48,17 @@ namespace nkristek.MVVMBase.Commands
         /// <returns></returns>
         protected virtual void OnThrownException(TViewModel viewModel, object parameter, Exception exception) { }
 
-        public override sealed bool CanExecute(object parameter)
+        public sealed override bool CanExecute(object parameter)
         {
             return CanExecute(Parent, parameter);
         }
 
-        public override sealed void DoExecute(object parameter)
+        public sealed override void DoExecute(object parameter)
         {
             DoExecute(Parent, parameter);
         }
 
-        protected override sealed void OnThrownException(object parameter, Exception exception)
+        protected sealed override void OnThrownException(object parameter, Exception exception)
         {
             OnThrownException(Parent, parameter, exception);
         }

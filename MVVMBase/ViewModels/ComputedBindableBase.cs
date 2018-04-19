@@ -11,7 +11,7 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ComputedBindableBase
         : BindableBase
     {
-        public ComputedBindableBase()
+        protected ComputedBindableBase()
         {
             var declaredProperties = GetType().GetTypeInfo().DeclaredProperties.ToList();
 
@@ -27,7 +27,7 @@ namespace nkristek.MVVMBase.ViewModels
                 foreach (var sourceName in computedAttribute.Sources)
                 {
                     // skip when there is no property with this name
-                    if (!declaredProperties.Any(p => p.Name == sourceName))
+                    if (declaredProperties.All(p => p.Name != sourceName))
                         continue;
 
                     // create a new entry in the dictionary if this property doesn't notify another property already
@@ -51,7 +51,7 @@ namespace nkristek.MVVMBase.ViewModels
                 foreach (var sourceName in computedAttribute.Sources)
                 {
                     // skip when there is no property with this name
-                    if (!declaredProperties.Any(p => p.Name == sourceName))
+                    if (declaredProperties.All(p => p.Name != sourceName))
                         continue;
 
                     // create a new entry in the dictionary if this property doesn't notify another command already
@@ -70,22 +70,22 @@ namespace nkristek.MVVMBase.ViewModels
                         RaisePropertyChanged(propertyNameToNotify);
                 }
 
-                if (propertiesWithCommandsToNotify.ContainsKey(e.PropertyName))
-                {
-                    var type = GetType();
-                    foreach (var commandNameToNotify in propertiesWithCommandsToNotify[e.PropertyName])
-                    {
-                        try
-                        {
-                            var field = type.GetProperty(commandNameToNotify);
-                            if (field == null)
-                                continue;
+                if (!propertiesWithCommandsToNotify.ContainsKey(e.PropertyName))
+                    return;
 
-                            var value = field.GetValue(this);
-                            (value as IRaiseCanExecuteChanged)?.RaiseCanExecuteChanged();
-                        }
-                        catch { }
+                var type = GetType();
+                foreach (var commandNameToNotify in propertiesWithCommandsToNotify[e.PropertyName])
+                {
+                    try
+                    {
+                        var field = type.GetProperty(commandNameToNotify);
+                        if (field == null)
+                            continue;
+
+                        var value = field.GetValue(this);
+                        (value as IRaiseCanExecuteChanged)?.RaiseCanExecuteChanged();
                     }
+                    catch { }
                 }
             };
         }

@@ -12,16 +12,16 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ViewModel
         : ComputedBindableBase
     {
-        private bool _IsDirty;
+        private bool _isDirty;
         /// <summary>
         /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
         /// </summary>
         public bool IsDirty
         {
-            get { return _IsDirty; }
+            get => _isDirty;
             set
             {
-                if (SetProperty(ref _IsDirty, value))
+                if (SetProperty(ref _isDirty, value))
                 {
                     if (Parent != null && value)
                         Parent.IsDirty = true;
@@ -29,7 +29,7 @@ namespace nkristek.MVVMBase.ViewModels
             }
         }
 
-        private WeakReference<ViewModel> _Parent;
+        private WeakReference<ViewModel> _parent;
         /// <summary>
         /// The parent of this <see cref="ViewModel"/>
         /// </summary>
@@ -37,7 +37,7 @@ namespace nkristek.MVVMBase.ViewModels
         {
             get
             {
-                if (_Parent != null && _Parent.TryGetTarget(out ViewModel parent))
+                if (_parent != null && _parent.TryGetTarget(out var parent))
                     return parent;
                 return null;
             }
@@ -45,19 +45,19 @@ namespace nkristek.MVVMBase.ViewModels
             set
             {
                 if (Parent == value) return;
-                _Parent = value != null ? new WeakReference<ViewModel>(value) : null;
+                _parent = value != null ? new WeakReference<ViewModel>(value) : null;
                 RaisePropertyChanged();
             }
         }
         
-        private bool _IsReadOnly;
+        private bool _isReadOnly;
         /// <summary>
         /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value
         /// </summary>
         public bool IsReadOnly
         {
-            get { return _IsReadOnly; }
-            set { SetProperty(ref _IsReadOnly, value); }
+            get => _isReadOnly;
+            set => SetProperty(ref _isReadOnly, value);
         }
 
         /// <summary>
@@ -117,10 +117,10 @@ namespace nkristek.MVVMBase.ViewModels
         protected void RegisterChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
         {
             if (childViewModel == null)
-                throw new ArgumentNullException("childViewModel");
+                throw new ArgumentNullException(nameof(childViewModel));
 
             if (String.IsNullOrEmpty(propertyName))
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
 
             if (_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
@@ -137,10 +137,10 @@ namespace nkristek.MVVMBase.ViewModels
         protected void UnregisterChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
         {
             if (childViewModel == null)
-                throw new ArgumentNullException("childViewModel");
+                throw new ArgumentNullException(nameof(childViewModel));
 
             if (String.IsNullOrEmpty(propertyName))
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException(nameof(propertyName));
 
             if (!_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;

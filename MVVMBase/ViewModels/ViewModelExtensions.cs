@@ -5,7 +5,7 @@
         /// <summary>
         /// Gets the first parent of the requested <typeparamref name="T"/>
         /// </summary>
-        /// <typeparam name="T">Type of the requested parent</typeparam>
+        /// <typeparam name="TViewModel">Type of the requested parent</typeparam>
         /// <returns>The first parent of the requested type</returns>
         public static TViewModel FirstParentOfType<TViewModel>(this ViewModel viewModel) where TViewModel : ViewModel
         {

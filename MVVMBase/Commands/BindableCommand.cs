@@ -47,7 +47,7 @@ namespace nkristek.MVVMBase.Commands
         public abstract void DoExecute(object parameter);
 
         /// <summary>
-        /// Will be called when <see cref="ExecuteSync(object)"/> throws an <see cref="Exception"/>
+        /// Will be called when <see cref="DoExecute(object)"/> throws an <see cref="Exception"/>
         /// </summary>
         protected virtual void OnThrownException(object parameter, Exception exception) { }
 
@@ -58,15 +58,8 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         public event EventHandler CanExecuteChanged
         {
-            add
-            {
-                _internalCanExecuteChanged += value;
-            }
-
-            remove
-            {
-                _internalCanExecuteChanged -= value;
-            }
+            add => _internalCanExecuteChanged += value;
+            remove => _internalCanExecuteChanged -= value;
         }
 
         /// <summary>

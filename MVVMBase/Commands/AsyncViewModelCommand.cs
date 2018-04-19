@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using nkristek.MVVMBase.ViewModels;
 
 namespace nkristek.MVVMBase.Commands
@@ -11,12 +12,12 @@ namespace nkristek.MVVMBase.Commands
     public abstract class AsyncViewModelCommand<TViewModel>
         : AsyncBindableCommand where TViewModel : ViewModel
     {
-        public AsyncViewModelCommand(TViewModel parent)
+        protected AsyncViewModelCommand(TViewModel parent)
         {
-            Parent = parent ?? throw new ArgumentNullException("parent");
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
         }
 
-        private WeakReference<TViewModel> _Parent;
+        private WeakReference<TViewModel> _parent;
         /// <summary>
         /// Parent of this <see cref="AsyncViewModelCommand{TViewModel}"/> which will be used as the context <see cref="ViewModel"/>
         /// </summary>
@@ -24,7 +25,7 @@ namespace nkristek.MVVMBase.Commands
         {
             get
             {
-                if (_Parent != null && _Parent.TryGetTarget(out TViewModel parent))
+                if (_parent != null && _parent.TryGetTarget(out var parent))
                     return parent;
                 return null;
             }
@@ -32,12 +33,12 @@ namespace nkristek.MVVMBase.Commands
             private set
             {
                 if (Parent == value) return;
-                _Parent = value != null ? new WeakReference<TViewModel>(value) : null;
+                _parent = value != null ? new WeakReference<TViewModel>(value) : null;
             }
         }
 
         /// <summary>
-        /// Override this method to indicate if <see cref="ExecuteAsync(TViewModel, object)"/> is allowed to execute
+        /// Override this method to indicate if <see cref="DoExecute(TViewModel, object)"/> is allowed to execute
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
@@ -54,7 +55,7 @@ namespace nkristek.MVVMBase.Commands
         protected abstract Task DoExecute(TViewModel viewModel, object parameter);
 
         /// <summary>
-        /// Will be called when <see cref="ExecuteAsync(TViewModel, object, object)"/> throws an <see cref="Exception"/>
+        /// Will be called when <see cref="DoExecute(TViewModel, object)"/> throws an <see cref="Exception"/>
         /// </summary>
         protected virtual void OnThrownException(TViewModel viewModel, object parameter, Exception exception) { }
 
@@ -63,13 +64,13 @@ namespace nkristek.MVVMBase.Commands
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        public override sealed bool CanExecute(object parameter)
+        public sealed override bool CanExecute(object parameter)
         {
             return !IsWorking && CanExecute(Parent, parameter);
         }
 
         /// <summary>
-        /// This method executes <see cref="ExecuteAsync(TViewModel, object)"/>
+        /// This method executes <see cref="DoExecute(TViewModel, object)"/>
         /// </summary>
         /// <param name="parameter"></param>
         protected sealed override async Task DoExecute(object parameter)
@@ -78,9 +79,9 @@ namespace nkristek.MVVMBase.Commands
         }
 
         /// <summary>
-        /// Will be called when <see cref="ExecuteAsync(TViewModel, object)"/> throws an <see cref="Exception"/>
+        /// Will be called when <see cref="DoExecute(TViewModel, object)"/> throws an <see cref="Exception"/>
         /// </summary>
-        protected override sealed void OnThrownException(object parameter, Exception exception)
+        protected sealed override void OnThrownException(object parameter, Exception exception)
         {
             OnThrownException(Parent, parameter, exception);
         }
