@@ -19,14 +19,7 @@ namespace nkristek.MVVMBase.ViewModels
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            OnPropertyChanged(propertyName);
         }
-
-        /// <summary>
-        /// Gets called after a property changed and can be safely overridden in subclasses
-        /// </summary>
-        /// <param name="propertyName">Name of the property which changed</param>
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) { }
 
         /// <summary>
         /// Sets a property value if the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>

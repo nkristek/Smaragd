@@ -12,6 +12,15 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ViewModel
         : ComputedBindableBase
     {
+        public ViewModel()
+        {
+            PropertyChanged += (sender, e) =>
+            {
+                if (!GetIsDirtyIgnoredPropertyNames().Contains(e.PropertyName))
+                    IsDirty = true;
+            };
+        }
+
         private bool _isDirty;
         /// <summary>
         /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
@@ -55,20 +64,6 @@ namespace nkristek.MVVMBase.ViewModels
         {
             get => _isReadOnly;
             set => SetProperty(ref _isReadOnly, value);
-        }
-
-        /// <summary>
-        /// This will set <see cref="IsDirty"/> to true if a property was changed, 
-        /// It ignores propertyNames returned by <see cref="GetIsDirtyIgnoredPropertyNames"/>.
-        /// Override if you want different behaviour.
-        /// </summary>
-        /// <param name="propertyName">Name of the property which was changed</param>
-        protected override void OnPropertyChanged(string propertyName)
-        {
-            base.OnPropertyChanged(propertyName);
-
-            if (!GetIsDirtyIgnoredPropertyNames().Contains(propertyName))
-                IsDirty = true;
         }
 
         /// <summary>

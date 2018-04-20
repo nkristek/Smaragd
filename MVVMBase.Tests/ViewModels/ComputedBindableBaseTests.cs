@@ -26,14 +26,6 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             [CommandCanExecuteSource(nameof(TestProperty))]
             public IRaiseCanExecuteChanged TestCommand { get; set; }
-
-            public int OnPropertyExecutionCount;
-
-            protected override void OnPropertyChanged(string propertyName = null)
-            {
-                base.OnPropertyChanged(propertyName);
-                OnPropertyExecutionCount++;
-            }
         }
         
         [TestMethod]
@@ -51,7 +43,6 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
             Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
-            Assert.AreEqual(2, bindableObject.OnPropertyExecutionCount, "Invalid count of invocations of OnPropertyChanged");
         }
 
         [TestMethod]
