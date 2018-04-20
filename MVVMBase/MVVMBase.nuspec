@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/MVVMBase</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release introduces minor bugfixes and a ValidatingViewModel which implements IDataErrorInfo.</releaseNotes>
+    <releaseNotes>This release adds INotifyDataErrorInfo support on ValidatingViewModel.</releaseNotes>
     <copyright>Copyright 2018 Niclas Kristek</copyright>
   </metadata>
 </package>
