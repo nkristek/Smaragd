@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.ViewModels;
 
@@ -46,7 +47,8 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             {
                 TestProperty = 4
             };
-            Assert.IsNotNull(validatingModel.Error);
+            Assert.IsTrue(validatingModel.HasErrors, "HasError is not set");
+            Assert.IsNotNull(validatingModel.Error, "Error is null");
         }
 
         [TestMethod]
@@ -57,6 +59,16 @@ namespace nkristek.MVVMBase.Tests.ViewModels
                 TestProperty = 4
             };
             Assert.IsFalse(String.IsNullOrEmpty(validatingModel[nameof(TestValidatingModel.TestProperty)]), "Specific property error could not be retrieved");
+        }
+
+        [TestMethod]
+        public void TestGetError()
+        {
+            var validatingModel = new TestValidatingModel
+            {
+                TestProperty = 4
+            };
+            Assert.IsNotNull(validatingModel.GetErrors(nameof(TestValidatingModel.TestProperty)), "Specific property errors could not be retrieved");
         }
     }
 }
