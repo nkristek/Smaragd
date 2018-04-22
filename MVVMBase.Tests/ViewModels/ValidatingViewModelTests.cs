@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.ViewModels;
@@ -38,6 +39,25 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             validatingModel.TestProperty = 4;
             Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid when the property has not a valid value");
+        }
+
+        [TestMethod]
+        public void TestNotifyIsValid()
+        {
+            var invokedPropertyChangedEvents = new List<string>();
+
+            var viewModel = new TestValidatingModel();
+            viewModel.PropertyChanged += (sender, e) =>
+            {
+                invokedPropertyChangedEvents.Add(e.PropertyName);
+            };
+
+            viewModel.TestProperty = 5;
+
+            // 3 PropertyChanged events should have happened, TestProperty, HasErrors and IsValid
+            Assert.AreEqual(3, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains("HasErrors"), "The PropertyChanged event wasn't raised for the HasErrors property");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains("IsValid"), "The PropertyChanged event wasn't raised for the IsValid property");
         }
 
         [TestMethod]
