@@ -12,7 +12,7 @@ namespace nkristek.MVVMBase.ViewModels
     {
         public ValidatingViewModel()
         {
-            foreach (var property in GetType().GetTypeInfo().DeclaredProperties)
+            foreach (var property in GetType().GetProperties())
             {
                 var validatingAttribute = property.GetCustomAttribute<InitiallyNotValidAttribute>();
                 if (validatingAttribute == null)

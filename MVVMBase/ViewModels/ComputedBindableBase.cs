@@ -13,7 +13,7 @@ namespace nkristek.MVVMBase.ViewModels
     {
         public ComputedBindableBase()
         {
-            var declaredProperties = GetType().GetTypeInfo().DeclaredProperties.ToList();
+            var declaredProperties = GetType().GetProperties().ToList();
 
             // PropertySourceAttribute
             var propertiesWithPropertiesToNotify = new Dictionary<string, List<string>>();
