@@ -11,6 +11,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>This release fixes a bug that prevented the use of the PropertySource, CommandCanExecuteSource and InitiallyNotValid attributes in base classes.</releaseNotes>
-    <copyright>Copyright 2018 Niclas Kristek</copyright>
+    <copyright>$copyright$</copyright>
   </metadata>
 </package>
