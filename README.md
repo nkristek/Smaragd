@@ -13,7 +13,7 @@ The recommended way to use this library is via [Nuget](https://www.nuget.org/pac
 
 ## How to use
 
-Normally you want your custom viewmodel to inherit from `ViewModel`. Following is a sample viewmodel with three properties:
+To get started, create a subclass of `ViewModel` like shown below.
 
 ```csharp
 public class MyViewModel : ViewModel
