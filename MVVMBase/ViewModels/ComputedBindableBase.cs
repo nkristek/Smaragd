@@ -13,68 +13,60 @@ namespace nkristek.MVVMBase.ViewModels
     {
         public ComputedBindableBase()
         {
-            var declaredProperties = GetType().GetProperties().ToList();
+            var properties = GetType().GetProperties().ToList();
 
             // PropertySourceAttribute
-            var propertiesWithPropertiesToNotify = new Dictionary<string, List<string>>();
-            foreach (var property in declaredProperties)
+            var propertyNamesWithPropertyNamesToNotify = new Dictionary<string, List<string>>();
+            foreach (var property in properties)
             {
-                // get the PropertySource attribute from the property, if it exists this property should be notified from the source properties listed in the attribute
-                var computedAttribute = property.GetCustomAttribute<PropertySourceAttribute>();
-                if (computedAttribute == null)
-                    continue;
-
-                foreach (var sourceName in computedAttribute.Sources)
+                foreach (var propertySourceAttribute in property.GetCustomAttributes<PropertySourceAttribute>())
                 {
-                    // skip when there is no property with this name
-                    if (declaredProperties.All(p => p.Name != sourceName))
-                        continue;
-
-                    // create a new entry in the dictionary if this property doesn't notify another property already
-                    if (!propertiesWithPropertiesToNotify.ContainsKey(sourceName))
-                        propertiesWithPropertiesToNotify[sourceName] = new List<string>();
-
-                    // add the property to the list of properties which get notified
-                    propertiesWithPropertiesToNotify[sourceName].Add(property.Name);
+                    foreach (var sourceName in propertySourceAttribute.Sources)
+                    {
+                        // skip when there is no property with this name
+                        if (properties.All(p => p.Name != sourceName))
+                            continue;
+                        
+                        if (!propertyNamesWithPropertyNamesToNotify.ContainsKey(sourceName))
+                            propertyNamesWithPropertyNamesToNotify[sourceName] = new List<string>();
+                        if (!propertyNamesWithPropertyNamesToNotify[sourceName].Contains(property.Name))
+                            propertyNamesWithPropertyNamesToNotify[sourceName].Add(property.Name);
+                    }
                 }
             }
             
             // CommandCanExecuteSourceAttribute
-            var propertiesWithCommandsToNotify = new Dictionary<string, List<string>>();
-            foreach (var property in declaredProperties)
+            var propertyNamesWithCommandNamesToNotify = new Dictionary<string, List<string>>();
+            foreach (var property in properties)
             {
-                // get the CommandCanExecuteSource attribute from the property, if it exists this command should be notified from the source properties listed in the attribute
-                var computedAttribute = property.GetCustomAttribute<CommandCanExecuteSourceAttribute>();
-                if (computedAttribute == null)
-                    continue;
-
-                foreach (var sourceName in computedAttribute.Sources)
+                foreach (var commandCanExecuteSourceAttribute in property.GetCustomAttributes<CommandCanExecuteSourceAttribute>())
                 {
-                    // skip when there is no property with this name
-                    if (declaredProperties.All(p => p.Name != sourceName))
-                        continue;
-
-                    // create a new entry in the dictionary if this property doesn't notify another command already
-                    if (!propertiesWithCommandsToNotify.ContainsKey(sourceName))
-                        propertiesWithCommandsToNotify[sourceName] = new List<string>();
-
-                    // add the command to the list of commands which get notified
-                    propertiesWithCommandsToNotify[sourceName].Add(property.Name);
+                    foreach (var sourceName in commandCanExecuteSourceAttribute.Sources)
+                    {
+                        // skip when there is no property with this name
+                        if (properties.All(p => p.Name != sourceName))
+                            continue;
+                        
+                        if (!propertyNamesWithCommandNamesToNotify.ContainsKey(sourceName))
+                            propertyNamesWithCommandNamesToNotify[sourceName] = new List<string>();
+                        if (!propertyNamesWithCommandNamesToNotify[sourceName].Contains(property.Name))
+                            propertyNamesWithCommandNamesToNotify[sourceName].Add(property.Name);
+                    }
                 }
             }
 
             PropertyChanged += (sender, e) => {
-                if (propertiesWithPropertiesToNotify.ContainsKey(e.PropertyName))
+                if (propertyNamesWithPropertyNamesToNotify.ContainsKey(e.PropertyName))
                 {
-                    foreach (var propertyNameToNotify in propertiesWithPropertiesToNotify[e.PropertyName])
+                    foreach (var propertyNameToNotify in propertyNamesWithPropertyNamesToNotify[e.PropertyName])
                         RaisePropertyChanged(propertyNameToNotify);
                 }
 
-                if (!propertiesWithCommandsToNotify.ContainsKey(e.PropertyName))
+                if (!propertyNamesWithCommandNamesToNotify.ContainsKey(e.PropertyName))
                     return;
 
                 var type = GetType();
-                foreach (var commandNameToNotify in propertiesWithCommandsToNotify[e.PropertyName])
+                foreach (var commandNameToNotify in propertyNamesWithCommandNamesToNotify[e.PropertyName])
                 {
                     try
                     {
