@@ -13,7 +13,7 @@ namespace nkristek.MVVMBase.ViewModels
     public class CommandCanExecuteSourceAttribute
         : Attribute
     {
-        public IEnumerable<string> Sources { get; private set; }
+        public IEnumerable<string> Sources { get; }
 
         public CommandCanExecuteSourceAttribute(params string[] sources)
         {
