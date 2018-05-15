@@ -16,7 +16,6 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             : ValidatingViewModel
         {
             private int _testProperty;
-            [InitiallyNotValid("Value has to be at least 5")]
             public int TestProperty
             {
                 get => _testProperty;
@@ -26,13 +25,24 @@ namespace nkristek.MVVMBase.Tests.ViewModels
                         SetValidationError(TestProperty < 5 ? "Value has to be at least 5" : null);
                 }
             }
+            
+            public override void Validate()
+            {
+                ValidateTestProperty();
+            }
+
+            private void ValidateTestProperty()
+            {
+                SetValidationError(TestProperty < 5 ? "Value has to be at least 5" : null, nameof(TestProperty));
+            }
         }
 
         [TestMethod]
         public void TestIsValid()
         {
             var validatingModel = new TestValidatingModel();
-            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid after initialization");
+            validatingModel.Validate();
+            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid after initialization and calling Validate()");
 
             validatingModel.TestProperty = 5;
             Assert.IsTrue(validatingModel.IsValid, "ViewModel should be valid when the property has a valid value");
@@ -54,8 +64,8 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             viewModel.TestProperty = 5;
 
-            // 3 PropertyChanged events should have happened, TestProperty, HasErrors and IsValid
-            Assert.AreEqual(3, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            // 4 PropertyChanged events should have happened, TestProperty, IsDirty (due to TestProperty), HasErrors and IsValid
+            Assert.AreEqual(4, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event. Invocations: " + String.Join(", ", invokedPropertyChangedEvents));
             Assert.IsTrue(invokedPropertyChangedEvents.Contains("HasErrors"), "The PropertyChanged event wasn't raised for the HasErrors property");
             Assert.IsTrue(invokedPropertyChangedEvents.Contains("IsValid"), "The PropertyChanged event wasn't raised for the IsValid property");
         }

@@ -2,25 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace nkristek.MVVMBase.ViewModels
 {
+    /// <summary>
+    /// This <see cref="ViewModel"/> implements <see cref="IDataErrorInfo"/> and <see cref="INotifyDataErrorInfo"/>. To set validation errors use <see cref="SetValidationError"/> or <see cref="SetValidationErrors"/> in the property setter of the property which should be validated. Additionally, in <see cref="Validate"/> all validation logic should be executed.
+    /// </summary>
     public abstract class ValidatingViewModel
         : ViewModel, IDataErrorInfo, INotifyDataErrorInfo
     {
-        public ValidatingViewModel()
-        {
-            foreach (var property in GetType().GetProperties())
-            {
-                var validatingAttribute = property.GetCustomAttribute<InitiallyNotValidAttribute>();
-                if (validatingAttribute == null)
-                    continue;
-                
-                SetValidationError(validatingAttribute.Message, property.Name);
-            }
-        }
+        /// <summary>
+        /// Classes implementing this method should execute all validation logic in this method.
+        /// </summary>
+        public abstract void Validate();
 
         /// <summary>
         /// If data in this <see cref="ViewModel"/> is valid
@@ -102,5 +97,10 @@ namespace nkristek.MVVMBase.ViewModels
         /// Returns if there are any validation errors
         /// </summary>
         public bool HasErrors => _validationErrors.Any();
+
+        protected override IEnumerable<string> GetIsDirtyIgnoredPropertyNames()
+        {
+            return base.GetIsDirtyIgnoredPropertyNames().Concat(new[] { nameof(HasErrors), nameof(IsValid) });
+        }
     }
 }
