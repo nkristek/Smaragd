@@ -60,6 +60,7 @@
     <Compile Include="ViewModels\ComputedBindableBaseTests.cs" />
     <Compile Include="ViewModels\DialogModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\TreeViewModelTests.cs" />
     <Compile Include="ViewModels\ValidatingViewModelTests.cs" />
     <Compile Include="ViewModels\ViewModelTests.cs" />
   </ItemGroup>
