@@ -89,6 +89,10 @@ Your custom viewmodel may also be of type `ValidatingViewModel` which also imple
 
 **Please note**: Using this method, initially, there is no validation error, since the setter hasn't been called yet. You may call `Validate()` on the `ViewModel` after initializing.
 
+### TreeViewModel
+
+This `ViewModel` provides an `IsChecked` implementation to use in a TreeView. It will update its parent `TreeViewModel` and children `TreeViewModel` with appropriate states for `IsChecked`.
+
 ### DialogModel
 
 There is also a `DialogModel` class, which inherits from `ValidatingViewModel` and implements a `Title` property to use in your dialog.
