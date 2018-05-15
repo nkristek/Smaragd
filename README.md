@@ -87,7 +87,7 @@ If the property is a also a `ViewModel`, `SetProperty` will automatically call `
 
 Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. It exposes `SetValidationError()` and `SetValidationErrors()` methods which could be used in the property setter of a property to validate. The `IsValid` property indicates, if validation errors are present.
 
-**Please note**: Using this method, initially, there is no validation error, since the setter hasn't been called yet. You could use the `InitiallyNotValid(message)` attribute above the property. This has disadvantages, for example, that the initial message could not be a localized message. You may just call the property setter after creating the custom viewmodel to execute the validation logic instead. 
+**Please note**: Using this method, initially, there is no validation error, since the setter hasn't been called yet. You may call `Validate()` on the `ViewModel` after initializing.
 
 ### DialogModel
 
