@@ -118,6 +118,7 @@ Sorted by inheritance:
 - ViewModel
 - ValidatingViewModel
 - DialogModel
+- TreeViewModel
 
 ### Commands namespace
 
