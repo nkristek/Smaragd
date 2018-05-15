@@ -53,6 +53,7 @@
     <Compile Include="ViewModels\ComputedBindableBase.cs" />
     <Compile Include="ViewModels\DialogModel.cs" />
     <Compile Include="ViewModels\PropertySourceAttribute.cs" />
+    <Compile Include="ViewModels\TreeViewModel.cs" />
     <Compile Include="ViewModels\ValidatingViewModel.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />
   </ItemGroup>
