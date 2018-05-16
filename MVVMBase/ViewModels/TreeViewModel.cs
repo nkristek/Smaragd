@@ -12,11 +12,12 @@ namespace nkristek.MVVMBase.ViewModels
         private bool? _isChecked;
         /// <summary>
         /// If this <see cref="TreeViewModel"/> is checked. This property will get updated by children and updates its children when set.
+        /// A checkbox with threestate enabled will set null after true. Since this is not the desired behaviour, setting this property to null will result in false. If you want to set null, use <see cref="SetIsChecked"/> instead.
         /// </summary>
         public bool? IsChecked
         {
             get => _isChecked;
-            set => SetIsChecked(value, true, true);
+            set => SetIsChecked(value ?? false, true, true);
         }
 
         private bool _isExpanded;
@@ -46,12 +47,8 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="value">The value that should be set.</param>
         /// <param name="updateChildren">If <see cref="Children"/> should be updated.</param>
         /// <param name="updateParent">If the <see cref="ViewModel.Parent"/> should be updated.</param>
-        /// <param name="allowNull">If this is false, only true and false will be set. If <paramref name="value"/> is null, it will default to false. If this is true, <paramref name="value"/> will be set with no changes.</param>
-        public void SetIsChecked(bool? value, bool updateChildren, bool updateParent, bool allowNull = false)
+        public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
-            if (!allowNull && value == null)
-                value = false;
-
             if (!SetProperty(ref _isChecked, value, nameof(IsChecked)))
                 return;
 
@@ -69,18 +66,11 @@ namespace nkristek.MVVMBase.ViewModels
         protected void ReevaluateIsChecked()
         {
             if (Children.All(c => c.IsChecked == true))
-            {
                 SetIsChecked(true, false, true);
-                return;
-            };
-
-            if (Children.All(c => c.IsChecked == false))
-            {
+            else if (Children.All(c => c.IsChecked == false))
                 SetIsChecked(false, false, true);
-                return;
-            };
-
-            SetIsChecked(null, false, true, true);
+            else
+                SetIsChecked(null, false, true);
         }
     }
 }
