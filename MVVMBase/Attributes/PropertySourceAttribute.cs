@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using nkristek.MVVMBase.ViewModels;
 
-namespace nkristek.MVVMBase.ViewModels
+namespace nkristek.MVVMBase.Attributes
 {
     /// <summary>
     /// Use this on properties in classes that are subclasses of <see cref="ComputedBindableBase"/> to indicate, on which properties this property depends.
@@ -11,7 +12,7 @@ namespace nkristek.MVVMBase.ViewModels
     public class PropertySourceAttribute
         : Attribute
     {
-        public IEnumerable<string> Sources { get; private set; }
+        public IEnumerable<string> Sources { get; }
 
         public PropertySourceAttribute(params string[] sources)
         {

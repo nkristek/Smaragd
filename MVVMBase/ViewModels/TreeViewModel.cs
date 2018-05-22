@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace nkristek.MVVMBase.ViewModels
@@ -71,6 +72,36 @@ namespace nkristek.MVVMBase.ViewModels
                 SetIsChecked(false, false, true);
             else
                 SetIsChecked(null, false, true);
+        }
+
+        /// <summary>
+        /// Registers a <see cref="ObservableCollection{T}"/> of <see cref="TreeViewModel"/> so items get added to and removed from the <see cref="Children"/> collection.
+        /// </summary>
+        /// <typeparam name="TViewModel"></typeparam>
+        /// <param name="childViewModelCollection"></param>
+        protected void RegisterChildViewModelCollection<TViewModel>(ObservableCollection<TViewModel> childViewModelCollection) where TViewModel: TreeViewModel
+        {
+            childViewModelCollection.CollectionChanged += ChildViewModelCollection_CollectionChanged;
+            foreach (var childViewModel in childViewModelCollection)
+                OwnedElements.Add(childViewModel);
+        }
+
+        protected void UnregisterChildViewModelCollection<TViewModel>(ObservableCollection<TViewModel> childViewModelCollection) where TViewModel : TreeViewModel
+        {
+            childViewModelCollection.CollectionChanged -= ChildViewModelCollection_CollectionChanged;
+            foreach (var childViewModel in childViewModelCollection)
+                OwnedElements.Remove(childViewModel);
+        }
+
+        private void ChildViewModelCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (var oldItem in e.OldItems.Cast<TreeViewModel>())
+                    OwnedElements.Remove(oldItem);
+
+            if (e.NewItems != null)
+                foreach (var newItem in e.NewItems.Cast<TreeViewModel>())
+                    OwnedElements.Add(newItem);
         }
     }
 }

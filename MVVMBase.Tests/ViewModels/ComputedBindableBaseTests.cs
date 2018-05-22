@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using nkristek.MVVMBase.Attributes;
 using nkristek.MVVMBase.Commands;
 using nkristek.MVVMBase.ViewModels;
 

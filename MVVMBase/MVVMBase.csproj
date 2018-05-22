@@ -49,10 +49,10 @@
     <Compile Include="Commands\ViewModelCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\BindableBase.cs" />
-    <Compile Include="ViewModels\CommandCanExecuteSourceAttribute.cs" />
+    <Compile Include="Attributes\CommandCanExecuteSourceAttribute.cs" />
     <Compile Include="ViewModels\ComputedBindableBase.cs" />
     <Compile Include="ViewModels\DialogModel.cs" />
-    <Compile Include="ViewModels\PropertySourceAttribute.cs" />
+    <Compile Include="Attributes\PropertySourceAttribute.cs" />
     <Compile Include="ViewModels\TreeViewModel.cs" />
     <Compile Include="ViewModels\ValidatingViewModel.cs" />
     <Compile Include="ViewModels\ViewModel.cs" />

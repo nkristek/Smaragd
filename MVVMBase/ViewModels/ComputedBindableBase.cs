@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using nkristek.MVVMBase.Attributes;
 using nkristek.MVVMBase.Commands;
 
 namespace nkristek.MVVMBase.ViewModels

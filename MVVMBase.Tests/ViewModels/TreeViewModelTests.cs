@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.ViewModels;
 
@@ -16,16 +15,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
         {
             public FolderViewModel()
             {
-                Subfolders.CollectionChanged += (sender, args) =>
-                {
-                    if (args.OldItems != null)
-                        foreach (var oldItem in args.OldItems.Cast<TreeViewModel>())
-                            OwnedElements.Remove(oldItem);
-
-                    if (args.NewItems != null)
-                        foreach (var newItem in args.NewItems.Cast<TreeViewModel>())
-                            OwnedElements.Add(newItem);
-                };
+                RegisterChildViewModelCollection(Subfolders);
             }
 
             public ObservableCollection<FolderViewModel> Subfolders { get; } = new ObservableCollection<FolderViewModel>();

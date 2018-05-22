@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 using nkristek.MVVMBase.Commands;
+using nkristek.MVVMBase.ViewModels;
 
-namespace nkristek.MVVMBase.ViewModels
+namespace nkristek.MVVMBase.Attributes
 {
     /// <summary>
     /// Use this on <see cref="BindableCommand"/> or <see cref="AsyncBindableCommand"/> properties in classes that are subclasses of <see cref="ComputedBindableBase"/> to indicate, on which properties the <see cref="ICommand.CanExecute"/> method of the command depends.
