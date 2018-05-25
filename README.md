@@ -100,6 +100,8 @@ public ViewModel Child
 }
 ```
 
+`ViewModel` has a `Children` collection. To add viewmodel collections to this `ViewModelCollection`, you have to use `AddViewModelCollection()` on the collection. This `ViewModelCollection` is otherwise read only. The idea is, that there are one or multiple `ObservableCollection<TViewModel>` on the inheriting instance which get added to the `Children` collection by using the `CollectionChanged` event.
+
 ### ValidatingViewModel
 
 Your custom viewmodel may also be of type `ValidatingViewModel` which implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
@@ -119,6 +121,8 @@ You can call `Validate()` to execute all validations again.
 ### TreeViewModel
 
 This `ViewModel` provides an `IsChecked` implementation to use in a TreeView. It will update its parent `TreeViewModel` and children `TreeViewModel` with appropriate states for `IsChecked`.
+
+**Please note:** The indeterminate state of `IsChecked` should only be set by updates from child viewModels. The `IsChecked` property will be set to `false` if trying to set it to `null`. If you want to set the `IsChecked` property to `null`, you have to use `SetIsChecked()`.
 
 ### DialogModel
 
