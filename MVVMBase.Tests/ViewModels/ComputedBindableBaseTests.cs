@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.Attributes;
 using nkristek.MVVMBase.Commands;
@@ -19,7 +22,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value);
+                set => SetProperty(ref _testProperty, value, out _);
             }
             
             [PropertySource(nameof(TestProperty))]
@@ -27,6 +30,11 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             [CommandCanExecuteSource(nameof(TestProperty))]
             public IRaiseCanExecuteChanged TestCommand { get; set; }
+
+            public ObservableCollection<int> MyValues { get; } = new ObservableCollection<int>();
+
+            [PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+            public int MaxValue => MyValues.Max();
         }
         
         [TestMethod]
@@ -35,6 +43,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             var invokedPropertyChangedEvents = new List<string>();
 
             var bindableObject = new ComputedBindableBaseTest();
+            bindableObject.MyValues.Add(1);
             bindableObject.PropertyChanged += (sender, e) =>
             {
                 invokedPropertyChangedEvents.Add(e.PropertyName);
@@ -44,6 +53,10 @@ namespace nkristek.MVVMBase.Tests.ViewModels
 
             Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
             Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
+            
+            bindableObject.MyValues.Add(2);
+            Assert.AreEqual(3, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.MaxValue)), "The PropertyChanged event wasn't raised for the PropertySource property");
         }
 
         [TestMethod]

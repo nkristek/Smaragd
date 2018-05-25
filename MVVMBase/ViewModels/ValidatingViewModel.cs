@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using nkristek.MVVMBase.Attributes;
 
@@ -13,14 +15,61 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ValidatingViewModel
         : ViewModel, IDataErrorInfo, INotifyDataErrorInfo
     {
+        public ValidatingViewModel()
+        {
+            ErrorsChanged += (sender, args) =>
+            {
+                RaisePropertyChanged(nameof(HasErrors));
+            };
+            
+            ((INotifyCollectionChanged) Children).CollectionChanged += (sender, args) =>
+            {
+                if (args.OldItems != null)
+                    foreach (var oldItem in args.OldItems.OfType<ValidatingViewModel>())
+                        oldItem.ErrorsChanged -= OldItemOnErrorsChanged;
+
+                if (args.NewItems != null)
+                    foreach (var newItem in args.NewItems.OfType<ValidatingViewModel>())
+                        newItem.ErrorsChanged += OldItemOnErrorsChanged;
+            };
+        }
+
+        private void OldItemOnErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(HasErrors));
+        }
+
+        private readonly object _lockObject = new object();
+
+        private bool _validationSuspended;
         /// <summary>
-        /// Classes implementing this method should execute all validation logic in this method.
+        /// If the validation is temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendValidation"/> to unsuspend. Setting this property will propagate the value to all <see cref="ValidatingViewModel"/> items in the <see cref="ViewModel.Children"/> collection.
         /// </summary>
-        public abstract void Validate();
+        public bool ValidationSuspended
+        {
+            get
+            {
+                lock (_lockObject)
+                {
+                    return _validationSuspended;
+                }
+            }
+
+            internal set
+            {
+                lock (_lockObject)
+                {
+                    _validationSuspended = value;
+                    foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
+                        validatingChild.ValidationSuspended = value;
+                }
+            }
+        }
 
         /// <summary>
         /// If data in this <see cref="ViewModel"/> is valid
         /// </summary>
+        [IsDirtyIgnored]
         [PropertySource(nameof(HasErrors))]
         public bool IsValid => !HasErrors;
 
@@ -51,8 +100,7 @@ namespace nkristek.MVVMBase.ViewModels
                 _validationErrors[propertyName] = errorList;
             else
                 _validationErrors.Remove(propertyName);
-
-            RaisePropertyChanged(nameof(HasErrors));
+            
             RaiseErrorsChanged(propertyName);
         }
 
@@ -97,11 +145,199 @@ namespace nkristek.MVVMBase.ViewModels
         /// <summary>
         /// Returns if there are any validation errors
         /// </summary>
-        public bool HasErrors => _validationErrors.Any();
+        [IsDirtyIgnored]
+        public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
 
-        protected override IEnumerable<string> GetIsDirtyIgnoredPropertyNames()
+        /// <summary>
+        /// All validation logic will be executed, even when <see cref="ValidationSuspended"/> is set to true.
+        /// </summary>
+        public void Validate()
         {
-            return base.GetIsDirtyIgnoredPropertyNames().Concat(new[] { nameof(HasErrors), nameof(IsValid) });
+            var type = GetType();
+            foreach (var propertyValidation in _validations)
+            {
+                var valueProperty = type.GetProperty(propertyValidation.Key);
+                if (valueProperty == null)
+                    continue;
+
+                var value = valueProperty.GetValue(this, null);
+                Validate(propertyValidation.Key, value, propertyValidation.Value);
+            }
+
+            foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
+                validatingChild.Validate();
+        }
+
+        private readonly Dictionary<string, IList<IValidation>> _validations = new Dictionary<string, IList<IValidation>>();
+
+        /// <summary>
+        /// Add a validation for the named property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertyName"></param>
+        /// <param name="validation">Validation to add</param>
+        /// <param name="initialValue">Initial value of the property for the initial run of the validation</param>
+        protected void AddValidation<T>(string propertyName, Validation<T> validation, T initialValue = default)
+        {
+            if (_validations.TryGetValue(propertyName, out var existingValidations))
+                existingValidations.Add(validation);
+            else
+                _validations.Add(propertyName, new List<IValidation> { validation });
+
+            if (_validations.TryGetValue(propertyName, out var validations))
+                Validate(propertyName, initialValue, validations.OfType<Validation<T>>());
+        }
+
+        /// <summary>
+        /// Add a validation for the property returned by the lambda expression
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
+        /// <param name="validation">Validation to add</param>
+        protected void AddValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
+        {
+            AddValidation(GetPropertyName(propertySelector), validation, propertySelector.Compile()());
+        }
+
+        /// <summary>
+        /// Removes a specific validation for the property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertyName"></param>
+        /// <param name="validation">Validation to remove</param>
+        /// <returns></returns>
+        protected bool RemoveValidation<T>(string propertyName, Validation<T> validation)
+        {
+            if (!_validations.TryGetValue(propertyName, out var validations))
+                return false;
+
+            var validationWasRemoved = validations.Remove(validation);
+            if (!validations.Any())
+                _validations.Remove(propertyName);
+            return validationWasRemoved;
+        }
+
+        /// <summary>
+        /// Removes a specific validation for the property returned by the lambda expression
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
+        /// <param name="validation">Validation to remove</param>
+        /// <returns></returns>
+        protected bool RemoveValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
+        {
+            return RemoveValidation(GetPropertyName(propertySelector), validation);
+        }
+
+        /// <summary>
+        /// Removes all validations for the property
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        protected bool RemoveValidations(string propertyName)
+        {
+            return _validations.Remove(propertyName);
+        }
+
+        /// <summary>
+        /// Removes all validations for the property returned by the lambda expression
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
+        /// <returns></returns>
+        protected bool RemoveValidations<T>(Expression<Func<T>> propertySelector)
+        {
+            return RemoveValidations(GetPropertyName(propertySelector));
+        }
+
+        /// <summary>
+        /// Get all validations
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<KeyValuePair<string, IList<IValidation>>> Validations()
+        {
+            return _validations.ToList();
+        }
+
+        /// <summary>
+        /// Get all validations for the property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public IEnumerable<Validation<T>> Validations<T>(string propertyName)
+        {
+            return _validations.ContainsKey(propertyName)
+                ? _validations[propertyName].OfType<Validation<T>>()
+                : Enumerable.Empty<Validation<T>>();
+        }
+
+        /// <summary>
+        /// Get all validations for the property returned by the lambda expression
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
+        /// <returns></returns>
+        public IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector)
+        {
+            return Validations<T>(GetPropertyName(propertySelector));
+        }
+
+        private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
+        {
+            var memberExpression = propertyExpression.Body as MemberExpression;
+            if (memberExpression == null)
+                throw new Exception("Expression body is not of type MemberExpression");
+
+            return memberExpression.Member.Name;
+        }
+
+        /// <summary>
+        /// Sets a property if <see cref="ViewModel.IsReadOnly"/> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>.
+        /// It will execute the appropriate validations for this property.
+        /// </summary>
+        /// <typeparam name="T">Type of the property to set</typeparam>
+        /// <param name="storage">Reference to the storage variable</param>
+        /// <param name="value">New value to set</param>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
+        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
+        {
+            var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
+            if (propertyWasChanged && _validations.TryGetValue(propertyName, out var validations))
+                Validate(propertyName, value, validations.OfType<Validation<T>>());
+            return propertyWasChanged;
+        }
+
+        private void Validate<T>(string propertyName, T value, IEnumerable<Validation<T>> validations)
+        {
+            var errors = new List<string>();
+            foreach (var validation in validations)
+            {
+                if (!validation.IsValid(value, out var errorMessage))
+                    errors.Add(errorMessage);
+            }
+            SetValidationErrors(errors, propertyName);
+        }
+
+        private void Validate(string propertyName, object value, IEnumerable<IValidation> validations)
+        {
+            var errors = new List<string>();
+            foreach (var validation in validations)
+            {
+                if (!validation.IsValid(value, out var errorMessage))
+                    errors.Add(errorMessage);
+            }
+            SetValidationErrors(errors, propertyName);
+        }
+
+        /// <summary>
+        /// Temporarily suspends validation. This could be used in a batch update to prevent validation overhead. This will propagate to all <see cref="ValidatingViewModel"/> items in the <see cref="ViewModel.Children"/> collection.
+        /// </summary>
+        /// <returns><see cref="IDisposable"/> which unsuspends validation when disposed.</returns>
+        public IDisposable SuspendValidation()
+        {
+            return new SuspendValidationDisposable(this);
         }
     }
 }

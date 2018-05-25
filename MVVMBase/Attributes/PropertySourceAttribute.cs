@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using nkristek.MVVMBase.ViewModels;
 
 namespace nkristek.MVVMBase.Attributes
@@ -12,11 +14,27 @@ namespace nkristek.MVVMBase.Attributes
     public class PropertySourceAttribute
         : Attribute
     {
-        public IEnumerable<string> Sources { get; }
+        public IEnumerable<string> PropertySources { get; }
 
-        public PropertySourceAttribute(params string[] sources)
+        public string CollectionSource { get; }
+
+        public IEnumerable<NotifyCollectionChangedAction> CollectionSourceActions { get; }
+
+        public PropertySourceAttribute(string propertyName)
         {
-            Sources = sources;
+            // needed because of the PropertySourceAttribute(string collectionName, params NotifyCollectionChangedAction[] actions) overload
+            PropertySources = Enumerable.Repeat(propertyName, 1);
+        }
+
+        public PropertySourceAttribute(params string[] propertyNames)
+        {
+            PropertySources = propertyNames;
+        }
+        
+        public PropertySourceAttribute(string collectionName, params NotifyCollectionChangedAction[] actions)
+        {
+            CollectionSource = collectionName;
+            CollectionSourceActions = actions;
         }
     }
 }

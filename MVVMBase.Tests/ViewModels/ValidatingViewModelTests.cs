@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.ViewModels;
 
@@ -15,34 +14,36 @@ namespace nkristek.MVVMBase.Tests.ViewModels
         private class TestValidatingModel
             : ValidatingViewModel
         {
+            public TestValidatingModel()
+            {
+                AddValidation(nameof(TestProperty), new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"), TestProperty);
+                AddValidation(() => TestProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));
+            }
+
             private int _testProperty;
             public int TestProperty
             {
                 get => _testProperty;
-                set
-                {
-                    if (SetProperty(ref _testProperty, value))
-                        SetValidationError(TestProperty < 5 ? "Value has to be at least 5" : null);
-                }
+                set => SetProperty(ref _testProperty, value, out _);
             }
-            
-            public override void Validate()
-            {
-                ValidateTestProperty();
-            }
+        }
 
-            private void ValidateTestProperty()
-            {
-                SetValidationError(TestProperty < 5 ? "Value has to be at least 5" : null, nameof(TestProperty));
-            }
+        public void TestValidate()
+        {
+            var validatingModel = new TestValidatingModel();
+            validatingModel.Validate();
+            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid after initialization and calling Validate()");
+
+            validatingModel.TestProperty = 5;
+            validatingModel.Validate();
+            Assert.IsTrue(validatingModel.IsValid, "ViewModel should be valid when the property has a valid value");
         }
 
         [TestMethod]
         public void TestIsValid()
         {
             var validatingModel = new TestValidatingModel();
-            validatingModel.Validate();
-            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid after initialization and calling Validate()");
+            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid after initialization");
 
             validatingModel.TestProperty = 5;
             Assert.IsTrue(validatingModel.IsValid, "ViewModel should be valid when the property has a valid value");

@@ -15,7 +15,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
         {
             public FolderViewModel()
             {
-                RegisterChildViewModelCollection(Subfolders);
+                Children.AddCollection(Subfolders);
             }
 
             public ObservableCollection<FolderViewModel> Subfolders { get; } = new ObservableCollection<FolderViewModel>();
@@ -25,15 +25,9 @@ namespace nkristek.MVVMBase.Tests.ViewModels
         public void TestIsChecked()
         {
             var parent = new FolderViewModel();
-            var firstChild = new FolderViewModel
-            {
-                Parent = parent
-            };
+            var firstChild = new FolderViewModel();
             parent.Subfolders.Add(firstChild);
-            var secondChild = new FolderViewModel
-            {
-                Parent = parent
-            };
+            var secondChild = new FolderViewModel();
             parent.Subfolders.Add(secondChild);
 
             parent.IsChecked = true;

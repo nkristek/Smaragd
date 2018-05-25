@@ -10,7 +10,7 @@
         public string Title
         {
             get => _title;
-            set => SetProperty(ref _title, value);
+            set => SetProperty(ref _title, value, out _);
         }
     }
 }

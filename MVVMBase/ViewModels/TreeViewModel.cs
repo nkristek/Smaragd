@@ -1,6 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
+﻿using System.Linq;
+using nkristek.MVVMBase.Attributes;
 
 namespace nkristek.MVVMBase.ViewModels
 {
@@ -25,22 +24,12 @@ namespace nkristek.MVVMBase.ViewModels
         /// <summary>
         /// If this <see cref="TreeViewModel"/> is expanded in the tree.
         /// </summary>
+        [IsDirtyIgnored]
         public bool IsExpanded
         {
             get => _isExpanded;
-            set => SetProperty(ref _isExpanded, value);
+            set => SetProperty(ref _isExpanded, value, out _);
         }
-
-        /// <summary>
-        /// A collection of all owned <see cref="TreeViewModel"/>.
-        /// </summary>
-        protected ObservableCollection<TreeViewModel> OwnedElements { get; } = new ObservableCollection<TreeViewModel>();
-
-        private ReadOnlyObservableCollection<TreeViewModel> _children;
-        /// <summary>
-        /// Children of this <see cref="TreeViewModel"/>. This property wraps the protected <see cref="OwnedElements"/> collection.
-        /// </summary>
-        public ReadOnlyObservableCollection<TreeViewModel> Children => _children ?? (_children = new ReadOnlyObservableCollection<TreeViewModel>(OwnedElements));
 
         /// <summary>
         /// Set <see cref="IsChecked"/> property and optionally update <see cref="Children"/> and <see cref="ViewModel.Parent"/>. 
@@ -50,11 +39,11 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="updateParent">If the <see cref="ViewModel.Parent"/> should be updated.</param>
         public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
-            if (!SetProperty(ref _isChecked, value, nameof(IsChecked)))
+            if (!SetProperty(ref _isChecked, value, out _, nameof(IsChecked)))
                 return;
 
             if (updateChildren && IsChecked.HasValue)
-                foreach (var child in Children)
+                foreach (var child in Children.OfType<TreeViewModel>())
                     child.SetIsChecked(IsChecked, true, false);
 
             if (updateParent)
@@ -66,42 +55,12 @@ namespace nkristek.MVVMBase.ViewModels
         /// </summary>
         protected void ReevaluateIsChecked()
         {
-            if (Children.All(c => c.IsChecked == true))
+            if (Children.OfType<TreeViewModel>().All(c => c.IsChecked == true))
                 SetIsChecked(true, false, true);
-            else if (Children.All(c => c.IsChecked == false))
+            else if (Children.OfType<TreeViewModel>().All(c => c.IsChecked == false))
                 SetIsChecked(false, false, true);
             else
                 SetIsChecked(null, false, true);
-        }
-
-        /// <summary>
-        /// Registers a <see cref="ObservableCollection{T}"/> of <see cref="TreeViewModel"/> so items get added to and removed from the <see cref="Children"/> collection.
-        /// </summary>
-        /// <typeparam name="TViewModel"></typeparam>
-        /// <param name="childViewModelCollection"></param>
-        protected void RegisterChildViewModelCollection<TViewModel>(ObservableCollection<TViewModel> childViewModelCollection) where TViewModel: TreeViewModel
-        {
-            childViewModelCollection.CollectionChanged += ChildViewModelCollection_CollectionChanged;
-            foreach (var childViewModel in childViewModelCollection)
-                OwnedElements.Add(childViewModel);
-        }
-
-        protected void UnregisterChildViewModelCollection<TViewModel>(ObservableCollection<TViewModel> childViewModelCollection) where TViewModel : TreeViewModel
-        {
-            childViewModelCollection.CollectionChanged -= ChildViewModelCollection_CollectionChanged;
-            foreach (var childViewModel in childViewModelCollection)
-                OwnedElements.Remove(childViewModel);
-        }
-
-        private void ChildViewModelCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-                foreach (var oldItem in e.OldItems.Cast<TreeViewModel>())
-                    OwnedElements.Remove(oldItem);
-
-            if (e.NewItems != null)
-                foreach (var newItem in e.NewItems.Cast<TreeViewModel>())
-                    OwnedElements.Add(newItem);
         }
     }
 }

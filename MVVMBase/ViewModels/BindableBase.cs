@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +11,32 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class BindableBase
         : INotifyPropertyChanged
     {
+        private readonly object _lockObject = new object();
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool _propertyChangedNotificationsSuspended;
+        /// <summary>
+        /// If the <see cref="PropertyChanged"/> events are temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendPropertyChangedNotifications"/> to unsuspend.
+        /// </summary>
+        public virtual bool PropertyChangedNotificationsSuspended
+        {
+            get
+            {
+                lock (_lockObject)
+                {
+                    return _propertyChangedNotificationsSuspended;
+                }
+            }
+
+            internal set
+            {
+                lock (_lockObject)
+                {
+                    _propertyChangedNotificationsSuspended = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Raises an event on the <see cref="PropertyChangedEventHandler"/>
@@ -18,7 +44,8 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="propertyName">Name of the property which changed</param>
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (!PropertyChangedNotificationsSuspended)
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -28,14 +55,25 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="storage">Reference to the storage variable</param>
         /// <param name="value">New value to set</param>
         /// <param name="propertyName">Name of the property</param>
+        /// <param name="oldValue">The old value of the property</param>
         /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
-        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
+            oldValue = storage;
             if (EqualityComparer<T>.Default.Equals(storage, value))
                 return false;
             storage = value;
             RaisePropertyChanged(propertyName);
             return true;
+        }
+
+        /// <summary>
+        /// Temporarily suspends all events on <see cref="PropertyChanged"/>. This could be used in a batch update to prevent <see cref="PropertyChanged"/> overhead.
+        /// </summary>
+        /// <returns><see cref="IDisposable"/> which unsuspends notifications when disposed.</returns>
+        public IDisposable SuspendPropertyChangedNotifications()
+        {
+            return new SuspendNotificationsDisposable(this);
         }
     }
 }

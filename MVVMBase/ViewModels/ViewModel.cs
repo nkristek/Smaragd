@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using nkristek.MVVMBase.Attributes;
 
 namespace nkristek.MVVMBase.ViewModels
 {
@@ -12,25 +15,56 @@ namespace nkristek.MVVMBase.ViewModels
     public abstract class ViewModel
         : ComputedBindableBase
     {
-        public ViewModel()
+        private readonly object _lockObject = new object();
+
+        private bool _propertyChangedNotificationsSuspended;
+        /// <summary>
+        /// If the <see cref="BindableBase.PropertyChanged"/> events are temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="BindableBase.SuspendPropertyChangedNotifications"/> to unsuspend. Setting this property will propagate the value to all items in the <see cref="Children"/> collection.
+        /// </summary>
+        public sealed override bool PropertyChangedNotificationsSuspended
         {
-            PropertyChanged += (sender, e) =>
+            get
             {
-                if (!GetIsDirtyIgnoredPropertyNames().Contains(e.PropertyName))
-                    IsDirty = true;
-            };
+                lock (_lockObject)
+                {
+                    return _propertyChangedNotificationsSuspended;
+                }
+            }
+
+            internal set
+            {
+                lock (_lockObject)
+                {
+                    _propertyChangedNotificationsSuspended = value;
+                    foreach (var child in Children)
+                        child.PropertyChangedNotificationsSuspended = value;
+                }
+            }
         }
 
+        public ViewModel()
+        {
+            foreach (var collectionProperty in GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType)))
+            {
+                if (CachedAttributes.TryGetValue(collectionProperty.Name, out var collectionAttributes) && collectionAttributes.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                    continue;
+
+                if (collectionProperty.GetValue(this, null) is INotifyCollectionChanged collection)
+                    collection.CollectionChanged += OnCollectionChanged;
+            }
+        }
+        
         private bool _isDirty;
         /// <summary>
         /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
         /// </summary>
+        [IsDirtyIgnored]
         public bool IsDirty
         {
             get => _isDirty;
             set
             {
-                if (SetProperty(ref _isDirty, value) && value && Parent != null)
+                if (SetProperty(ref _isDirty, value, out _) && value && Parent != null)
                     Parent.IsDirty = true;
             }
         }
@@ -39,6 +73,7 @@ namespace nkristek.MVVMBase.ViewModels
         /// <summary>
         /// The parent of this <see cref="ViewModel"/>
         /// </summary>
+        [IsDirtyIgnored]
         public ViewModel Parent
         {
             get
@@ -60,21 +95,11 @@ namespace nkristek.MVVMBase.ViewModels
         /// <summary>
         /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value
         /// </summary>
+        [IsDirtyIgnored]
         public bool IsReadOnly
         {
             get => _isReadOnly;
-            set => SetProperty(ref _isReadOnly, value);
-        }
-
-        /// <summary>
-        /// Gets propertynames which are ignored by <see cref="IsDirty"/>
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerable<string> GetIsDirtyIgnoredPropertyNames()
-        {
-            yield return nameof(IsDirty);
-            yield return nameof(Parent);
-            yield return nameof(IsReadOnly);
+            set => SetProperty(ref _isReadOnly, value, out _);
         }
 
         /// <summary>
@@ -84,31 +109,46 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="storage">Reference to the storage variable</param>
         /// <param name="value">New value to set</param>
         /// <param name="propertyName">Name of the property</param>
+        /// <param name="oldValue">The old value of the property</param>
         /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
-        protected sealed override bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = "")
+        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
+            oldValue = storage;
             if (IsReadOnly && propertyName != nameof(IsReadOnly))
                 return false;
 
-            if (storage is ViewModel)
-                UnregisterChildViewModel(storage as ViewModel, propertyName);
+            var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
+            if (propertyWasChanged)
+            {
+                var cachedAttributesOfProperty = CachedAttributes.FirstOrDefault(ca => ca.Key == propertyName);
+                if (cachedAttributesOfProperty.IsDefault() || !cachedAttributesOfProperty.Value.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                {
+                    IsDirty = true;
 
-            var propertyWasChanged = base.SetProperty(ref storage, value, propertyName);
-
-            if (storage is ViewModel)
-                RegisterChildViewModel(storage as ViewModel, propertyName);
-
+                    if (oldValue is INotifyCollectionChanged oldCollection)
+                        oldCollection.CollectionChanged -= OnCollectionChanged;
+                    if (storage is INotifyCollectionChanged newCollection)
+                        newCollection.CollectionChanged += OnCollectionChanged;
+                }
+            }
             return propertyWasChanged;
         }
-        
-        private readonly Dictionary<ViewModel, string> _ChildViewModelPropertyMapping = new Dictionary<ViewModel, string>();
+
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Move)
+                IsDirty = true;
+        }
+
+        private readonly Dictionary<ViewModel, string> _childViewModelPropertyMapping = new Dictionary<ViewModel, string>();
 
         /// <summary>
-        /// Register a child <see cref="ViewModel"/> so a PropertyChanged event is raised when a property changed on the child <see cref="ViewModel"/>
+        /// Add a <see cref="ViewModel"/> to the <see cref="Children"/> collection and set its <see cref="Parent"/>.
         /// </summary>
         /// <param name="childViewModel"></param>
+        /// <param name="propagatePropertyChanged">Determines if an event on the <see cref="BindableBase.PropertyChanged"/> for this property should be raised if an propertychanged event on the childviewmodel was raised.</param>
         /// <param name="propertyName"></param>
-        protected void RegisterChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
+        protected void AddChildViewModel(ViewModel childViewModel, bool propagatePropertyChanged = true, [CallerMemberName] string propertyName = "")
         {
             if (childViewModel == null)
                 throw new ArgumentNullException(nameof(childViewModel));
@@ -116,19 +156,24 @@ namespace nkristek.MVVMBase.ViewModels
             if (String.IsNullOrEmpty(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            if (_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
+            if (_childViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
 
-            _ChildViewModelPropertyMapping.Add(childViewModel, propertyName);
-            childViewModel.PropertyChanged += _ChildViewModel_PropertyChanged;
+            _childViewModelPropertyMapping.Add(childViewModel, propertyName);
+
+            if (propagatePropertyChanged)
+                childViewModel.PropertyChanged += _ChildViewModel_PropertyChanged;
+
+            childViewModel.Parent = this;
+            _allChildren.Add(childViewModel);
         }
 
         /// <summary>
-        /// Unregister a from the PropertyChanged event of the child <see cref="ViewModel"/>
+        /// Remove a <see cref="ViewModel"/> from the <see cref="Children"/> collection and from the <see cref="BindableBase.PropertyChanged"/> event of the child.
         /// </summary>
         /// <param name="childViewModel"></param>
         /// <param name="propertyName"></param>
-        protected void UnregisterChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
+        protected void RemoveChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
         {
             if (childViewModel == null)
                 throw new ArgumentNullException(nameof(childViewModel));
@@ -136,22 +181,14 @@ namespace nkristek.MVVMBase.ViewModels
             if (String.IsNullOrEmpty(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            if (!_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
+            if (!_childViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
 
-            _ChildViewModelPropertyMapping.Remove(childViewModel);
+            _childViewModelPropertyMapping.Remove(childViewModel);
             childViewModel.PropertyChanged -= _ChildViewModel_PropertyChanged;
-        }
 
-        /// <summary>
-        /// Gets propertynames which are ignored when a childviewmodels propertychanged event fires
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerable<string> GetChildViewModelPropertyChangedIgnoredPropertyNames()
-        {
-            yield return nameof(IsDirty);
-            yield return nameof(Parent);
-            yield return nameof(IsReadOnly);
+            childViewModel.Parent = null;
+            _allChildren.Remove(childViewModel);
         }
 
         /// <summary>
@@ -161,18 +198,27 @@ namespace nkristek.MVVMBase.ViewModels
         /// <param name="e">EventArgs</param>
         private void _ChildViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (GetChildViewModelPropertyChangedIgnoredPropertyNames().Contains(e.PropertyName))
-                return;
-
             var childViewModel = sender as ViewModel;
             if (childViewModel == null)
                 return;
+            
+            if (childViewModel.CachedAttributes.Any(ca => ca.Key == e.PropertyName && ca.Value.Item2.Any(a => a is IsDirtyIgnoredAttribute)))
+                return;
 
-            if (!_ChildViewModelPropertyMapping.ContainsKey(childViewModel))
+            if (!_childViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
             
-            var childViewModelPropertyName = _ChildViewModelPropertyMapping[childViewModel];
+            var childViewModelPropertyName = _childViewModelPropertyMapping[childViewModel];
             RaisePropertyChanged(childViewModelPropertyName);
         }
+
+        private readonly ObservableCollection<ViewModel> _allChildren = new ObservableCollection<ViewModel>();
+
+        private ViewModelCollection _children;
+
+        /// <summary>
+        /// All children of this <see cref="ViewModel"/>
+        /// </summary>
+        public ViewModelCollection Children => _children ?? (_children = new ViewModelCollection(_allChildren, this));
     }
 }

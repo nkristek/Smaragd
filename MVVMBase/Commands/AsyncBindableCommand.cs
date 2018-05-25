@@ -21,7 +21,7 @@ namespace nkristek.MVVMBase.Commands
             get => _isWorking;
             private set
             {
-                if (SetProperty(ref _isWorking, value))
+                if (SetProperty(ref _isWorking, value, out _))
                     RaiseCanExecuteChanged();
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nkristek.MVVMBase.ViewModels;
 
@@ -17,14 +18,30 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value);
+                set => SetProperty(ref _testProperty, value, out _);
             }
 
             private TestChildViewModel _child;
             public TestChildViewModel Child
             {
                 get => _child;
-                set => SetProperty(ref _child, value);
+                set
+                {
+                    if (SetProperty(ref _child, value, out var oldValue))
+                    {
+                        if (oldValue != null)
+                            RemoveChildViewModel(oldValue);
+                        if (value != null)
+                            AddChildViewModel(value);
+                    }
+                }
+            }
+
+            private ObservableCollection<int> _values;
+            public ObservableCollection<int> Values
+            {
+                get => _values;
+                set => SetProperty(ref _values, value, out _);
             }
         }
 
@@ -35,8 +52,23 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             public bool AnotherTestProperty
             {
                 get => _anotherTestProperty;
-                set => SetProperty(ref _anotherTestProperty, value);
+                set => SetProperty(ref _anotherTestProperty, value, out _);
             }
+        }
+
+        [TestMethod]
+        public void TestCollectionChangedIsDirty()
+        {
+            var valueCollection = new ObservableCollection<int>();
+            var viewModel = new TestViewModel
+            {
+                Values = valueCollection,
+                IsDirty = false
+            };
+            Assert.IsFalse(viewModel.IsDirty, "ViewModel.IsDirty is true after init");
+
+            valueCollection.Add(1);
+            Assert.IsTrue(viewModel.IsDirty, "ViewModel.IsDirty is false after changing the collection");
         }
 
         [TestMethod]

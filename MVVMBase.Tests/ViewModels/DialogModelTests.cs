@@ -12,7 +12,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
         private class TestDialogModel
             : DialogModel
         {
-            public override void Validate() { }
+
         }
 
         [TestMethod]

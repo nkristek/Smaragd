@@ -19,7 +19,7 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value);
+                set => SetProperty(ref _testProperty, value, out _);
             }
         }
 
@@ -38,6 +38,28 @@ namespace nkristek.MVVMBase.Tests.ViewModels
             bindableObject.TestProperty = true;
 
             Assert.IsTrue(bindableObject.TestProperty, "Property wasn't set");
+            Assert.AreEqual(1, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            Assert.AreEqual("TestProperty", invokedPropertyChangedEvents.FirstOrDefault(), "The PropertyChanged event wasn't raised for the test property");
+        }
+
+        [TestMethod]
+        public void TestSuspendPropertyChanged()
+        {
+            var invokedPropertyChangedEvents = new List<string>();
+
+            var bindableObject = new BindableBaseTest();
+            bindableObject.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+            {
+                invokedPropertyChangedEvents.Add(e.PropertyName);
+            };
+
+            using (bindableObject.SuspendPropertyChangedNotifications())
+            {
+                bindableObject.TestProperty = true;
+                Assert.AreEqual(0, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            }
+
+            bindableObject.TestProperty = false;
             Assert.AreEqual(1, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
             Assert.AreEqual("TestProperty", invokedPropertyChangedEvents.FirstOrDefault(), "The PropertyChanged event wasn't raised for the test property");
         }
