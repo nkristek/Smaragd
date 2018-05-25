@@ -61,15 +61,15 @@ If you want to manually raise a `PropertyChanged` event, you can use `RaisePrope
 
 ### PropertySource
 
-`ThirdProperty` uses the `PropertySource` attribute with the names of both `FirstProperty` and `SecondProperty`. The `ViewModel` will raise a `PropertyChanged` event for `ThirdProperty` when a `PropertyChanged` event is raised for either of these properties.
+`ThirdProperty` uses the `PropertySource` attribute with the names of both `FirstProperty` and `SecondProperty`. The `ViewModel` will raise a `PropertyChanged` event for `ThirdProperty` when a `PropertyChanged` event is raised for either of these properties. You can also define a single property name and one or multiple `NotifyCollectionChangedAction`. This will raise a `PropertyChanged` event for the property when the `CollectionChanged` event of the named collection occurs with one of the given `NotifyCollectionChangedAction`.
 
 ### CommandCanExecuteSource
 
-The `DoStuffCommand` uses the `CommandCanExecuteSource` attribute, which indicates, that the `CanExecute()` method depends on the value of the properties named. Now, when a `PropertyChanged` event for `ThirdProperty` is invoked, a `CanExecuteChanged` event is raised on the command (when using custom command implementations, also implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+The `DoStuffCommand` uses the `CommandCanExecuteSource` attribute, which indicates, that the `CanExecute()` method depends on the value of the properties named. When a `PropertyChanged` event for `ThirdProperty` is invoked, a `CanExecuteChanged` event is raised on the command (when using custom command implementations, also implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
 
 ### IsDirty
 
-`ViewModel` implements an `IsDirty` property which is initially false and set to true, if an `PropertyChanged` event is raised for a property name which is not ignored (`IsDirty`, `Parent` and `IsReadOnly` are ignored by default, override `GetIsDirtyIgnoredPropertyNames()` to change this).
+`ViewModel` implements an `IsDirty` property which is initially false and set to true, if `SetProperty` changes a value, it will set `IsDirty` to true if no `IsDirtyIgnoredAttribute` is defined for this property. 
 
 ### Parent
 
@@ -104,7 +104,13 @@ public ViewModel Child
 
 Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
 
-TODO
+You may simply add Validations in the class constructor through either 
+`AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));`
+or
+`AddValidation(nameof(MyProperty), new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"), MyProperty);`
+
+This will execute this validation everytime `SetProperty()` changes this property.
+You can call `Validate()` to execute all validations again.
 
 ### TreeViewModel
 
@@ -114,7 +120,7 @@ This `ViewModel` provides an `IsChecked` implementation to use in a TreeView. It
 
 There is also a `DialogModel` class, which inherits from `ValidatingViewModel` and implements a `Title` property to use in your dialog.
 
-### Commands
+### Command
 
 `ViewModelCommand` and `AsyncViewModelCommand` provide base implementations for `ICommand` and `IRaiseCanExecuteChanged`.
 
@@ -127,7 +133,7 @@ This library provides the following classes:
 Attributes:
 - PropertySource (usable through ComputedBindableBase)
 - CommandCanExecuteSource (usable through ComputedBindableBase)
-- InitiallyNotValid (usable through ValidatingViewModel)
+- IsDirtyIgnored (usable through ViewModel)
 
 Sorted by inheritance:
 - BindableBase
@@ -136,6 +142,12 @@ Sorted by inheritance:
 - ValidatingViewModel
 - DialogModel
 - TreeViewModel
+
+### Validation
+
+Sorted by inheritance:
+- IValidation
+- Validation<T>
 
 ### Commands namespace
 
