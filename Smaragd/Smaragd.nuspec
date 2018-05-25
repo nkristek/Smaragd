@@ -6,11 +6,11 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/nkristek/MVVMBase/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/nkristek/MVVMBase</projectUrl>
+    <licenseUrl>https://github.com/nkristek/Smaragd/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release fixes minor bugs and brings a TreeViewModel for items in TreeView's.</releaseNotes>
+    <releaseNotes>This release adds a lot of improvements in the ViewModel hierarchy. It introduces a children collection and improves validation in ValidatingViewModel.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
