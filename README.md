@@ -105,9 +105,13 @@ public ViewModel Child
 Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
 
 You may simply add Validations in the class constructor through either 
-`AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));`
+```csharp
+AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));
+```
 or
-`AddValidation(nameof(MyProperty), new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"), MyProperty);`
+```csharp
+AddValidation(nameof(MyProperty), new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"), MyProperty);
+```
 
 This will execute this validation everytime `SetProperty()` changes this property.
 You can call `Validate()` to execute all validations again.
@@ -131,45 +135,48 @@ This library provides the following classes:
 ### ViewModels namespace
 
 Attributes:
-- PropertySource (usable through ComputedBindableBase)
-- CommandCanExecuteSource (usable through ComputedBindableBase)
-- IsDirtyIgnored (usable through ViewModel)
+- `PropertySource` (usable through `ComputedBindableBase`)
+- `CommandCanExecuteSource` (usable through `ComputedBindableBase`)
+- `IsDirtyIgnored` (usable through `ViewModel`)
 
-Sorted by inheritance:
-- BindableBase
-- ComputedBindableBase
-- ViewModel
-- ValidatingViewModel
-- DialogModel
-- TreeViewModel
+`INotifyPropertyChanged`:
+- `BindableBase`
+- `ComputedBindableBase`
+- `ViewModel`
+- `ValidatingViewModel`
+- `DialogModel`
+- `TreeViewModel`
 
 ### Validation
 
-Sorted by inheritance:
-- IValidation
-- Validation<T>
+Interfaces:
+- `IValidation`
+
+`IValidation`:
+- `Validation<T>`
+- `PredicateValidation<T>`
 
 ### Commands namespace
 
 Interfaces:
-- IRaiseCanExecuteChanged
-- IAsyncCommand
+- `IRaiseCanExecuteChanged`
+- `IAsyncCommand`
 
-Classes sorted and grouped by inheritance:
+`ICommand`:
+- without `INotifyPropertyChanged`:
+ - `Command`
+ - `RelayCommand`
+- with `INotifyPropertyChanged`:
+ - `BindableCommand`
+ - `ViewModelCommand`
 
-Non-async:
-- Command
-- RelayCommand
-
-- BindableCommand
-- ViewModelCommand
-
-Async:
-- AsyncCommand
-- AsyncRelayCommand
-
-- AsyncBindableCommand
-- AsyncViewModelCommand
+`IAsyncCommand`:
+- without `INotifyPropertyChanged`:
+ - `AsyncCommand`
+ - `AsyncRelayCommand`
+- with `INotifyPropertyChanged`:
+ - `AsyncBindableCommand`
+ - `AsyncViewModelCommand`
 
 ## Contribution
 
