@@ -9,7 +9,7 @@ The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are bu
 
 ## Installation
 
-The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases) or compile it yourself.
+The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases/latest) or compile it yourself.
 
 ## How to use
 
@@ -102,7 +102,7 @@ public ViewModel Child
 
 ### ValidatingViewModel
 
-Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
+Your custom viewmodel may also be of type `ValidatingViewModel` which implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
 
 You may simply add Validations in the class constructor through either 
 ```csharp
