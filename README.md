@@ -1,15 +1,15 @@
-# MVVMBase
+# Smaragd
 This library contains base classes for implementing a C# .NET application using the MVVM architecture.
 
 For an example project, please visit my other project [Stein](https://github.com/nkristek/Stein).
 
 ## Prerequisites
 
-The nuget package and [DLL](https://github.com/nkristek/MVVMBase/releases) are built using .NET 4.7, but you can compile the library yourself to fit your needs.
+The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are built using .NET 4.7, but you can compile the library yourself to fit your needs.
 
 ## Installation
 
-The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/nkristek.MVVMBase/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/MVVMBase/releases) or compile it yourself.
+The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases) or compile it yourself.
 
 ## How to use
 
