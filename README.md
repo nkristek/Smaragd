@@ -29,7 +29,7 @@ public class MyViewModel : ViewModel
         get => _firstProperty;
         set
         {
-            if (SetProperty(ref _firstProperty, value))
+            if (SetProperty(ref _firstProperty, value, out _))
                 SecondProperty = FirstProperty + 1;
         }
     }
@@ -38,7 +38,7 @@ public class MyViewModel : ViewModel
     public int SecondProperty
     {
         get => _secondProperty;
-        set => SetProperty(ref _secondProperty, value);
+        set => SetProperty(ref _secondProperty, value, out _);
     }
 
     [PropertySource(nameof(FirstProperty), nameof(SecondProperty))]
@@ -81,13 +81,30 @@ The `IsReadOnly` property does what it implies, if set to true, `SetProperty` wi
 
 ### Nested ViewModels
 
-If the property is a also a `ViewModel`, `SetProperty` will automatically call `UnregisterChildViewModel()` on the old value and `RegisterChildViewModel()` on the new value. This enables, that `PropertyChanged` events get raised for the child viewmodel property, when a `PropertyChanged` event is raised on the child viewmodel itself. It may make some bindings easier.
+If the property is a `ViewModel` you should call `RemoveChildViewModel()` on the old value and `AddChildViewModel()` on the new value if the property changed via SetProperty. This can be done like this:
+```csharp
+private ViewModel _child;
+public ViewModel Child
+{
+    get => _child;
+    set
+    {
+        if (SetProperty(ref _child, value, out var oldValue))
+        {
+            if (oldValue != null)
+                RemoveChildViewModel(oldValue);
+            if (value != null)
+                AddChildViewModel(value);
+        }
+    }
+}
+```
 
 ### ValidatingViewModel
 
-Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. It exposes `SetValidationError()` and `SetValidationErrors()` methods which could be used in the property setter of a property to validate. The `IsValid` property indicates, if validation errors are present.
+Your custom viewmodel may also be of type `ValidatingViewModel` which also implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
 
-**Please note**: Using this method, initially, there is no validation error, since the setter hasn't been called yet. You may call `Validate()` on the `ViewModel` after initializing.
+TODO
 
 ### TreeViewModel
 
