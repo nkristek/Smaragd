@@ -1,1 +1,1 @@
-nuget pack MVVMBase.csproj -Build -Properties Configuration=Release
+nuget pack Smaragd.csproj -Build -Properties Configuration=Release
