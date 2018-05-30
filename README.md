@@ -147,7 +147,7 @@ AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5
 This will execute this validation everytime `SetProperty()` changes this property.
 You can call `Validate()` to execute all validations again.
 
-For most validation the `PredicateValidation<T>` should suffice, but if you need something more advances, you should implement `Validation<T>`.
+For most validation the `PredicateValidation<T>` should suffice, but if you need something more advanced, you should implement `Validation<T>`.
 
 If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the returned `IDisposable` to recontinue validation.
 
