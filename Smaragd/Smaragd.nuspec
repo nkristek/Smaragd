@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release adds a lot of improvements in the ViewModel hierarchy. It introduces a children collection and improves validation in ValidatingViewModel.</releaseNotes>
+    <releaseNotes>In this release the underlying parsing of attributes got reworked which fixes some bugs. Also xml comments on all included classes got improved.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
