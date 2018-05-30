@@ -35,39 +35,12 @@ namespace NKristek.Smaragd.Tests.Commands
             }
         }
 
-        private class TestOnThrownExceptionCommand
-            : ViewModelCommand<TestViewModel>
-        {
-            public TestOnThrownExceptionCommand(TestViewModel parent) : base(parent) { }
-
-            protected override void DoExecute(TestViewModel viewModel, object parameter)
-            {
-                throw new Exception();
-            }
-
-            public bool OnThrownExceptionWasCalled { get; private set; }
-
-            protected override void OnThrownException(TestViewModel viewModel, object parameter, Exception exception)
-            {
-                OnThrownExceptionWasCalled = true;
-            }
-        }
-
         [TestMethod]
         public void TestViewModelCommand()
         {
             var viewModel = new TestViewModel();
             var command = new TestCommand(viewModel);
             command.Execute(viewModel);
-        }
-
-        [TestMethod]
-        public void TestOnThrownException()
-        {
-            var viewModel = new TestViewModel();
-            var command = new TestOnThrownExceptionCommand(viewModel);
-            command.Execute(viewModel);
-            Assert.IsTrue(command.OnThrownExceptionWasCalled, "OnThrownException was not called");
         }
 
         [TestMethod]

@@ -6,42 +6,41 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
+using NKristek.Smaragd.Validation;
 
 namespace NKristek.Smaragd.ViewModels
 {
     /// <summary>
-    /// This <see cref="ViewModel"/> implements <see cref="IDataErrorInfo"/> and <see cref="INotifyDataErrorInfo"/>. To set validation errors use <see cref="SetValidationError"/> or <see cref="SetValidationErrors"/> in the property setter of the property which should be validated. Additionally, in <see cref="Validate"/> all validation logic should be executed.
+    /// This <see cref="ViewModel"/> implements <see cref="IDataErrorInfo"/> and <see cref="INotifyDataErrorInfo"/>
     /// </summary>
     public abstract class ValidatingViewModel
         : ViewModel, IDataErrorInfo, INotifyDataErrorInfo
     {
-        public ValidatingViewModel()
+        private readonly object _lockObject = new object();
+        
+        private readonly Dictionary<string, IList<IValidation>> _validations = new Dictionary<string, IList<IValidation>>();
+
+        protected ValidatingViewModel()
         {
-            ErrorsChanged += (sender, args) =>
-            {
-                RaisePropertyChanged(nameof(HasErrors));
-            };
-            
             ((INotifyCollectionChanged) Children).CollectionChanged += (sender, args) =>
             {
                 if (args.OldItems != null)
                     foreach (var oldItem in args.OldItems.OfType<ValidatingViewModel>())
-                        oldItem.ErrorsChanged -= OldItemOnErrorsChanged;
+                        oldItem.ErrorsChanged -= OnChildErrorsChanged;
 
                 if (args.NewItems != null)
                     foreach (var newItem in args.NewItems.OfType<ValidatingViewModel>())
-                        newItem.ErrorsChanged += OldItemOnErrorsChanged;
+                        newItem.ErrorsChanged += OnChildErrorsChanged;
             };
         }
 
-        private void OldItemOnErrorsChanged(object sender, DataErrorsChangedEventArgs e)
+        private void OnChildErrorsChanged(object sender, DataErrorsChangedEventArgs e)
         {
             RaisePropertyChanged(nameof(HasErrors));
         }
-
-        private readonly object _lockObject = new object();
-
+        
         private bool _validationSuspended;
+
         /// <summary>
         /// If the validation is temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendValidation"/> to unsuspend. Setting this property will propagate the value to all <see cref="ValidatingViewModel"/> items in the <see cref="ViewModel.Children"/> collection.
         /// </summary>
@@ -73,7 +72,7 @@ namespace NKristek.Smaragd.ViewModels
         [PropertySource(nameof(HasErrors))]
         public bool IsValid => !HasErrors;
 
-        private readonly Dictionary<string, List<string>> _validationErrors = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
 
         /// <summary>
         /// Set the validation error of the property
@@ -110,6 +109,7 @@ namespace NKristek.Smaragd.ViewModels
         protected void RaiseErrorsChanged([CallerMemberName] string propertyName = null)
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            RaisePropertyChanged(nameof(HasErrors));
         }
 
         /// <summary>
@@ -117,20 +117,35 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         public string Error
         {
-            get { return String.Join(", ", _validationErrors.Select(kvp => $"{ kvp.Key }: { String.Join(", ", kvp.Value) }")); }
-        }
+            get
+            {
+                var errors = _validationErrors.Select(kvp => $"{kvp.Key}: {String.Join(", ", kvp.Value)}");
+                var childrenErrors = Children.OfType<ValidatingViewModel>().Select(c => c.Error);
+                return String.Join("\n", errors.Concat(childrenErrors));
+            }
+        } 
 
         /// <summary>
         /// Get validation error by the name of the property
         /// </summary>
         /// <param name="columnName">Name of the property</param>
         /// <returns></returns>
-        public string this[string columnName] => _validationErrors.ContainsKey(columnName) ? String.Join("\n", _validationErrors[columnName]) : String.Empty;
+        public string this[string columnName]
+        {
+            get
+            {
+                if (_validationErrors.ContainsKey(columnName))
+                    return String.Join("\n", _validationErrors[columnName]);
+                if (nameof(Children).Equals(columnName))
+                    return String.Join("\n", Children.OfType<ValidatingViewModel>().Select(c => c.Error));
+                return null;
+            }
+        }
 
         /// <summary>
         /// Event that gets fired when the validation errors change
         /// </summary>
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         /// <summary>
         /// Gets validation errors from a specified property
@@ -139,13 +154,18 @@ namespace NKristek.Smaragd.ViewModels
         /// <returns>Validation errors from the property</returns>
         public System.Collections.IEnumerable GetErrors(string propertyName)
         {
-            return _validationErrors.ContainsKey(propertyName) ? _validationErrors[propertyName] : null;
+            if (_validationErrors.ContainsKey(propertyName))
+                return _validationErrors[propertyName];
+            if (nameof(Children).Equals(propertyName))
+                return Children.OfType<ValidatingViewModel>().Select(c => c.Error);
+            return null;
         }
 
         /// <summary>
         /// Returns if there are any validation errors
         /// </summary>
         [IsDirtyIgnored]
+        [PropertySource(nameof(Children), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
         public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
 
         /// <summary>
@@ -167,9 +187,7 @@ namespace NKristek.Smaragd.ViewModels
             foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
                 validatingChild.Validate();
         }
-
-        private readonly Dictionary<string, IList<IValidation>> _validations = new Dictionary<string, IList<IValidation>>();
-
+        
         /// <summary>
         /// Add a validation for the named property
         /// </summary>
@@ -262,14 +280,13 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// Get all validations for the property
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public IEnumerable<Validation<T>> Validations<T>(string propertyName)
+        public IEnumerable<IValidation> Validations(string propertyName)
         {
             return _validations.ContainsKey(propertyName)
-                ? _validations[propertyName].OfType<Validation<T>>()
-                : Enumerable.Empty<Validation<T>>();
+                ? _validations[propertyName]
+                : Enumerable.Empty<IValidation>();
         }
 
         /// <summary>
@@ -280,7 +297,10 @@ namespace NKristek.Smaragd.ViewModels
         /// <returns></returns>
         public IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector)
         {
-            return Validations<T>(GetPropertyName(propertySelector));
+            var propertyName = GetPropertyName(propertySelector);
+            return _validations.ContainsKey(propertyName)
+                ? _validations[propertyName].OfType<Validation<T>>()
+                : Enumerable.Empty<Validation<T>>();
         }
 
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
@@ -299,6 +319,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <typeparam name="T">Type of the property to set</typeparam>
         /// <param name="storage">Reference to the storage variable</param>
         /// <param name="value">New value to set</param>
+        /// <param name="oldValue">The old value of the property</param>
         /// <param name="propertyName">Name of the property</param>
         /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")

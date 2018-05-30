@@ -6,44 +6,19 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
+using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.ViewModels
 {
     /// <summary>
-    /// ViewModel implementation
+    /// ViewModel implementation, it supports the <see cref="IsDirtyIgnoredAttribute"/> above properties to prevent setting <see cref="IsDirty"/> for the property in question
     /// </summary>
     public abstract class ViewModel
         : ComputedBindableBase
     {
-        private readonly object _lockObject = new object();
-
-        private bool _propertyChangedNotificationsSuspended;
-        /// <summary>
-        /// If the <see cref="BindableBase.PropertyChanged"/> events are temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="BindableBase.SuspendPropertyChangedNotifications"/> to unsuspend. Setting this property will propagate the value to all items in the <see cref="Children"/> collection.
-        /// </summary>
-        public sealed override bool PropertyChangedNotificationsSuspended
+        protected ViewModel()
         {
-            get
-            {
-                lock (_lockObject)
-                {
-                    return _propertyChangedNotificationsSuspended;
-                }
-            }
-
-            internal set
-            {
-                lock (_lockObject)
-                {
-                    _propertyChangedNotificationsSuspended = value;
-                    foreach (var child in Children)
-                        child.PropertyChangedNotificationsSuspended = value;
-                }
-            }
-        }
-
-        public ViewModel()
-        {
+            // set IsDirty when a collection changes
             foreach (var collectionProperty in GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType)))
             {
                 if (CachedAttributes.TryGetValue(collectionProperty.Name, out var collectionAttributes) && collectionAttributes.Item2.Any(a => a is IsDirtyIgnoredAttribute))
@@ -53,8 +28,15 @@ namespace NKristek.Smaragd.ViewModels
                     collection.CollectionChanged += OnCollectionChanged;
             }
         }
-        
+
+        internal override void OnPropertyChangedNotificationsSuspendedChanged(bool suspended)
+        {
+            foreach (var child in Children)
+                child.PropertyChangedNotificationsSuspended = suspended;
+        }
+
         private bool _isDirty;
+
         /// <summary>
         /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
         /// </summary>
@@ -70,6 +52,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         private WeakReference<ViewModel> _parent;
+
         /// <summary>
         /// The parent of this <see cref="ViewModel"/>
         /// </summary>
@@ -92,6 +75,7 @@ namespace NKristek.Smaragd.ViewModels
         }
         
         private bool _isReadOnly;
+
         /// <summary>
         /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value
         /// </summary>
@@ -125,6 +109,7 @@ namespace NKristek.Smaragd.ViewModels
                 {
                     IsDirty = true;
 
+                    // set IsDirty when a collection changes
                     if (oldValue is INotifyCollectionChanged oldCollection)
                         oldCollection.CollectionChanged -= OnCollectionChanged;
                     if (storage is INotifyCollectionChanged newCollection)
@@ -139,7 +124,7 @@ namespace NKristek.Smaragd.ViewModels
             if (e.Action != NotifyCollectionChangedAction.Move)
                 IsDirty = true;
         }
-
+        
         private readonly Dictionary<ViewModel, string> _childViewModelPropertyMapping = new Dictionary<ViewModel, string>();
 
         /// <summary>

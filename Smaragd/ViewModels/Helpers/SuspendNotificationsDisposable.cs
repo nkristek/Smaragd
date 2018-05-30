@@ -1,7 +1,6 @@
 ﻿using System;
-using NKristek.Smaragd.ViewModels;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.ViewModels.Helpers
 {
     internal class SuspendNotificationsDisposable
         : Disposable

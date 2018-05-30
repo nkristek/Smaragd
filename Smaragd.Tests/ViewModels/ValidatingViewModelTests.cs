@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NKristek.Smaragd.Validation;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels

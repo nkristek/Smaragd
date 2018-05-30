@@ -1,4 +1,4 @@
-﻿namespace NKristek.Smaragd
+﻿namespace NKristek.Smaragd.Validation
 {
     public interface IValidation
     {

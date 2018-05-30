@@ -10,6 +10,7 @@ namespace NKristek.Smaragd.ViewModels
         : ViewModel
     {
         private bool? _isChecked;
+
         /// <summary>
         /// If this <see cref="TreeViewModel"/> is checked. This property will get updated by children and updates its children when set.
         /// A checkbox with threestate enabled will set null after true. Since this is not the desired behaviour, setting this property to null will result in false. If you want to set null, use <see cref="SetIsChecked"/> instead.
@@ -21,6 +22,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         private bool _isExpanded;
+
         /// <summary>
         /// If this <see cref="TreeViewModel"/> is expanded in the tree.
         /// </summary>
@@ -51,7 +53,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// This reevaluates the <see cref="IsChecked"/> property based on the <see cref="Children"/> collection.
+        /// This reevaluates the <see cref="IsChecked"/> property based on the <see cref="ViewModel.Children"/> collection.
         /// </summary>
         protected void ReevaluateIsChecked()
         {

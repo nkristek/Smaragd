@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using NKristek.Smaragd.ViewModels;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.ViewModels
 {
     public class ViewModelCollection
         : ViewModelCollection<ViewModel>

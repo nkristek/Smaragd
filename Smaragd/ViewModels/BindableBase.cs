@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.ViewModels
 {
@@ -13,13 +14,14 @@ namespace NKristek.Smaragd.ViewModels
     {
         private readonly object _lockObject = new object();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public virtual event PropertyChangedEventHandler PropertyChanged;
 
         private bool _propertyChangedNotificationsSuspended;
+
         /// <summary>
         /// If the <see cref="PropertyChanged"/> events are temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendPropertyChangedNotifications"/> to unsuspend.
         /// </summary>
-        public virtual bool PropertyChangedNotificationsSuspended
+        public bool PropertyChangedNotificationsSuspended
         {
             get
             {
@@ -33,9 +35,17 @@ namespace NKristek.Smaragd.ViewModels
             {
                 lock (_lockObject)
                 {
+                    if (value == _propertyChangedNotificationsSuspended)
+                        return;
+
                     _propertyChangedNotificationsSuspended = value;
+                    OnPropertyChangedNotificationsSuspendedChanged(value);
                 }
             }
+        }
+
+        internal virtual void OnPropertyChangedNotificationsSuspendedChanged(bool suspended)
+        {
         }
 
         /// <summary>
@@ -44,8 +54,15 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="propertyName">Name of the property which changed</param>
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
+            InternalRaisePropertyChanged(propertyName);
+        }
+
+        internal virtual bool InternalRaisePropertyChanged(string propertyName)
+        {
             if (!PropertyChangedNotificationsSuspended)
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+            return !PropertyChangedNotificationsSuspended;
         }
 
         /// <summary>
@@ -59,6 +76,9 @@ namespace NKristek.Smaragd.ViewModels
         /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
         protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
+            if (String.IsNullOrEmpty(propertyName))
+                throw new ArgumentNullException(nameof(propertyName));
+
             oldValue = storage;
             if (EqualityComparer<T>.Default.Equals(storage, value))
                 return false;

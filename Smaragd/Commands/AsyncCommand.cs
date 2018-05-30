@@ -5,18 +5,31 @@ using System.Windows.Input;
 namespace NKristek.Smaragd.Commands
 {
     /// <summary>
-    /// IAsyncCommand implementation
+    /// Asynchronous <see cref="ICommand"/>
     /// </summary>
     public abstract class AsyncCommand
         : IAsyncCommand, IRaiseCanExecuteChanged
     {
-        /// <summary>
-        /// Indicates if <see cref="ExecuteAsync(object)"/> is working
-        /// </summary>
-        public bool IsWorking { get; private set; }
+        private bool _isWorking;
 
         /// <summary>
-        /// Override this method to indicate if <see cref="Execute(object)"/> is allowed to execute
+        /// Indicates if <see cref="ExecuteAsync(object)"/> is running
+        /// </summary>
+        public bool IsWorking
+        {
+            get => _isWorking;
+            private set
+            {
+                if (value == _isWorking)
+                    return;
+
+                _isWorking = value;
+                RaiseCanExecuteChanged();
+            }
+        }
+
+        /// <summary>
+        /// Override this method to indicate if <see cref="Execute(object)"/> can execute
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
@@ -26,7 +39,7 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <summary>
-        /// This method is a requirement for <see cref="ICommand"/> and executes <see cref="ExecuteAsync(object)"/>
+        /// This method executes <see cref="ExecuteAsync(object)"/>
         /// </summary>
         /// <param name="parameter">Optional parameter</param>
         public async void Execute(object parameter)
@@ -46,14 +59,6 @@ namespace NKristek.Smaragd.Commands
                 IsWorking = true;
                 await DoExecute(parameter);
             }
-            catch (Exception exception)
-            {
-                try
-                {
-                    OnThrownException(parameter, exception);
-                }
-                catch { }
-            }
             finally
             {
                 IsWorking = false;
@@ -68,34 +73,16 @@ namespace NKristek.Smaragd.Commands
         protected abstract Task DoExecute(object parameter);
 
         /// <summary>
-        /// Will be called when <see cref="ExecuteAsync(object)"/> throws an <see cref="Exception"/>
+        /// This event will be raised when the result of <see cref="CanExecute(object)"/> should be reevaluated
         /// </summary>
-        protected virtual void OnThrownException(object parameter, Exception exception) { }
-        
-        private EventHandler _internalCanExecuteChanged;
+        public virtual event EventHandler CanExecuteChanged;
 
         /// <summary>
-        /// This event will be raised when the result of <see cref="CanExecute(object)"/> probably changed and will need to be reevaluated
-        /// </summary>
-        public event EventHandler CanExecuteChanged
-        {
-            add
-            {
-                _internalCanExecuteChanged += value;
-            }
-
-            remove
-            {
-                _internalCanExecuteChanged -= value;
-            }
-        }
-
-        /// <summary>
-        /// Raise an event that <see cref="CanExecute(object)"/> needs to be reevaluated
+        /// Raise an event that <see cref="CanExecute(object)"/> should be reevaluated
         /// </summary>
         public void RaiseCanExecuteChanged()
         {
-            _internalCanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

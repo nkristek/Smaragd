@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.Validation
 {
     public abstract class Validation<T>
         : IValidation

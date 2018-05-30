@@ -26,7 +26,7 @@ namespace NKristek.Smaragd.Tests.Commands
             }
         }
 
-        private class TestOnThrownExceptionCommand
+        private class TestCommand
             : AsyncCommand
         {
             public override bool CanExecute(object parameter)
@@ -37,13 +37,6 @@ namespace NKristek.Smaragd.Tests.Commands
             protected override Task DoExecute(object parameter)
             {
                 throw new Exception();
-            }
-
-            public bool OnThrownExceptionWasCalled { get; private set; }
-
-            protected override void OnThrownException(object parameter, Exception exception)
-            {
-                OnThrownExceptionWasCalled = true;
             }
         }
 
@@ -59,17 +52,9 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [TestMethod]
-        public void TestOnThrownException()
-        {
-            var command = new TestOnThrownExceptionCommand();
-            command.ExecuteAsync(null).Wait();
-            Assert.IsTrue(command.OnThrownExceptionWasCalled, "OnThrownException was not called");
-        }
-
-        [TestMethod]
         public void TestCanExecuteChanged()
         {
-            var command = new TestOnThrownExceptionCommand();
+            var command = new TestCommand();
             var canExecuteChangedInvokedCount = 0;
             command.CanExecuteChanged += (sender, e) => { canExecuteChangedInvokedCount++; };
             command.RaiseCanExecuteChanged();
@@ -79,7 +64,7 @@ namespace NKristek.Smaragd.Tests.Commands
         [TestMethod]
         public void TestCanExecute()
         {
-            var command = new TestOnThrownExceptionCommand();
+            var command = new TestCommand();
             Assert.IsTrue(command.CanExecute(new object()), "CanExecute did not return true");
             Assert.IsFalse(command.CanExecute(null), "CanExecute did not return false");
         }

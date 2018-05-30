@@ -1,5 +1,6 @@
 ﻿using System;
-namespace NKristek.Smaragd
+
+namespace NKristek.Smaragd.Validation
 {
     public class PredicateValidation<T>
         : Validation<T>

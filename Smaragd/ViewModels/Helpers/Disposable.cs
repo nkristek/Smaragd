@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.ViewModels.Helpers
 {
     /// <summary>
     /// <see cref="IDisposable"/> implementation which provides an easier way to implement the IDisposable interface

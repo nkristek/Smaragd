@@ -1,4 +1,4 @@
-﻿namespace NKristek.Smaragd
+﻿namespace NKristek.Smaragd.ViewModels.Helpers
 {
     internal static class Extensions
     {

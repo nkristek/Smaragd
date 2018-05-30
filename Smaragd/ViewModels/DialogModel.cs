@@ -4,6 +4,7 @@
         : ValidatingViewModel
     {
         private string _title;
+
         /// <summary>
         /// Dialog title
         /// </summary>

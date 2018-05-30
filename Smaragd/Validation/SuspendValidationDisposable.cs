@@ -1,7 +1,8 @@
 ﻿using System;
 using NKristek.Smaragd.ViewModels;
+using NKristek.Smaragd.ViewModels.Helpers;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.Validation
 {
     internal class SuspendValidationDisposable
         : Disposable

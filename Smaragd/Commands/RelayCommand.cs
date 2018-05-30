@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Windows.Input;
 
 namespace NKristek.Smaragd.Commands
 {
     /// <summary>
-    /// RelayCommand implementation
+    /// <see cref="ICommand"/> which executes a given action
     /// </summary>
     public sealed class RelayCommand
         : Command
@@ -19,7 +20,7 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <summary>
-        /// Indicates if <see cref="DoExecute(object)"/> is allowed to execute
+        /// Indicates if <see cref="DoExecute(object)"/> can execute
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace NKristek.Smaragd.Commands
 {
     /// <summary>
-    /// Asynchronous implementation of a RelayCommand
+    /// Asynchronous implementation of <see cref="RelayCommand"/>
     /// </summary>
     public sealed class AsyncRelayCommand
         : AsyncCommand
@@ -20,7 +20,7 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <summary>
-        /// Indicates if <see cref="ExecuteAsync(object)"/> is allowed to execute
+        /// Indicates if <see cref="AsyncCommand.ExecuteAsync"/> is allowed to execute
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
