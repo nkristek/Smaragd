@@ -157,7 +157,7 @@ namespace NKristek.Smaragd.ViewModels
             if (_validationErrors.ContainsKey(propertyName))
                 return _validationErrors[propertyName];
             if (nameof(Children).Equals(propertyName))
-                return Children.OfType<ValidatingViewModel>().Select(c => c.Error);
+                return Children.OfType<ValidatingViewModel>().Select(c => c.Error).Where(e => e != null);
             return null;
         }
 

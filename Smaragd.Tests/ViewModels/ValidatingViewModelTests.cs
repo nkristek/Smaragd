@@ -22,13 +22,31 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
 
             private int _testProperty;
+
             public int TestProperty
             {
                 get => _testProperty;
                 set => SetProperty(ref _testProperty, value, out _);
             }
-        }
 
+            private TestValidatingModel _child;
+
+            public TestValidatingModel Child
+            {
+                get => _child;
+                set
+                {
+                    if (SetProperty(ref _child, value, out var oldValue))
+                    {
+                        if (oldValue != null)
+                            RemoveChildViewModel(oldValue);
+                        if (value != null)
+                            AddChildViewModel(value);
+                    }
+                }
+            }
+        }
+        
         public void TestValidate()
         {
             var validatingModel = new TestValidatingModel();
@@ -50,6 +68,25 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.IsTrue(validatingModel.IsValid, "ViewModel should be valid when the property has a valid value");
 
             validatingModel.TestProperty = 4;
+            Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid when the property has not a valid value");
+        }
+
+        [TestMethod]
+        public void TestIsValidChildren()
+        {
+            var validatingModel = new TestValidatingModel
+            {
+                TestProperty = 5
+            };
+            Assert.IsTrue(validatingModel.IsValid, "Parent ViewModel should be valid after initialization");
+
+            validatingModel.Child = new TestValidatingModel();
+            Assert.IsFalse(validatingModel.IsValid, "Parent ViewModel should not be valid after the non-valid child has been added");
+
+            validatingModel.Child.TestProperty = 5;
+            Assert.IsTrue(validatingModel.IsValid, "Parent ViewModel should be valid when the property has a valid value");
+
+            validatingModel.Child.TestProperty = 4;
             Assert.IsFalse(validatingModel.IsValid, "ViewModel should not be valid when the property has not a valid value");
         }
 
