@@ -17,7 +17,6 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             public TestValidatingModel()
             {
-                AddValidation(nameof(TestProperty), new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"), TestProperty);
                 AddValidation(() => TestProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));
             }
 

@@ -195,7 +195,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="propertyName"></param>
         /// <param name="validation">Validation to add</param>
         /// <param name="initialValue">Initial value of the property for the initial run of the validation</param>
-        protected void AddValidation<T>(string propertyName, Validation<T> validation, T initialValue = default)
+        private void AddValidation<T>(string propertyName, Validation<T> validation, T initialValue)
         {
             if (_validations.TryGetValue(propertyName, out var existingValidations))
                 existingValidations.Add(validation);
@@ -224,7 +224,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="propertyName"></param>
         /// <param name="validation">Validation to remove</param>
         /// <returns></returns>
-        protected bool RemoveValidation<T>(string propertyName, Validation<T> validation)
+        private bool RemoveValidation<T>(string propertyName, Validation<T> validation)
         {
             if (!_validations.TryGetValue(propertyName, out var validations))
                 return false;
@@ -252,7 +252,7 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        protected bool RemoveValidations(string propertyName)
+        private bool RemoveValidations(string propertyName)
         {
             return _validations.Remove(propertyName);
         }
