@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
@@ -28,6 +29,24 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set
                 {
                     if (SetProperty(ref _child, value, out var oldValue))
+                    {
+                        if (oldValue != null)
+                            RemoveChildViewModel(oldValue);
+                        if (value != null)
+                            AddChildViewModel(value);
+                    }
+                }
+            }
+
+            private TestChildViewModel _isDirtyIgnoredChild;
+
+            [IsDirtyIgnored]
+            public TestChildViewModel IsDirtyIgnoredChild
+            {
+                get => _isDirtyIgnoredChild;
+                set
+                {
+                    if (SetProperty(ref _isDirtyIgnoredChild, value, out var oldValue))
                     {
                         if (oldValue != null)
                             RemoveChildViewModel(oldValue);
@@ -85,6 +104,23 @@ namespace NKristek.Smaragd.Tests.ViewModels
             
             viewModel.Child.AnotherTestProperty = true;
             Assert.IsTrue(viewModel.IsDirty, "IsDirty wasn't set by the child viewmodel property");
+
+            viewModel.IsDirty = false;
+            Assert.IsFalse(viewModel.Child.IsDirty, "IsDirty wasn't set on the child viewmodel");
+        }
+
+        [TestMethod]
+        public void TestIsDirtyIgnored()
+        {
+            var viewModel = new TestViewModel();
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty is not initially false");
+
+            viewModel.IsDirtyIgnoredChild = new TestChildViewModel();
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty was set by a property with the IsDirtyIgnoredAttribute set");
+
+            viewModel.IsDirtyIgnoredChild.AnotherTestProperty = true;
+            Assert.IsTrue(viewModel.IsDirtyIgnoredChild.IsDirty, "IsDirty wasn't set on the child viewmodel");
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty was set but the IsDirtyIgnoredAttribute was set");
         }
 
         [TestMethod]

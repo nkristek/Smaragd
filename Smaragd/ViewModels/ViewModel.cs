@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
-using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.ViewModels
 {
@@ -49,8 +48,7 @@ namespace NKristek.Smaragd.ViewModels
                 if (SetProperty(ref _isDirty, value, out _))
                 {
                     if (value)
-                        if (Parent != null)
-                            Parent.IsDirty = true;
+                        Parent?.SetIsDirty(this);
                     else
                         foreach (var child in Children)
                             child.IsDirty = false;
@@ -111,8 +109,7 @@ namespace NKristek.Smaragd.ViewModels
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
             if (propertyWasChanged)
             {
-                var cachedAttributesOfProperty = CachedAttributes.FirstOrDefault(ca => ca.Key == propertyName);
-                if (cachedAttributesOfProperty.IsDefault() || !cachedAttributesOfProperty.Value.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                if (!CachedAttributes.TryGetValue(propertyName, out var cachedAttributesOfProperty) || !cachedAttributesOfProperty.Item2.Any(a => a is IsDirtyIgnoredAttribute))
                 {
                     IsDirty = true;
 
@@ -128,8 +125,7 @@ namespace NKristek.Smaragd.ViewModels
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action != NotifyCollectionChangedAction.Move)
-                IsDirty = true;
+            IsDirty = true;
         }
         
         private readonly Dictionary<ViewModel, string> _childViewModelPropertyMapping = new Dictionary<ViewModel, string>();
@@ -204,6 +200,15 @@ namespace NKristek.Smaragd.ViewModels
             RaisePropertyChanged(childViewModelPropertyName);
         }
 
+        internal void SetIsDirty(ViewModel childViewModel)
+        {
+            if (!_childViewModelPropertyMapping.TryGetValue(childViewModel, out var childViewModelPropertyName))
+                return;
+
+            if (!CachedAttributes.TryGetValue(childViewModelPropertyName, out var childViewModelPropertyAttributes) || !childViewModelPropertyAttributes.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                IsDirty = true;
+        }
+
         private readonly ObservableCollection<ViewModel> _allChildren = new ObservableCollection<ViewModel>();
 
         private ViewModelCollection _children;
@@ -211,6 +216,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// All children of this <see cref="ViewModel"/>
         /// </summary>
+        [IsDirtyIgnored]
         public ViewModelCollection Children => _children ?? (_children = new ViewModelCollection(_allChildren, this));
     }
 }
