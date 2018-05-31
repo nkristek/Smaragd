@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Fix bug that prevented the use of multiple PropertySourceAttribute/CommandCanExecuteSourceAttribute pointing to the same collection.</releaseNotes>
+    <releaseNotes>Propagate setting IsDirty to false to all children.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
