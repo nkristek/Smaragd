@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>In this release the underlying parsing of attributes got reworked which fixes some bugs. Also xml comments on all included classes got improved.</releaseNotes>
+    <releaseNotes>Fix bug that prevented the use of multiple PropertySourceAttribute/CommandCanExecuteSourceAttribute pointing to the same collection.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
