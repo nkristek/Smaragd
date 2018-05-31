@@ -111,7 +111,7 @@ namespace NKristek.Smaragd.ViewModels.Helpers
         /// <inheritdoc />
         public void RegisterCollection(INotifyCollectionChanged collection, string propertyName)
         {
-            if (_registeredCollections.ContainsKey(propertyName))
+            if (_registeredCollections.TryGetValue(propertyName, out var existingCollection) && existingCollection != collection)
                 throw new Exception("There is already a collection registered for this name");
 
             if (!_registeredCollections.ContainsValue(collection))

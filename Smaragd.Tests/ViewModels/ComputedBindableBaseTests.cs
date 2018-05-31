@@ -34,6 +34,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public ObservableCollection<int> MyValues { get; } = new ObservableCollection<int>();
 
             [PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+            public int MinValue => MyValues.Min();
+
+            [PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
             public int MaxValue => MyValues.Max();
         }
         
@@ -55,7 +58,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
             
             bindableObject.MyValues.Add(2);
-            Assert.AreEqual(3, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            Assert.AreEqual(4, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
             Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.MaxValue)), "The PropertyChanged event wasn't raised for the PropertySource property");
         }
 
