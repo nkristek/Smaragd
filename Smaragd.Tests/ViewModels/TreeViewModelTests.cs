@@ -15,7 +15,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             public FolderViewModel()
             {
-                Children.AddCollection(Subfolders);
+                Children.AddCollection(Subfolders, nameof(Subfolders));
             }
 
             public ObservableCollection<FolderViewModel> Subfolders { get; } = new ObservableCollection<FolderViewModel>();

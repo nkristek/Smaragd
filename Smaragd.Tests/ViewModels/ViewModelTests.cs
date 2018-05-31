@@ -80,10 +80,21 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             public TestChildrenViewModel()
             {
-                Children.AddCollection(TestChildren);
+                Children.AddCollection(TestChildren, nameof(TestChildren));
             }
 
             public ObservableCollection<TestChildrenViewModel> TestChildren { get; } = new ObservableCollection<TestChildrenViewModel>();
+        }
+
+        private class TestChildrenIsDirtyIgnoredViewModel
+            : ViewModel
+        {
+            public TestChildrenIsDirtyIgnoredViewModel()
+            {
+                Children.AddCollection(TestChildren, nameof(TestChildren));
+            }
+
+            public ObservableCollection<TestChildrenIsDirtyIgnoredViewModel> TestChildren { get; } = new ObservableCollection<TestChildrenIsDirtyIgnoredViewModel>();
         }
 
         [TestMethod]
@@ -161,6 +172,22 @@ namespace NKristek.Smaragd.Tests.ViewModels
         }
 
         [TestMethod]
+        public void TestIsDirtyIgnoredChildren()
+        {
+            var viewModel = new TestChildrenIsDirtyIgnoredViewModel();
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty is not initially false");
+
+            var childViewModel = new TestChildrenIsDirtyIgnoredViewModel();
+            viewModel.TestChildren.Add(childViewModel);
+            viewModel.IsDirty = false;
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty was not reset properly");
+
+            childViewModel.IsDirty = true;
+            Assert.IsTrue(viewModel.IsDirty, "IsDirty wasn't set by the child viewmodel");
+            //Assert.IsFalse(viewModel.IsDirty, "IsDirty was set but the IsDirtyIgnoredAttribute was set");
+        }
+
+        [TestMethod]
         public void TestParent()
         {
             var viewModel = new TestViewModel();
@@ -202,11 +229,14 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
             viewModel.Child.AnotherTestProperty = true;
 
-            Assert.AreEqual(1, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            // AnotherTestProperty and IsDirty on the Child property
+            Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
             Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(TestViewModel.Child)), "The PropertyChanged event wasn't raised for the childviewmodel property");
 
             viewModel.Child = null;
-            Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+
+            // the Child property changed
+            Assert.AreEqual(3, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
         }
     }
 }

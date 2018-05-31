@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace NKristek.Smaragd.ViewModels
 {
@@ -15,7 +16,7 @@ namespace NKristek.Smaragd.ViewModels
     public class ViewModelCollection<TViewModel>
         : ReadOnlyObservableCollection<TViewModel> where TViewModel : ViewModel
     {
-        private readonly Dictionary<INotifyCollectionChanged, IList> _knownCollections = new Dictionary<INotifyCollectionChanged, IList>();
+        private readonly Dictionary<INotifyCollectionChanged, Tuple<string, IList<TViewModel>>> _knownCollections = new Dictionary<INotifyCollectionChanged, Tuple<string, IList<TViewModel>>>();
 
         private readonly ObservableCollection<TViewModel> _allChildren;
 
@@ -50,12 +51,13 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
-        public void AddCollection<T>(ObservableCollection<T> collection) where T : TViewModel
+        /// <param name="collectionPropertyName">Name of the collection property in the containing <see cref="ViewModel"/>, this enables the mapping of <see cref="Attribute"/> over collections.</param>
+        public void AddCollection<T>(ObservableCollection<T> collection, string collectionPropertyName) where T : TViewModel
         {
             if (_knownCollections.ContainsKey(collection))
                 throw new Exception("Collection already exists in this ViewModelCollection");
             
-            _knownCollections[collection] = new List<T>(collection);
+            _knownCollections[collection] = new Tuple<string, IList<TViewModel>>(collectionPropertyName, new List<TViewModel>(collection));
 
             foreach (var item in collection)
             {
@@ -85,6 +87,18 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
+        /// <summary>
+        /// Searches the <paramref name="childViewModel"/> in all added collections and gives the property names of all collection which contain the given viewmodel
+        /// </summary>
+        /// <param name="childViewModel"></param>
+        /// <returns>All collection names in which the item was found</returns>
+        internal IEnumerable<string> GetContainingCollectionPropertyNames(TViewModel childViewModel)
+        {
+            foreach (var collectionTuple in _knownCollections.Values)
+                if (collectionTuple.Item2.Contains(childViewModel))
+                    yield return collectionTuple.Item1;
+        }
+
         private void OnSubCollectionChanged(object source, NotifyCollectionChangedEventArgs args)
         {
             var notifyCollectionChanged = source as INotifyCollectionChanged;
@@ -95,8 +109,9 @@ namespace NKristek.Smaragd.ViewModels
             if (collection == null)
                 return;
 
-            if (!_knownCollections.TryGetValue(notifyCollectionChanged, out var knownItemsCollection))
+            if (!_knownCollections.TryGetValue(notifyCollectionChanged, out var knownCollection))
                 return;
+            var knownItemsCollection = knownCollection.Item2;
 
             // olditems and newitems will usually be emtpy when the reset event is invoked => remember items from collection separately
             switch (args.Action)
@@ -147,7 +162,7 @@ namespace NKristek.Smaragd.ViewModels
                 case NotifyCollectionChangedAction.Reset:
                     // remove all items that where in the collection and readd them from the current collection
 
-                    foreach (TViewModel knownItem in knownItemsCollection)
+                    foreach (var knownItem in knownItemsCollection)
                     {
                         knownItem.Parent = null;
                         _allChildren.Remove(knownItem);

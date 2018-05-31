@@ -20,7 +20,7 @@ namespace NKristek.Smaragd.ViewModels
             // set IsDirty when a collection changes
             foreach (var collectionProperty in GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType)))
             {
-                if (CachedAttributes.TryGetValue(collectionProperty.Name, out var collectionAttributes) && collectionAttributes.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                if (PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(collectionProperty.Name))
                     continue;
 
                 if (collectionProperty.GetValue(this, null) is INotifyCollectionChanged collection)
@@ -45,13 +45,19 @@ namespace NKristek.Smaragd.ViewModels
             get => _isDirty;
             set
             {
-                if (SetProperty(ref _isDirty, value, out _))
+                SetProperty(ref _isDirty, value, out _);
+
+                // propagate changes to parent and children
+                if (value)
                 {
-                    if (value)
-                        Parent?.SetIsDirty(this);
-                    else
-                        foreach (var child in Children)
-                            child.IsDirty = false;
+                    var parent = Parent;
+                    if (parent != null && !parent.IsDirty)
+                        parent.SetIsDirty(this);
+                }
+                else
+                {
+                    foreach (var child in Children.Where(c => c.IsDirty))
+                        child.IsDirty = false;
                 }
             }
         }
@@ -76,6 +82,9 @@ namespace NKristek.Smaragd.ViewModels
                 if (Parent == value) return;
                 _parent = value != null ? new WeakReference<ViewModel>(value) : null;
                 RaisePropertyChanged();
+
+                if (IsDirty)
+                    Parent?.SetIsDirty(this);
             }
         }
         
@@ -107,18 +116,15 @@ namespace NKristek.Smaragd.ViewModels
                 return false;
 
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
-            if (propertyWasChanged)
+            if (propertyWasChanged && !PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(propertyName))
             {
-                if (!CachedAttributes.TryGetValue(propertyName, out var cachedAttributesOfProperty) || !cachedAttributesOfProperty.Item2.Any(a => a is IsDirtyIgnoredAttribute))
-                {
-                    IsDirty = true;
+                IsDirty = true;
 
-                    // set IsDirty when a collection changes
-                    if (oldValue is INotifyCollectionChanged oldCollection)
-                        oldCollection.CollectionChanged -= OnCollectionChanged;
-                    if (storage is INotifyCollectionChanged newCollection)
-                        newCollection.CollectionChanged += OnCollectionChanged;
-                }
+                // set IsDirty when a collection changes
+                if (oldValue is INotifyCollectionChanged oldCollection)
+                    oldCollection.CollectionChanged -= OnCollectionChanged;
+                if (storage is INotifyCollectionChanged newCollection)
+                    newCollection.CollectionChanged += OnCollectionChanged;
             }
             return propertyWasChanged;
         }
@@ -189,9 +195,6 @@ namespace NKristek.Smaragd.ViewModels
             var childViewModel = sender as ViewModel;
             if (childViewModel == null)
                 return;
-            
-            if (childViewModel.CachedAttributes.Any(ca => ca.Key == e.PropertyName && ca.Value.Item2.Any(a => a is IsDirtyIgnoredAttribute)))
-                return;
 
             if (!_childViewModelPropertyMapping.ContainsKey(childViewModel))
                 return;
@@ -203,9 +206,21 @@ namespace NKristek.Smaragd.ViewModels
         internal void SetIsDirty(ViewModel childViewModel)
         {
             if (!_childViewModelPropertyMapping.TryGetValue(childViewModel, out var childViewModelPropertyName))
-                return;
+            {
+                // childViewModel is no single property, look in collections instead
+                foreach (var collectionPropertyName in Children.GetContainingCollectionPropertyNames(childViewModel))
+                {
+                    if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(collectionPropertyName))
+                    {
+                        IsDirty = true;
+                        break;
+                    }
+                }
 
-            if (!CachedAttributes.TryGetValue(childViewModelPropertyName, out var childViewModelPropertyAttributes) || !childViewModelPropertyAttributes.Item2.Any(a => a is IsDirtyIgnoredAttribute))
+                return;
+            }
+
+            if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(childViewModelPropertyName))
                 IsDirty = true;
         }
 

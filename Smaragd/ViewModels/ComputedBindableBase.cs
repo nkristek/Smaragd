@@ -18,6 +18,11 @@ namespace NKristek.Smaragd.ViewModels
     {
         internal Dictionary<string, Tuple<PropertyInfo, IList<Attribute>>> CachedAttributes { get; } = new Dictionary<string, Tuple<PropertyInfo, IList<Attribute>>>();
 
+        internal bool PropertyNameHasAttribute<TAttribute>(string propertyName) where TAttribute : Attribute
+        {
+            return CachedAttributes.TryGetValue(propertyName, out var propertyAttributes) && propertyAttributes.Item2.Any(a => a is TAttribute);
+        }
+
         private readonly INotificationCache _notificationCache;
 
         protected ComputedBindableBase()
