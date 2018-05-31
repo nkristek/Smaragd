@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release fixes a bug where IsDirty wasn't properly set when the childviewmodel is in a collections on the parent.</releaseNotes>
+    <releaseNotes>This release fixes a bug where IsDirty wasn't properly set when the childviewmodel is in a collection notifying the parent.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
