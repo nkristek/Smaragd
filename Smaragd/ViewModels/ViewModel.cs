@@ -46,8 +46,15 @@ namespace NKristek.Smaragd.ViewModels
             get => _isDirty;
             set
             {
-                if (SetProperty(ref _isDirty, value, out _) && value && Parent != null)
-                    Parent.IsDirty = true;
+                if (SetProperty(ref _isDirty, value, out _))
+                {
+                    if (value)
+                        if (Parent != null)
+                            Parent.IsDirty = true;
+                    else
+                        foreach (var child in Children)
+                            child.IsDirty = false;
+                }
             }
         }
 
