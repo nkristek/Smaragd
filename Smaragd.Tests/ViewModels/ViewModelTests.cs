@@ -75,6 +75,43 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
         }
 
+        private class TestChildrenViewModel
+            : ViewModel
+        {
+            public TestChildrenViewModel()
+            {
+                Children.AddCollection(TestChildren);
+            }
+
+            public ObservableCollection<TestChildrenViewModel> TestChildren { get; } = new ObservableCollection<TestChildrenViewModel>();
+        }
+
+        [TestMethod]
+        public void TestChildrenCollection()
+        {
+            var viewModel = new TestChildrenViewModel();
+            var childViewModel = new TestChildrenViewModel();
+            viewModel.TestChildren.Add(childViewModel);
+            Assert.AreEqual(1, viewModel.Children.Count, "Children count is not correct");
+            Assert.AreEqual(viewModel, childViewModel.Parent, "The parent of the child viewmodel was not set");
+
+            viewModel.TestChildren.Clear();
+            Assert.AreEqual(null, childViewModel.Parent, "The parent of the child viewmodel was not reset");
+
+            viewModel.TestChildren.Add(childViewModel);
+            Assert.AreEqual(1, viewModel.Children.Count, "Children count is not correct");
+        }
+
+        [TestMethod]
+        public void TestChildren()
+        {
+            var viewModel = new TestViewModel
+            {
+                Child = new TestChildViewModel()
+            };
+            Assert.AreEqual(1, viewModel.Children.Count, "Children count is not correct");
+        }
+
         [TestMethod]
         public void TestCollectionChangedIsDirty()
         {

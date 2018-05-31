@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -13,6 +15,8 @@ namespace NKristek.Smaragd.ViewModels
     public class ViewModelCollection<TViewModel>
         : ReadOnlyObservableCollection<TViewModel> where TViewModel : ViewModel
     {
+        private readonly Dictionary<INotifyCollectionChanged, IList> _knownCollections = new Dictionary<INotifyCollectionChanged, IList>();
+
         private readonly ObservableCollection<TViewModel> _allChildren;
 
         private WeakReference<ViewModel> _parent;
@@ -48,13 +52,18 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="collection"></param>
         public void AddCollection<T>(ObservableCollection<T> collection) where T : TViewModel
         {
-            collection.CollectionChanged += OnSubCollectionChanged;
+            if (_knownCollections.ContainsKey(collection))
+                throw new Exception("Collection already exists in this ViewModelCollection");
+            
+            _knownCollections[collection] = new List<T>(collection);
 
             foreach (var item in collection)
             {
-                _allChildren.Remove(item);
-                item.Parent = null;
+                item.Parent = Parent;
+                _allChildren.Add(item);
             }
+
+            collection.CollectionChanged += OnSubCollectionChanged;
         }
 
         /// <summary>
@@ -64,36 +73,97 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="collection"></param>
         public void RemoveCollection<T>(ObservableCollection<T> collection) where T : TViewModel
         {
+            if (!_knownCollections.Remove(collection))
+                throw new Exception("Collection does not exist in this ViewModelCollection");
+
+            collection.CollectionChanged -= OnSubCollectionChanged;
+
             foreach (var item in collection)
             {
-                _allChildren.Add(item);
-                item.Parent = Parent;
+                item.Parent = null;
+                _allChildren.Remove(item);
             }
-
-            collection.CollectionChanged += OnSubCollectionChanged;
         }
 
         private void OnSubCollectionChanged(object source, NotifyCollectionChangedEventArgs args)
         {
-            if (args.Action == NotifyCollectionChangedAction.Move)
-                throw new NotImplementedException();
+            var notifyCollectionChanged = source as INotifyCollectionChanged;
+            if (notifyCollectionChanged == null)
+                return;
 
-            if (args.OldItems != null)
-            {
-                foreach (TViewModel oldItem in args.OldItems)
-                {
-                    _allChildren.Add(oldItem);
-                    oldItem.Parent = null;
-                }
-            }
+            var collection = source as ICollection;
+            if (collection == null)
+                return;
 
-            if (args.NewItems != null)
+            if (!_knownCollections.TryGetValue(notifyCollectionChanged, out var knownItemsCollection))
+                return;
+
+            // olditems and newitems will usually be emtpy when the reset event is invoked => remember items from collection separately
+            switch (args.Action)
             {
-                foreach (TViewModel newItem in args.NewItems)
-                {
-                    _allChildren.Add(newItem);
-                    newItem.Parent = Parent;
-                }
+                case NotifyCollectionChangedAction.Add:
+                    if (args.NewItems != null)
+                    {
+                        foreach (TViewModel newItem in args.NewItems)
+                        {
+                            newItem.Parent = Parent;
+                            _allChildren.Add(newItem);
+                            knownItemsCollection.Add(newItem);
+                        }
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (args.OldItems != null)
+                    {
+                        foreach (TViewModel oldItem in args.OldItems)
+                        {
+                            oldItem.Parent = null;
+                            _allChildren.Add(oldItem);
+                            knownItemsCollection.Remove(oldItem);
+                        }
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (args.OldItems != null)
+                    {
+                        foreach (TViewModel oldItem in args.OldItems)
+                        {
+                            oldItem.Parent = null;
+                            _allChildren.Add(oldItem);
+                            knownItemsCollection.Remove(oldItem);
+                        }
+                    }
+
+                    if (args.NewItems != null)
+                    {
+                        foreach (TViewModel newItem in args.NewItems)
+                        {
+                            newItem.Parent = Parent;
+                            _allChildren.Add(newItem);
+                            knownItemsCollection.Add(newItem);
+                        }
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    // remove all items that where in the collection and readd them from the current collection
+
+                    foreach (TViewModel knownItem in knownItemsCollection)
+                    {
+                        knownItem.Parent = null;
+                        _allChildren.Remove(knownItem);
+                    }
+                    knownItemsCollection.Clear();
+
+                    foreach (TViewModel item in collection)
+                    {
+                        item.Parent = Parent;
+                        _allChildren.Add(item);
+                        knownItemsCollection.Add(item);
+                    }
+
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    break;
             }
         }
     }
