@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Propagate setting IsDirty to false to all children.</releaseNotes>
+    <releaseNotes>This release fixes a bug that children would set IsDirty on their parents even though the IsDirtyIgnoredAttribute was set on the property in the parent. This also fixes a bug where the Children collection would not add or remove viewmodels as expected.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
