@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release fixes a bug where IsDirty wasn't properly set when the childviewmodel is in a collection notifying the parent.</releaseNotes>
+    <releaseNotes>This release improves the IDataErrorInfo and INotifyDataErrorInfo implementation in ValidatingViewModel.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
