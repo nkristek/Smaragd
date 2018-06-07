@@ -20,25 +20,151 @@ namespace NKristek.Smaragd.ViewModels
         
         private readonly Dictionary<string, IList<IValidation>> _validations = new Dictionary<string, IList<IValidation>>();
 
+        private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
+
         protected ValidatingViewModel()
         {
-            ((INotifyCollectionChanged) Children).CollectionChanged += (sender, args) =>
-            {
-                if (args.OldItems != null)
-                    foreach (var oldItem in args.OldItems.OfType<ValidatingViewModel>())
-                        oldItem.ErrorsChanged -= OnChildErrorsChanged;
+            ((INotifyCollectionChanged) Children).CollectionChanged += OnChildrenCollectionChanged;
+        }
 
-                if (args.NewItems != null)
-                    foreach (var newItem in args.NewItems.OfType<ValidatingViewModel>())
-                        newItem.ErrorsChanged += OnChildErrorsChanged;
-            };
+        private void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    if (e.NewItems != null)
+                    {
+                        foreach (var newItem in e.NewItems.OfType<ValidatingViewModel>())
+                            newItem.ErrorsChanged += OnChildErrorsChanged;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null)
+                    {
+                        foreach (var oldItem in e.OldItems.OfType<ValidatingViewModel>())
+                            oldItem.ErrorsChanged -= OnChildErrorsChanged;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (e.OldItems != null)
+                    {
+                        foreach (var oldItem in e.OldItems.OfType<ValidatingViewModel>())
+                            oldItem.ErrorsChanged -= OnChildErrorsChanged;
+                    }
+                    if (e.NewItems != null)
+                    {
+                        foreach (var newItem in e.NewItems.OfType<ValidatingViewModel>())
+                            newItem.ErrorsChanged += OnChildErrorsChanged;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    Validate();
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    break;
+            }
         }
 
         private void OnChildErrorsChanged(object sender, DataErrorsChangedEventArgs e)
         {
+            RaiseErrorsChanged(nameof(Children));
+        }
+
+        #region IDataErrorInfo
+        
+        /// <summary>
+        /// Get validation error by the name of the property
+        /// </summary>
+        /// <param name="propertyName">Name of the property. If the property name is null or empty, all validation errors will be returned.</param>
+        /// <returns>Validation errors of the property. If the property name is null or empty, all validation errors will be returned.</returns>
+        public string this[string propertyName]
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(propertyName))
+                    return Error;
+
+                if (_validationErrors.ContainsKey(propertyName))
+                    return String.Join(Environment.NewLine, _validationErrors[propertyName]);
+
+                if (nameof(Children).Equals(propertyName))
+                    return String.Join(Environment.NewLine, GetChildrenErrors());
+
+                return String.Empty;
+            }
+        }
+
+        /// <summary>
+        /// All validation errors concatenated with <see cref="Environment.NewLine"/>
+        /// </summary>
+        public string Error => String.Join(Environment.NewLine, GetAllErrors());
+
+        /// <summary>
+        /// Gets all validation errors from this <see cref="ValidatingViewModel"/> and all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/>
+        /// </summary>
+        /// <returns>All validation errors from this <see cref="ValidatingViewModel"/> and all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/></returns>
+        private IEnumerable<string> GetAllErrors()
+        {
+            var errors = _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
+            var childrenErrors = GetChildrenErrors();
+            return errors.Concat(childrenErrors);
+        }
+
+        /// <summary>
+        /// Gets all validation errors from all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/>
+        /// </summary>
+        /// <returns>All validation errors from all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/></returns>
+        private IEnumerable<string> GetChildrenErrors()
+        {
+            return Children.OfType<ValidatingViewModel>().SelectMany(c => c.GetErrors(null).OfType<string>()).Where(e => !String.IsNullOrEmpty(e));
+        }
+
+        #endregion
+
+        #region INotifyDataErrorInfo
+
+        /// <summary>
+        /// Returns if there are any validation errors
+        /// </summary>
+        [IsDirtyIgnored]
+        [PropertySource(nameof(Children), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+        public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
+
+        /// <summary>
+        /// Gets validation errors from a specified property
+        /// </summary>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>Validation errors from the property</returns>
+        public System.Collections.IEnumerable GetErrors(string propertyName)
+        {
+            if (String.IsNullOrEmpty(propertyName))
+                return GetAllErrors();
+
+            if (_validationErrors.ContainsKey(propertyName))
+                return _validationErrors[propertyName];
+
+            if (nameof(Children).Equals(propertyName))
+                return GetChildrenErrors();
+
+            return Enumerable.Empty<string>();
+        }
+
+        /// <summary>
+        /// Event that gets fired when the validation errors change
+        /// </summary>
+        public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        /// <summary>
+        /// Raises an event on the ErrorsChanged event
+        /// </summary>
+        private void RaiseErrorsChanged(string propertyName = null)
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             RaisePropertyChanged(nameof(HasErrors));
         }
-        
+
+        #endregion
+
         private bool _validationSuspended;
 
         /// <summary>
@@ -72,102 +198,30 @@ namespace NKristek.Smaragd.ViewModels
         [PropertySource(nameof(HasErrors))]
         public bool IsValid => !HasErrors;
 
-        private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
-
-        /// <summary>
-        /// Set the validation error of the property
-        /// </summary>
-        /// <param name="error">This is the validation error and has to be set to null if no validation error occured</param>
-        /// <param name="propertyName">Name of the property which validates with this error</param>
-        protected void SetValidationError(string error, [CallerMemberName] string propertyName = null)
-        {
-            SetValidationErrors(Enumerable.Repeat(error, 1), propertyName);
-        }
-
         /// <summary>
         /// Set multiple validation errors of the property
         /// </summary>
-        /// <param name="errors">These are the validation errors and has to be empty if no validation error occured</param>
         /// <param name="propertyName">Name of the property which validates with this error</param>
-        protected void SetValidationErrors(IEnumerable<string> errors, [CallerMemberName] string propertyName = null)
+        /// <param name="errors">These are the validation errors and has to be empty if no validation error occured</param>
+        private void SetValidationErrors(string propertyName, IEnumerable<string> errors)
         {
             if (propertyName == null)
                 return;
 
-            var errorList = errors.ToList();
-            if (errorList.Any(e => !String.IsNullOrEmpty(e)))
+            var errorList = errors.Where(e => !String.IsNullOrEmpty(e)).ToList();
+            if (errorList.Any())
+            {
                 _validationErrors[propertyName] = errorList;
+                RaiseErrorsChanged(propertyName);
+            }
             else
-                _validationErrors.Remove(propertyName);
-            
-            RaiseErrorsChanged(propertyName);
-        }
-
-        /// <summary>
-        /// Raises an event on the ErrorsChanged event
-        /// </summary>
-        protected void RaiseErrorsChanged([CallerMemberName] string propertyName = null)
-        {
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-            RaisePropertyChanged(nameof(HasErrors));
-        }
-
-        /// <summary>
-        /// Concatenated validation errors
-        /// </summary>
-        public string Error
-        {
-            get
             {
-                var errors = _validationErrors.Select(kvp => $"{kvp.Key}: {String.Join(", ", kvp.Value)}");
-                var childrenErrors = Children.OfType<ValidatingViewModel>().Select(c => c.Error);
-                return String.Join("\n", errors.Concat(childrenErrors));
+                if (_validationErrors.Remove(propertyName))
+                    RaiseErrorsChanged(propertyName);
             }
-        } 
 
-        /// <summary>
-        /// Get validation error by the name of the property
-        /// </summary>
-        /// <param name="columnName">Name of the property</param>
-        /// <returns></returns>
-        public string this[string columnName]
-        {
-            get
-            {
-                if (_validationErrors.ContainsKey(columnName))
-                    return String.Join("\n", _validationErrors[columnName]);
-                if (nameof(Children).Equals(columnName))
-                    return String.Join("\n", Children.OfType<ValidatingViewModel>().Select(c => c.Error));
-                return null;
-            }
         }
-
-        /// <summary>
-        /// Event that gets fired when the validation errors change
-        /// </summary>
-        public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        /// <summary>
-        /// Gets validation errors from a specified property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Validation errors from the property</returns>
-        public System.Collections.IEnumerable GetErrors(string propertyName)
-        {
-            if (_validationErrors.ContainsKey(propertyName))
-                return _validationErrors[propertyName];
-            if (nameof(Children).Equals(propertyName))
-                return Children.OfType<ValidatingViewModel>().Select(c => c.Error).Where(e => e != null);
-            return null;
-        }
-
-        /// <summary>
-        /// Returns if there are any validation errors
-        /// </summary>
-        [IsDirtyIgnored]
-        [PropertySource(nameof(Children), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
-        public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
-
+        
         /// <summary>
         /// All validation logic will be executed, even when <see cref="ValidationSuspended"/> is set to true.
         /// </summary>
@@ -189,24 +243,6 @@ namespace NKristek.Smaragd.ViewModels
         }
         
         /// <summary>
-        /// Add a validation for the named property
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertyName"></param>
-        /// <param name="validation">Validation to add</param>
-        /// <param name="initialValue">Initial value of the property for the initial run of the validation</param>
-        private void AddValidation<T>(string propertyName, Validation<T> validation, T initialValue)
-        {
-            if (_validations.TryGetValue(propertyName, out var existingValidations))
-                existingValidations.Add(validation);
-            else
-                _validations.Add(propertyName, new List<IValidation> { validation });
-
-            if (_validations.TryGetValue(propertyName, out var validations))
-                Validate(propertyName, initialValue, validations.OfType<Validation<T>>());
-        }
-
-        /// <summary>
         /// Add a validation for the property returned by the lambda expression
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -214,18 +250,32 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="validation">Validation to add</param>
         protected void AddValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
         {
-            AddValidation(GetPropertyName(propertySelector), validation, propertySelector.Compile()());
-        }
+            var propertyName = GetPropertyName(propertySelector);
+            var initialValue = propertySelector.Compile()();
 
+            if (_validations.TryGetValue(propertyName, out var existingValidations))
+            {
+                existingValidations.Add(validation);
+            }
+            else
+            {
+                existingValidations = new List<IValidation> { validation };
+                _validations.Add(propertyName, existingValidations);
+            }
+
+            Validate(propertyName, initialValue, existingValidations.OfType<Validation<T>>());
+        }
+        
         /// <summary>
-        /// Removes a specific validation for the property
+        /// Removes a specific validation for the property returned by the expression
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertyName"></param>
+        /// <typeparam name="T">Type of the property to validate</typeparam>
+        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
         /// <param name="validation">Validation to remove</param>
-        /// <returns></returns>
-        private bool RemoveValidation<T>(string propertyName, Validation<T> validation)
+        /// <returns>If the validation was found and successfully removed</returns>
+        protected bool RemoveValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
         {
+            var propertyName = GetPropertyName(propertySelector);
             if (!_validations.TryGetValue(propertyName, out var validations))
                 return false;
 
@@ -236,65 +286,32 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Removes a specific validation for the property returned by the lambda expression
+        /// Removes all validations for the property returned by the expression
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
-        /// <param name="validation">Validation to remove</param>
-        /// <returns></returns>
-        protected bool RemoveValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
+        /// <typeparam name="T">Type of the validating property</typeparam>
+        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
+        /// <returns>If the validation was found and successfully removed</returns>
+        protected bool RemoveValidations<T>(Expression<Func<T>> propertySelector)
         {
-            return RemoveValidation(GetPropertyName(propertySelector), validation);
-        }
-
-        /// <summary>
-        /// Removes all validations for the property
-        /// </summary>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
-        private bool RemoveValidations(string propertyName)
-        {
+            var propertyName = GetPropertyName(propertySelector);
             return _validations.Remove(propertyName);
         }
 
         /// <summary>
-        /// Removes all validations for the property returned by the lambda expression
+        /// Get all validations. Key is the name of the property, value are all validations for the property.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
-        /// <returns></returns>
-        protected bool RemoveValidations<T>(Expression<Func<T>> propertySelector)
-        {
-            return RemoveValidations(GetPropertyName(propertySelector));
-        }
-
-        /// <summary>
-        /// Get all validations
-        /// </summary>
-        /// <returns></returns>
+        /// <returns>All validations. Key is the name of the property, value are all validations for the property.</returns>
         public IEnumerable<KeyValuePair<string, IList<IValidation>>> Validations()
         {
             return _validations.ToList();
         }
 
         /// <summary>
-        /// Get all validations for the property
+        /// Get all validations for the property returned by the expression
         /// </summary>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
-        public IEnumerable<IValidation> Validations(string propertyName)
-        {
-            return _validations.ContainsKey(propertyName)
-                ? _validations[propertyName]
-                : Enumerable.Empty<IValidation>();
-        }
-
-        /// <summary>
-        /// Get all validations for the property returned by the lambda expression
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
-        /// <returns></returns>
+        /// <typeparam name="T">Type of the validating property</typeparam>
+        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
+        /// <returns>All validations for the property</returns>
         public IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector)
         {
             var propertyName = GetPropertyName(propertySelector);
@@ -303,6 +320,12 @@ namespace NKristek.Smaragd.ViewModels
                 : Enumerable.Empty<Validation<T>>();
         }
 
+        /// <summary>
+        /// Gets the property name of the property in the given expression
+        /// </summary>
+        /// <typeparam name="T">Type of the property</typeparam>
+        /// <param name="propertyExpression">Expression which points to the property</param>
+        /// <returns>Name of the property in the given expression</returns>
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
         {
             var memberExpression = propertyExpression.Body as MemberExpression;
@@ -325,11 +348,18 @@ namespace NKristek.Smaragd.ViewModels
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
-            if (propertyWasChanged && _validations.TryGetValue(propertyName, out var validations))
+            if (propertyWasChanged && !ValidationSuspended && _validations.TryGetValue(propertyName, out var validations))
                 Validate(propertyName, value, validations.OfType<Validation<T>>());
             return propertyWasChanged;
         }
 
+        /// <summary>
+        /// Validates the given validations and sets the validation error
+        /// </summary>
+        /// <typeparam name="T">Type of the property to validate</typeparam>
+        /// <param name="propertyName">Name of the property to validate</param>
+        /// <param name="value">Value of the property to validate</param>
+        /// <param name="validations">Validations of the property to validate</param>
         private void Validate<T>(string propertyName, T value, IEnumerable<Validation<T>> validations)
         {
             var errors = new List<string>();
@@ -338,9 +368,15 @@ namespace NKristek.Smaragd.ViewModels
                 if (!validation.IsValid(value, out var errorMessage))
                     errors.Add(errorMessage);
             }
-            SetValidationErrors(errors, propertyName);
+            SetValidationErrors(propertyName, errors);
         }
 
+        /// <summary>
+        /// Validates the given validations and sets the validation error
+        /// </summary>
+        /// <param name="propertyName">Name of the property to validate</param>
+        /// <param name="value">Value of the property to validate</param>
+        /// <param name="validations">Validations of the property to validate</param>
         private void Validate(string propertyName, object value, IEnumerable<IValidation> validations)
         {
             var errors = new List<string>();
@@ -349,7 +385,7 @@ namespace NKristek.Smaragd.ViewModels
                 if (!validation.IsValid(value, out var errorMessage))
                     errors.Add(errorMessage);
             }
-            SetValidationErrors(errors, propertyName);
+            SetValidationErrors(propertyName, errors);
         }
 
         /// <summary>
