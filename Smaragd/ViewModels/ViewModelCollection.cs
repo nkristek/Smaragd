@@ -114,7 +114,6 @@ namespace NKristek.Smaragd.ViewModels
             if (collection == null)
                 return;
             
-            // olditems and newitems will usually be emtpy when the reset event is invoked => remember items from collection separately
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
