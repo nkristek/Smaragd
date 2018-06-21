@@ -65,7 +65,6 @@
     <Compile Include="ViewModels\ComputedBindableBase.cs" />
     <Compile Include="ViewModels\DialogModel.cs" />
     <Compile Include="Attributes\PropertySourceAttribute.cs" />
-    <Compile Include="ViewModels\Helpers\SuspendNotificationsDisposable.cs" />
     <Compile Include="Validation\SuspendValidationDisposable.cs" />
     <Compile Include="ViewModels\TreeViewModel.cs" />
     <Compile Include="ViewModels\ValidatingViewModel.cs" />

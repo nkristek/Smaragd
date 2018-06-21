@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.ViewModels
 {
@@ -15,41 +14,9 @@ namespace NKristek.Smaragd.ViewModels
         private readonly object _lockObject = new object();
 
         public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        private bool _propertyChangedNotificationsSuspended;
-
+        
         /// <summary>
-        /// If the <see cref="PropertyChanged"/> events are temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendPropertyChangedNotifications"/> to unsuspend.
-        /// </summary>
-        public bool PropertyChangedNotificationsSuspended
-        {
-            get
-            {
-                lock (_lockObject)
-                {
-                    return _propertyChangedNotificationsSuspended;
-                }
-            }
-
-            internal set
-            {
-                lock (_lockObject)
-                {
-                    if (value == _propertyChangedNotificationsSuspended)
-                        return;
-
-                    _propertyChangedNotificationsSuspended = value;
-                    OnPropertyChangedNotificationsSuspendedChanged(value);
-                }
-            }
-        }
-
-        internal virtual void OnPropertyChangedNotificationsSuspendedChanged(bool suspended)
-        {
-        }
-
-        /// <summary>
-        /// Raises an event on the <see cref="PropertyChangedEventHandler"/>
+        /// Raise an event on the <see cref="PropertyChangedEventHandler"/>
         /// </summary>
         /// <param name="propertyName">Name of the property which changed</param>
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
@@ -57,12 +24,13 @@ namespace NKristek.Smaragd.ViewModels
             InternalRaisePropertyChanged(propertyName);
         }
 
-        internal virtual bool InternalRaisePropertyChanged(string propertyName)
+        /// <summary>
+        /// Raise an event on the <see cref="PropertyChangedEventHandler"/>. Override to alter or extend the behaviour.
+        /// </summary>
+        /// <param name="propertyName">Name of the property which changed</param>
+        internal virtual void InternalRaisePropertyChanged(string propertyName)
         {
-            if (!PropertyChangedNotificationsSuspended)
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            return !PropertyChangedNotificationsSuspended;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -85,15 +53,6 @@ namespace NKristek.Smaragd.ViewModels
             storage = value;
             RaisePropertyChanged(propertyName);
             return true;
-        }
-
-        /// <summary>
-        /// Temporarily suspends all events on <see cref="PropertyChanged"/>. This could be used in a batch update to prevent <see cref="PropertyChanged"/> overhead.
-        /// </summary>
-        /// <returns><see cref="IDisposable"/> which unsuspends notifications when disposed.</returns>
-        public IDisposable SuspendPropertyChangedNotifications()
-        {
-            return new SuspendNotificationsDisposable(this);
         }
     }
 }
