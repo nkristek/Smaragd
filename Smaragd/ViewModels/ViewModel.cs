@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -9,12 +8,14 @@ using NKristek.Smaragd.Attributes;
 
 namespace NKristek.Smaragd.ViewModels
 {
+    /// <inheritdoc />
     /// <summary>
-    /// ViewModel implementation, it supports the <see cref="IsDirtyIgnoredAttribute"/> above properties to prevent setting <see cref="IsDirty"/> for the property in question
+    /// ViewModel implementation, it supports the <see cref="IsDirtyIgnoredAttribute" /> above properties to prevent setting <see cref="IsDirty" /> for the property in question
     /// </summary>
     public abstract class ViewModel
         : ComputedBindableBase
     {
+        /// <inheritdoc />
         protected ViewModel()
         {
             // set IsDirty when any collection changes
@@ -107,8 +108,9 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Sets a property if <see cref="IsReadOnly"/> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>
+        /// Sets a property if <see cref="IsReadOnly" /> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler" />
         /// </summary>
         /// <typeparam name="T">Type of the property to set</typeparam>
         /// <param name="storage">Reference to the storage variable</param>
@@ -140,81 +142,18 @@ namespace NKristek.Smaragd.ViewModels
         {
             IsDirty = true;
         }
-        
-        private readonly Dictionary<ViewModel, string> _childViewModelPropertyMapping = new Dictionary<ViewModel, string>();
 
         /// <summary>
-        /// Add a <see cref="ViewModel"/> to the <see cref="Children"/> collection and set its <see cref="Parent"/>.
+        /// Sets <see cref="IsDirty"/> to <c>True</c> if no <see cref="IsDirtyIgnoredAttribute"/> is set on the property of the given <see cref="ViewModel"/> or on the property of the collection which contains the given <see cref="ViewModel"/>
         /// </summary>
-        /// <param name="childViewModel"></param>
-        /// <param name="propagatePropertyChanged">Determines if an event on the <see cref="BindableBase.PropertyChanged"/> for this property should be raised if an propertychanged event on the childviewmodel was raised.</param>
-        /// <param name="propertyName"></param>
-        protected void AddChildViewModel(ViewModel childViewModel, bool propagatePropertyChanged = true, [CallerMemberName] string propertyName = "")
-        {
-            if (childViewModel == null)
-                throw new ArgumentNullException(nameof(childViewModel));
-
-            if (String.IsNullOrEmpty(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
-
-            if (_childViewModelPropertyMapping.ContainsKey(childViewModel))
-                return;
-
-            _childViewModelPropertyMapping.Add(childViewModel, propertyName);
-
-            if (propagatePropertyChanged)
-                childViewModel.PropertyChanged += _ChildViewModel_PropertyChanged;
-
-            childViewModel.Parent = this;
-            _allChildren.Add(childViewModel);
-        }
-
-        /// <summary>
-        /// Remove a <see cref="ViewModel"/> from the <see cref="Children"/> collection and from the <see cref="BindableBase.PropertyChanged"/> event of the child.
-        /// </summary>
-        /// <param name="childViewModel"></param>
-        /// <param name="propertyName"></param>
-        protected void RemoveChildViewModel(ViewModel childViewModel, [CallerMemberName] string propertyName = "")
-        {
-            if (childViewModel == null)
-                throw new ArgumentNullException(nameof(childViewModel));
-
-            if (String.IsNullOrEmpty(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
-
-            if (!_childViewModelPropertyMapping.Remove(childViewModel))
-                return;
-            
-            childViewModel.PropertyChanged -= _ChildViewModel_PropertyChanged;
-
-            childViewModel.Parent = null;
-            _allChildren.Remove(childViewModel);
-        }
-
-        /// <summary>
-        /// Raise a PropertyChanged event for the child <see cref="ViewModel"/> if a property changed on it
-        /// </summary>
-        /// <param name="sender">The child <see cref="ViewModel"/></param>
-        /// <param name="e">EventArgs</param>
-        private void _ChildViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var childViewModel = sender as ViewModel;
-            if (childViewModel == null)
-                return;
-
-            if (!_childViewModelPropertyMapping.ContainsKey(childViewModel))
-                return;
-            
-            var childViewModelPropertyName = _childViewModelPropertyMapping[childViewModel];
-            RaisePropertyChanged(childViewModelPropertyName);
-        }
-
+        /// <param name="childViewModel"><see cref="ViewModel"/> which propagates the change of <see cref="IsDirty"/></param>
         internal void SetIsDirty(ViewModel childViewModel)
         {
             if (IsDirty)
                 return;
 
-            if (!_childViewModelPropertyMapping.TryGetValue(childViewModel, out var childViewModelPropertyName))
+            var childViewModelPropertyName = Children.GetChildViewModelPropertyName(childViewModel);
+            if (String.IsNullOrEmpty(childViewModelPropertyName))
             {
                 // childViewModel is no single property, look in collections instead
                 foreach (var collectionPropertyName in Children.GetContainingCollectionPropertyNames(childViewModel))
@@ -222,15 +161,15 @@ namespace NKristek.Smaragd.ViewModels
                     if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(collectionPropertyName))
                     {
                         IsDirty = true;
-                        break;
+                        return;
                     }
                 }
-
-                return;
             }
-
-            if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(childViewModelPropertyName))
-                IsDirty = true;
+            else
+            {
+                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(childViewModelPropertyName))
+                    IsDirty = true;
+            }
         }
 
         private readonly ObservableCollection<ViewModel> _allChildren = new ObservableCollection<ViewModel>();

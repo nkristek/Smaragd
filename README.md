@@ -115,7 +115,7 @@ This property will be propagated to all children.
 
 ### Nested ViewModels
 
-If the property is a `ViewModel` you should call `RemoveChildViewModel()` on the old value and `AddChildViewModel()` on the new value if the property changed via SetProperty. This can be done like this:
+If the property is a `ViewModel` you should call `Children.RemoveViewModel()` on the old value and `Children.AddViewModel()` on the new value if the property changed via SetProperty. This can be done like this:
 ```csharp
 private ViewModel _child;
 
@@ -127,9 +127,9 @@ public ViewModel Child
         if (SetProperty(ref _child, value, out var oldValue))
         {
             if (oldValue != null)
-                RemoveChildViewModel(oldValue);
+                Children.RemoveViewModel(oldValue);
             if (value != null)
-                AddChildViewModel(value);
+                Children.AddViewModel(value, nameof(Child));
         }
     }
 }
