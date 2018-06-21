@@ -16,8 +16,15 @@ namespace NKristek.Smaragd.Attributes
     public class PropertySourceAttribute
         : Attribute
     {
+        /// <summary>
+        /// Property names of source properties
+        /// </summary>
         public IEnumerable<string> PropertySources { get; }
-        
+
+        /// <summary>
+        /// Initializes a new instance of this class.
+        /// </summary>
+        /// <param name="propertyNames">Property names of source properties</param>
         public PropertySourceAttribute(params string[] propertyNames)
         {
             PropertySources = propertyNames;

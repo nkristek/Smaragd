@@ -5,13 +5,15 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc />
     /// <summary>
-    /// <see cref="AsyncBindableCommand"/> with <see cref="ViewModel"/> support
+    /// <see cref="AsyncBindableCommand" /> with <see cref="ViewModel" /> support
     /// </summary>
     /// <typeparam name="TViewModel">Type of the parent ViewModel</typeparam>
     public abstract class AsyncViewModelCommand<TViewModel>
         : AsyncBindableCommand where TViewModel : ViewModel
     {
+        /// <inheritdoc />
         protected AsyncViewModelCommand(TViewModel parent)
         {
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
@@ -55,7 +57,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="viewModel"><see cref="Parent"/> of this command</param>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <returns>If the command can execute</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
@@ -66,7 +68,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="viewModel"><see cref="Parent"/> of this command</param>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="Task"/> of this execution</returns>
         protected abstract Task DoExecute(TViewModel viewModel, object parameter);
     }
 }

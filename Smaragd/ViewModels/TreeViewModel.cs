@@ -3,8 +3,9 @@ using NKristek.Smaragd.Attributes;
 
 namespace NKristek.Smaragd.ViewModels
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This <see cref="ViewModel"/> provides an <see cref="IsChecked"/> implementation to use in a TreeView. It will update its parent <see cref="TreeViewModel"/> and children <see cref="TreeViewModel"/> with appropriate states for <see cref="IsChecked"/>.
+    /// This <see cref="ViewModel" /> provides an <see cref="IsChecked" /> property to use in a TreeView. It will update its parent <see cref="TreeViewModel" /> and children <see cref="TreeViewModel" /> with appropriate states for <see cref="IsChecked" />.
     /// </summary>
     public abstract class TreeViewModel
         : ViewModel
@@ -34,10 +35,10 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Set <see cref="IsChecked"/> property and optionally update <see cref="Children"/> and <see cref="ViewModel.Parent"/>. 
+        /// Set <see cref="IsChecked"/> property and optionally update <see cref="ViewModel.Children"/> and <see cref="ViewModel.Parent"/>. 
         /// </summary>
         /// <param name="value">The value that should be set.</param>
-        /// <param name="updateChildren">If <see cref="Children"/> should be updated.</param>
+        /// <param name="updateChildren">If <see cref="ViewModel.Children"/> should be updated.</param>
         /// <param name="updateParent">If the <see cref="ViewModel.Parent"/> should be updated.</param>
         public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {

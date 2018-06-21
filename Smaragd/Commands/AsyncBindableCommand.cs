@@ -14,9 +14,7 @@ namespace NKristek.Smaragd.Commands
     {
         private bool _isWorking;
 
-        /// <summary>
-        /// Indicates if <see cref="ExecuteAsync(object)"/> is running
-        /// </summary>
+        /// <inheritdoc />
         public bool IsWorking
         {
             get => _isWorking;
@@ -27,30 +25,19 @@ namespace NKristek.Smaragd.Commands
             }
         }
 
-        /// <summary>
-        /// Override this method to indicate if <see cref="Execute(object)"/> can execute
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public virtual bool CanExecute(object parameter)
         {
             return !IsWorking;
         }
 
-        /// <summary>
-        /// This method executes <see cref="ExecuteAsync(object)"/>
-        /// </summary>
-        /// <param name="parameter">Optional parameter</param>
+        /// <inheritdoc />
         public async void Execute(object parameter)
         {
             await ExecuteAsync(parameter);
         }
 
-        /// <summary>
-        /// Execute this command asynchrously
-        /// </summary>
-        /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public async Task ExecuteAsync(object parameter)
         {
             try
@@ -68,17 +55,13 @@ namespace NKristek.Smaragd.Commands
         /// Asynchronous <see cref="ICommand.Execute(object)"/>
         /// </summary>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="Task"/> of this execution</returns>
         protected abstract Task DoExecute(object parameter);
         
-        /// <summary>
-        /// This event will be raised when the result of <see cref="CanExecute(object)"/> should be reevaluated
-        /// </summary>
+        /// <inheritdoc />
         public virtual event EventHandler CanExecuteChanged;
 
-        /// <summary>
-        /// Raise an event that <see cref="CanExecute(object)"/> should be reevaluated
-        /// </summary>
+        /// <inheritdoc />
         public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);

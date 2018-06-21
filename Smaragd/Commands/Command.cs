@@ -3,26 +3,20 @@ using System.Windows.Input;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc cref="ICommand" />
     /// <summary>
-    /// <see cref="ICommand"/> implementation
+    /// <see cref="T:System.Windows.Input.ICommand" /> implementation
     /// </summary>
     public abstract class Command
         : ICommand, IRaiseCanExecuteChanged
     {
-        /// <summary>
-        /// Override this method to indicate if <see cref="Execute(object)"/> can execute
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public virtual bool CanExecute(object parameter)
         {
             return true;
         }
 
-        /// <summary>
-        /// Execute this command
-        /// </summary>
-        /// <param name="parameter"></param>
+        /// <inheritdoc />
         public void Execute(object parameter)
         {
             DoExecute(parameter);
@@ -31,17 +25,13 @@ namespace NKristek.Smaragd.Commands
         /// <summary>
         /// Synchronous <see cref="ICommand.Execute(object)"/>
         /// </summary>
-        /// <param name="parameter"></param>
+        /// <param name="parameter">Optional parameter</param>
         protected abstract void DoExecute(object parameter);
         
-        /// <summary>
-        /// This event will be raised when the result of <see cref="CanExecute(object)"/> should be reevaluated
-        /// </summary>
+        /// <inheritdoc />
         public virtual event EventHandler CanExecuteChanged;
 
-        /// <summary>
-        /// Raise an event that <see cref="CanExecute(object)"/> should be reevaluated
-        /// </summary>
+        /// <inheritdoc />
         public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);

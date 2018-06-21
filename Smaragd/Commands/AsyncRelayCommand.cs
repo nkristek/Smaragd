@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc />
     /// <summary>
-    /// Asynchronous implementation of <see cref="RelayCommand"/>
+    /// Asynchronous implementation of <see cref="T:NKristek.Smaragd.Commands.RelayCommand" />
     /// </summary>
     public sealed class AsyncRelayCommand
         : AsyncCommand
@@ -13,27 +14,20 @@ namespace NKristek.Smaragd.Commands
 
         private readonly Predicate<object> _canExecute;
 
+        /// <inheritdoc />
         public AsyncRelayCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
             _execute = execute;
             _canExecute = canExecute;
         }
 
-        /// <summary>
-        /// Indicates if <see cref="AsyncCommand.ExecuteAsync"/> is allowed to execute
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public override bool CanExecute(object parameter)
         {
             return _canExecute?.Invoke(parameter) ?? base.CanExecute(parameter);
         }
 
-        /// <summary>
-        /// Asynchronously executes the given <see cref="Predicate{T}"/>
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         protected override async Task DoExecute(object parameter)
         {
             await Task.Run(() =>

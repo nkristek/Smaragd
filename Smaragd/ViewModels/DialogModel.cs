@@ -1,5 +1,9 @@
 ﻿namespace NKristek.Smaragd.ViewModels
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// A <see cref="ValidatingViewModel" /> which provides a title to use in dialogs
+    /// </summary>
     public abstract class DialogModel 
         : ValidatingViewModel
     {

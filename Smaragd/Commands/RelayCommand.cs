@@ -3,8 +3,9 @@ using System.Windows.Input;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc />
     /// <summary>
-    /// <see cref="ICommand"/> which executes a given action
+    /// <see cref="ICommand" /> which executes a given action
     /// </summary>
     public sealed class RelayCommand
         : Command
@@ -13,27 +14,20 @@ namespace NKristek.Smaragd.Commands
 
         private readonly Predicate<object> _canExecute;
 
+        /// <inheritdoc />
         public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
-        /// <summary>
-        /// Indicates if <see cref="DoExecute(object)"/> can execute
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public override bool CanExecute(object parameter)
         {
             return _canExecute?.Invoke(parameter) ?? base.CanExecute(parameter);
         }
 
-        /// <summary>
-        /// Synchronously executes the given <see cref="Predicate{T}"/>
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         protected override void DoExecute(object parameter)
         {
             _execute?.Invoke(parameter);

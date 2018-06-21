@@ -18,8 +18,16 @@ namespace NKristek.Smaragd.Attributes
     public class PropertySourceCollectionAttribute
         : Attribute
     {
+        /// <summary>
+        /// A tuple containing the source collection property name and a list of <see cref="NotifyCollectionChangedAction"/> which should trigger the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+        /// </summary>
         public Tuple<string, IList<NotifyCollectionChangedAction>> CollectionSource { get; }
-        
+
+        /// <summary>
+        /// Initializes a new instance of this class.
+        /// </summary>
+        /// <param name="collectionName">Name of the source collection property</param>
+        /// <param name="actions">A list of <see cref="NotifyCollectionChangedAction"/> which should trigger the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.</param>
         public PropertySourceCollectionAttribute(string collectionName, params NotifyCollectionChangedAction[] actions)
         {
             CollectionSource = new Tuple<string, IList<NotifyCollectionChangedAction>>(collectionName, actions);

@@ -3,6 +3,10 @@ using System.Windows.Input;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// An asynchronous <see cref="ICommand"/>
+    /// </summary>
     public interface IAsyncCommand
         : ICommand
     {
@@ -15,7 +19,7 @@ namespace NKristek.Smaragd.Commands
         /// Execute this command asynchrously
         /// </summary>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="Task"/> of this execution</returns>
         Task ExecuteAsync(object parameter);
     }
 }

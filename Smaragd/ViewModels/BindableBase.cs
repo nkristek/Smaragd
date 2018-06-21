@@ -6,13 +6,12 @@ using System.Runtime.CompilerServices;
 namespace NKristek.Smaragd.ViewModels
 {
     /// <summary>
-    /// INotifyPropertyChanged implementation
+    /// Basic <see cref="INotifyPropertyChanged"/> implementation
     /// </summary>
     public abstract class BindableBase
         : INotifyPropertyChanged
     {
-        private readonly object _lockObject = new object();
-
+        /// <inheritdoc />
         public virtual event PropertyChangedEventHandler PropertyChanged;
         
         /// <summary>
@@ -41,7 +40,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="value">New value to set</param>
         /// <param name="propertyName">Name of the property</param>
         /// <param name="oldValue">The old value of the property</param>
-        /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
+        /// <returns><c>True</c> if the value was different from the storage variable and the PropertyChanged event was raised</returns>
         protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
             if (String.IsNullOrEmpty(propertyName))

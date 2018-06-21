@@ -20,6 +20,7 @@ namespace NKristek.Smaragd.ViewModels
 
         private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
 
+        /// <inheritdoc />
         protected ValidatingViewModel()
         {
             ((INotifyCollectionChanged) Children).CollectionChanged += OnChildrenCollectionChanged;
@@ -33,11 +34,7 @@ namespace NKristek.Smaragd.ViewModels
 
         #region IDataErrorInfo
         
-        /// <summary>
-        /// Get validation error by the name of the property
-        /// </summary>
-        /// <param name="propertyName">Name of the property. If the property name is null or empty, all validation errors will be returned.</param>
-        /// <returns>Validation errors of the property. If the property name is null or empty, all validation errors will be returned.</returns>
+        /// <inheritdoc />
         public string this[string propertyName]
         {
             get
@@ -55,15 +52,9 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
-        /// <summary>
-        /// All validation errors concatenated with <see cref="Environment.NewLine"/>
-        /// </summary>
+        /// <inheritdoc />
         public string Error => String.Join(Environment.NewLine, GetAllErrors());
 
-        /// <summary>
-        /// Gets all validation errors from this <see cref="ValidatingViewModel"/> and all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/>
-        /// </summary>
-        /// <returns>All validation errors from this <see cref="ValidatingViewModel"/> and all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/></returns>
         private IEnumerable<string> GetAllErrors()
         {
             var errors = _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
@@ -71,10 +62,6 @@ namespace NKristek.Smaragd.ViewModels
             return errors.Concat(childrenErrors);
         }
 
-        /// <summary>
-        /// Gets all validation errors from all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/>
-        /// </summary>
-        /// <returns>All validation errors from all <see cref="ViewModel.Children"/> of type <see cref="ValidatingViewModel"/></returns>
         private IEnumerable<string> GetChildrenErrors()
         {
             return Children.OfType<ValidatingViewModel>().SelectMany(c => c.GetErrors(null).OfType<string>()).Where(e => !String.IsNullOrEmpty(e));
@@ -84,18 +71,12 @@ namespace NKristek.Smaragd.ViewModels
 
         #region INotifyDataErrorInfo
 
-        /// <summary>
-        /// Returns if there are any validation errors
-        /// </summary>
+        /// <inheritdoc />
         [IsDirtyIgnored]
         [PropertySourceCollection(nameof(Children))]
         public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
 
-        /// <summary>
-        /// Gets validation errors from a specified property
-        /// </summary>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>Validation errors from the property</returns>
+        /// <inheritdoc />
         public System.Collections.IEnumerable GetErrors(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
@@ -110,13 +91,11 @@ namespace NKristek.Smaragd.ViewModels
             return Enumerable.Empty<string>();
         }
 
-        /// <summary>
-        /// Event that gets fired when the validation errors change
-        /// </summary>
+        /// <inheritdoc />
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         /// <summary>
-        /// Raises an event on the ErrorsChanged event
+        /// Raises an event on the <see cref="ErrorsChanged"/> event
         /// </summary>
         protected internal void RaiseErrorsChanged(string propertyName = null)
         {
@@ -151,12 +130,7 @@ namespace NKristek.Smaragd.ViewModels
         [IsDirtyIgnored]
         [PropertySource(nameof(HasErrors))]
         public bool IsValid => !HasErrors;
-
-        /// <summary>
-        /// Set multiple validation errors of the property
-        /// </summary>
-        /// <param name="propertyName">Name of the property which validates with this error</param>
-        /// <param name="errors">These are the validation errors and has to be empty if no validation error occured</param>
+        
         private void SetValidationErrors(string propertyName, IEnumerable<string> errors)
         {
             if (propertyName == null)
@@ -272,13 +246,7 @@ namespace NKristek.Smaragd.ViewModels
                 ? _validations[propertyName].OfType<Validation<T>>()
                 : Enumerable.Empty<Validation<T>>();
         }
-
-        /// <summary>
-        /// Gets the property name of the property in the given expression
-        /// </summary>
-        /// <typeparam name="T">Type of the property</typeparam>
-        /// <param name="propertyExpression">Expression which points to the property</param>
-        /// <returns>Name of the property in the given expression</returns>
+        
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
         {
             var memberExpression = propertyExpression.Body as MemberExpression;
@@ -305,14 +273,7 @@ namespace NKristek.Smaragd.ViewModels
                 Validate(propertyName, value, validations.OfType<Validation<T>>());
             return propertyWasChanged;
         }
-
-        /// <summary>
-        /// Validates the given validations and sets the validation error
-        /// </summary>
-        /// <typeparam name="T">Type of the property to validate</typeparam>
-        /// <param name="propertyName">Name of the property to validate</param>
-        /// <param name="value">Value of the property to validate</param>
-        /// <param name="validations">Validations of the property to validate</param>
+        
         private void Validate<T>(string propertyName, T value, IEnumerable<Validation<T>> validations)
         {
             var errors = new List<string>();
@@ -323,13 +284,7 @@ namespace NKristek.Smaragd.ViewModels
             }
             SetValidationErrors(propertyName, errors);
         }
-
-        /// <summary>
-        /// Validates the given validations and sets the validation error
-        /// </summary>
-        /// <param name="propertyName">Name of the property to validate</param>
-        /// <param name="value">Value of the property to validate</param>
-        /// <param name="validations">Validations of the property to validate</param>
+        
         private void Validate(string propertyName, object value, IEnumerable<IValidation> validations)
         {
             var errors = new List<string>();

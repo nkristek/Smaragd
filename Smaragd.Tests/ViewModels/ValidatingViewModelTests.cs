@@ -39,9 +39,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
                     if (SetProperty(ref _child, value, out var oldValue))
                     {
                         if (oldValue != null)
-                            RemoveChildViewModel(oldValue);
+                            Children.RemoveViewModel(oldValue);
                         if (value != null)
-                            AddChildViewModel(value);
+                            Children.AddViewModel(value, nameof(Child));
                     }
                 }
             }

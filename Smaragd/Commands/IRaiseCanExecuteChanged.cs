@@ -2,6 +2,9 @@
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <summary>
+    /// Provides support for raising events on the <see cref="ICommand.CanExecuteChanged"/> event handler
+    /// </summary>
     public interface IRaiseCanExecuteChanged: ICommand
     {
         /// <summary>

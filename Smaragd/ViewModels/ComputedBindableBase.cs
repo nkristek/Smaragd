@@ -11,8 +11,9 @@ using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.ViewModels
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This class adds support to use the <see cref="PropertySourceAttribute"/> and <see cref="PropertySourceCollectionAttribute"/> above properties and <see cref="CommandCanExecuteSourceAttribute"/> and <see cref="CommandCanExecuteSourceCollectionAttribute"/> above <see cref="IRaiseCanExecuteChanged"/> implementations.
+    /// This class adds support to use the <see cref="PropertySourceAttribute" /> and <see cref="PropertySourceCollectionAttribute" /> above properties and <see cref="CommandCanExecuteSourceAttribute" /> and <see cref="CommandCanExecuteSourceCollectionAttribute" /> above properties implementing <see cref="IRaiseCanExecuteChanged" />.
     /// </summary>
     public abstract class ComputedBindableBase
         : BindableBase
@@ -67,11 +68,18 @@ namespace NKristek.Smaragd.ViewModels
             return cachedAttributes;
         }
 
+        /// <summary>
+        /// Returns if the attribute is set on the property with the given name
+        /// </summary>
+        /// <typeparam name="TAttribute">The <see cref="Attribute"/> which may exist on the property</typeparam>
+        /// <param name="propertyName">Name of the property</param>
+        /// <returns>If the attribute is set on the property</returns>
         internal bool PropertyNameHasAttribute<TAttribute>(string propertyName) where TAttribute : Attribute
         {
             return CachedAttributes.TryGetValue(propertyName, out var propertyAttributes) && propertyAttributes.Item2.Any(a => a is TAttribute);
         }
 
+        /// <inheritdoc />
         protected ComputedBindableBase()
         {
             NotificationCache = new NotificationCache(this);

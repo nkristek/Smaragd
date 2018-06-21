@@ -4,13 +4,15 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
 {
+    /// <inheritdoc />
     /// <summary>
-    /// <see cref="BindableCommand"/> with <see cref="ViewModel"/> support
+    /// <see cref="BindableCommand" /> with <see cref="ViewModel" /> support
     /// </summary>
     /// <typeparam name="TViewModel">Type of the parent ViewModel</typeparam>
     public abstract class ViewModelCommand<TViewModel>
         : BindableCommand where TViewModel : ViewModel
     {
+        /// <inheritdoc />
         protected ViewModelCommand(TViewModel parent)
         {
             Parent = parent ?? throw new ArgumentNullException(nameof(parent));
@@ -54,7 +56,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="viewModel"><see cref="Parent"/> of this command</param>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
+        /// <returns>If the command can execute</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
@@ -65,7 +67,6 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="viewModel"><see cref="Parent"/> of this command</param>
         /// <param name="parameter">Optional parameter</param>
-        /// <returns></returns>
         protected abstract void DoExecute(TViewModel viewModel, object parameter);
     }
 }
