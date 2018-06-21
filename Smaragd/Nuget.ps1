@@ -1,1 +1,0 @@
-nuget pack Smaragd.csproj -Build -Properties Configuration=Release

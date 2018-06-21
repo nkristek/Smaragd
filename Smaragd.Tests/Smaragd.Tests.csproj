@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Smaragd\Smaragd.csproj">
-      <Project>{4d3661a8-a1ca-45a3-87e6-160859d9f896}</Project>
+      <Project>{d9b7d527-bb7a-4d08-a76d-d4c24e017e84}</Project>
       <Name>Smaragd</Name>
     </ProjectReference>
   </ItemGroup>
