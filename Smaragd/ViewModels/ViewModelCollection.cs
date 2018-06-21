@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace NKristek.Smaragd.ViewModels
 {
@@ -15,11 +16,12 @@ namespace NKristek.Smaragd.ViewModels
     public class ViewModelCollection<TViewModel>
         : ReadOnlyObservableCollection<TViewModel> where TViewModel : ViewModel
     {
-        private readonly Dictionary<INotifyCollectionChanged, Tuple<string, IList<TViewModel>>> _knownCollections = new Dictionary<INotifyCollectionChanged, Tuple<string, IList<TViewModel>>>();
-
+        private readonly Dictionary<INotifyCollectionChanged, string> _knownCollections = new Dictionary<INotifyCollectionChanged, string>();
+        
         private readonly ObservableCollection<TViewModel> _allChildren;
 
         private WeakReference<ViewModel> _parent;
+
         /// <summary>
         /// The <see cref="ValidatingViewModel"/> of which the validation should be suspended.
         /// </summary>
@@ -57,7 +59,7 @@ namespace NKristek.Smaragd.ViewModels
             if (_knownCollections.ContainsKey(collection))
                 throw new Exception("Collection already exists in this ViewModelCollection");
 
-            _knownCollections[collection] = new Tuple<string, IList<TViewModel>>(collectionPropertyName, new List<TViewModel>(collection));
+            _knownCollections[collection] = collectionPropertyName;
 
             foreach (var item in collection)
             {
@@ -95,9 +97,11 @@ namespace NKristek.Smaragd.ViewModels
         /// <returns>All collection names in which the item was found</returns>
         internal IEnumerable<string> GetContainingCollectionPropertyNames(TViewModel childViewModel)
         {
-            foreach (var collectionTuple in _knownCollections.Values)
-                if (collectionTuple.Item2.Contains(childViewModel))
-                    yield return collectionTuple.Item1;
+            foreach (var collectionKvp in _knownCollections)
+            {
+                if (collectionKvp.Key is IEnumerable<TViewModel> collection && collection.Any(vm => vm == childViewModel))
+                    yield return collectionKvp.Value;
+            }
         }
 
         private void OnSubCollectionChanged(object source, NotifyCollectionChangedEventArgs args)
@@ -109,77 +113,54 @@ namespace NKristek.Smaragd.ViewModels
             var collection = source as IEnumerable<TViewModel>;
             if (collection == null)
                 return;
-
-            if (!_knownCollections.TryGetValue(notifyCollectionChanged, out var knownCollection))
-                return;
-            var knownItemsCollection = knownCollection.Item2;
-
+            
             // olditems and newitems will usually be emtpy when the reset event is invoked => remember items from collection separately
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     if (args.NewItems != null)
-                    {
-                        foreach (TViewModel newItem in args.NewItems)
-                        {
-                            newItem.Parent = Parent;
-                            _allChildren.Add(newItem);
-                            knownItemsCollection.Add(newItem);
-                        }
-                    }
+                        HandleNewItems(args.NewItems.OfType<TViewModel>());
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     if (args.OldItems != null)
-                    {
-                        foreach (TViewModel oldItem in args.OldItems)
-                        {
-                            oldItem.Parent = null;
-                            _allChildren.Add(oldItem);
-                            knownItemsCollection.Remove(oldItem);
-                        }
-                    }
+                        HandleOldItems(args.OldItems.OfType<TViewModel>());
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     if (args.OldItems != null)
-                    {
-                        foreach (TViewModel oldItem in args.OldItems)
-                        {
-                            oldItem.Parent = null;
-                            _allChildren.Add(oldItem);
-                            knownItemsCollection.Remove(oldItem);
-                        }
-                    }
-
+                        HandleOldItems(args.OldItems.OfType<TViewModel>());
                     if (args.NewItems != null)
-                    {
-                        foreach (TViewModel newItem in args.NewItems)
-                        {
-                            newItem.Parent = Parent;
-                            _allChildren.Add(newItem);
-                            knownItemsCollection.Add(newItem);
-                        }
-                    }
+                        HandleNewItems(args.NewItems.OfType<TViewModel>());
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    // remove all items that where in the collection and readd them from the current collection
-
-                    foreach (var knownItem in knownItemsCollection)
-                    {
-                        knownItem.Parent = null;
-                        _allChildren.Remove(knownItem);
-                    }
-                    knownItemsCollection.Clear();
-
-                    foreach (TViewModel item in collection)
-                    {
-                        item.Parent = Parent;
-                        _allChildren.Add(item);
-                        knownItemsCollection.Add(item);
-                    }
-
+                    // remove all items that are not referenced by a registered collection
+                    HandleOldItems(_allChildren.ToList());
+                    HandleNewItems(collection);
                     break;
                 case NotifyCollectionChangedAction.Move:
                     break;
+            }
+        }
+
+        private bool AnyKnownCollectionContainsItem(TViewModel item)
+        {
+            return _knownCollections.Keys.Any(c => c is IEnumerable<TViewModel> enumerable && enumerable.Any(i => i == item));
+        }
+
+        private void HandleOldItems(IEnumerable<TViewModel> items)
+        {
+            foreach (var oldItem in items.Where(i => !AnyKnownCollectionContainsItem(i)))
+            {
+                oldItem.Parent = null;
+                _allChildren.Remove(oldItem);
+            }
+        }
+
+        private void HandleNewItems(IEnumerable<TViewModel> items)
+        {
+            foreach (var newItem in items.Where(i => !_allChildren.Contains(i)))
+            {
+                newItem.Parent = Parent;
+                _allChildren.Add(newItem);
             }
         }
     }
