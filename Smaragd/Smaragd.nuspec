@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/nkristek/Smaragd</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>This release improves the IDataErrorInfo and INotifyDataErrorInfo implementation in ValidatingViewModel.</releaseNotes>
+    <releaseNotes>This release introduces PropertySourceCollectionAttribute and CommandCanExecuteSourceCollectionAttribute. IsReadonly will now be propagated to children. Also this release includes a number of bug fixes.</releaseNotes>
     <copyright>$copyright$</copyright>
   </metadata>
 </package>
