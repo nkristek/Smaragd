@@ -44,18 +44,19 @@ namespace NKristek.Smaragd.ViewModels
             _allChildren = allChildren;
             Parent = parent;
         }
-
+        
         /// <summary>
-        /// Adds a <see cref="ObservableCollection{T}"/> to this <see cref="ViewModelCollection{TViewModel}"/>.
+        /// Adds a collection of <see cref="ViewModel"/> instances to this <see cref="ViewModelCollection{TViewModel}"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection"></param>
-        /// <param name="collectionPropertyName">Name of the collection property in the containing <see cref="ViewModel"/>, this enables the mapping of <see cref="Attribute"/> over collections.</param>
-        public void AddCollection<T>(ObservableCollection<T> collection, string collectionPropertyName) where T : TViewModel
+        /// <typeparam name="TCollection">Type of the collection</typeparam>
+        /// <param name="collection">The collection to add</param>
+        /// <param name="collectionPropertyName">The name of the property in the containing <see cref="ViewModel"/>. This will be used </param>
+        public void AddCollection<TCollection>(TCollection collection, string collectionPropertyName)
+            where TCollection : IEnumerable<TViewModel>, INotifyCollectionChanged
         {
             if (_knownCollections.ContainsKey(collection))
                 throw new Exception("Collection already exists in this ViewModelCollection");
-            
+
             _knownCollections[collection] = new Tuple<string, IList<TViewModel>>(collectionPropertyName, new List<TViewModel>(collection));
 
             foreach (var item in collection)
@@ -68,11 +69,12 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Removes a <see cref="ObservableCollection{T}"/> from this <see cref="ViewModelCollection{TViewModel}"/>.
+        /// Removes the collection from this <see cref="ViewModelCollection"/>
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="collection"></param>
-        public void RemoveCollection<T>(ObservableCollection<T> collection) where T : TViewModel
+        /// <typeparam name="TCollection">Type of the collection</typeparam>
+        /// <param name="collection">The collection to remove</param>
+        public void RemoveCollection<TCollection>(TCollection collection)
+            where TCollection : IEnumerable<TViewModel>, INotifyCollectionChanged
         {
             if (!_knownCollections.Remove(collection))
                 throw new Exception("Collection does not exist in this ViewModelCollection");
