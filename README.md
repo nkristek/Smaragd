@@ -5,7 +5,7 @@ For an example project, please visit my other project [Stein](https://github.com
 
 ## Prerequisites
 
-The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are built using .NET 4.7, but you can compile the library yourself to fit your needs.
+The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are built for .NET Standard 2.0, but you can compile the library yourself to fit your needs.
 
 ## Installation
 
@@ -69,19 +69,21 @@ If you want to manually raise a `PropertyChanged` event, you can use `RaisePrope
 
 The `ViewModel` will **automatically** raise a `PropertyChanged` event for `ThirdProperty` when a `PropertyChanged` event is raised for either of these properties. 
 
-You can also define a collection as the source with at least one or multiple `NotifyCollectionChangedAction` like this:
+You can also define a collection as the source with the `PropertySourceCollection` attribute like this:
 ```csharp
 public ObservableCollection<int> MyValues { get; }
 
-[PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+[PropertySourceCollection(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
 public int MaxValue => MyValues.Max();
 ```
 The name should point to a property implementing `INotifyCollectionChanged`.
-This will then raise a `PropertyChanged` event for the property when the `CollectionChanged` event occurs with one of the given `NotifyCollectionChangedAction`.
+This will then raise a `PropertyChanged` event for the property when the `CollectionChanged` event occurs with one of the given `NotifyCollectionChangedAction`. When no actions are provided a `PropertyChanged` event will be risen for every `CollectionChanged` event.
 
 ### CommandCanExecuteSource
 
 The `DoStuffCommand` uses the `CommandCanExecuteSource` attribute, which indicates, that the `CanExecute()` method depends on the value of the properties named. When a `PropertyChanged` event for `ThirdProperty` is invoked, a `CanExecuteChanged` event is raised on the command (when using custom command implementations, also implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+
+You can also use the `CollectionCanExecuteSourceCollection` attribute. See the documentation for `PropertySourceCollection` above for more details.
 
 ### IsDirty
 
@@ -109,6 +111,8 @@ The `Parent` property on `ViewModel` uses a `WeakReference` internally. It will 
 
 The `IsReadOnly` property does what it implies, if set to true, `SetProperty` will now longer set any property or raise a `PropertyChanged` event except when for the `IsReadOnly` property itself.
 
+This property will be propagated to all children.
+
 ### Nested ViewModels
 
 If the property is a `ViewModel` you should call `RemoveChildViewModel()` on the old value and `AddChildViewModel()` on the new value if the property changed via SetProperty. This can be done like this:
@@ -131,7 +135,7 @@ public ViewModel Child
 }
 ```
 
-`ViewModel` has a `Children` collection. To add viewmodel collections to this `ViewModelCollection`, you have to use `AddViewModelCollection()` on the collection. This `ViewModelCollection` is otherwise read only. The idea is, that there are one or multiple `ObservableCollection<TViewModel>` on the inheriting instance which get added to the `Children` collection by using the `CollectionChanged` event.
+`ViewModel` has a `Children` collection. To add viewmodel collections to this `ViewModelCollection`, you have to use `AddViewModelCollection()` on the `Children` collection. This `ViewModelCollection` is otherwise read only. The idea is, that there are one or multiple `ObservableCollection<TViewModel>` on the inheriting instance which get added to the `Children` collection by using the `CollectionChanged` event.
 
 As said earlier, `AddChildViewModel` will set the `Parent` property of the child viewmodel.
 
@@ -173,7 +177,9 @@ This library provides the following classes:
 
 Attributes:
 - `PropertySource` (usable on properties of instances of `ComputedBindableBase`)
+- `PropertySourceCollection` (usable on properties of instances of `ComputedBindableBase`)
 - `CommandCanExecuteSource` (usable on properties of instances of `ComputedBindableBase`)
+- `CommandCanExecuteSourceCollection` (usable on properties of instances of `ComputedBindableBase`)
 - `IsDirtyIgnored` (usable on properties of instances of `ViewModel`)
 
 `INotifyPropertyChanged`:
@@ -183,6 +189,9 @@ Attributes:
 - `ValidatingViewModel`
 - `DialogModel`
 - `TreeViewModel`
+
+Other:
+- `ViewModelCollection` and `ViewModelCollection<TViewModel>`
 
 ### Validation
 
