@@ -77,7 +77,7 @@ public ObservableCollection<int> MyValues { get; }
 public int MaxValue => MyValues.Max();
 ```
 The name should point to a property implementing `INotifyCollectionChanged`.
-This will then raise a `PropertyChanged` event for the property when the `CollectionChanged` event occurs with one of the given `NotifyCollectionChangedAction`. When no actions are provided a `PropertyChanged` event will be risen for every `CollectionChanged` event.
+This will then raise a `PropertyChanged` event for the property when the `CollectionChanged` event occurs with one of the given `NotifyCollectionChangedAction`. When no actions are provided a `PropertyChanged` event will be risen for all `CollectionChanged` events.
 
 ### CommandCanExecuteSource
 
@@ -101,11 +101,11 @@ public bool TestProperty
 }
 ```
 
-Now, when `TestProperty` changes, `IsDirty` will not be set to true.
+Now, when `TestProperty` changes, `IsDirty` will not be automatically set to true.
 
 ### Parent
 
-The `Parent` property on `ViewModel` uses a `WeakReference` internally. It will be set automatically by the `Parent` when `AddChildViewModel()` is called with this instance.
+The `Parent` property on `ViewModel` uses a `WeakReference` internally. It will be set automatically by the `Parent` when added to the `Children` collection.
 
 ### IsReadOnly
 
@@ -151,7 +151,7 @@ AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5
 This will execute this validation everytime `SetProperty()` changes this property.
 You can call `Validate()` to execute all validations again.
 
-For most validation the `PredicateValidation<T>` should suffice, but if you need something more advanced, you should implement `Validation<T>`.
+For most validation the `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit `Validation<T>`.
 
 If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the returned `IDisposable` to recontinue validation.
 
