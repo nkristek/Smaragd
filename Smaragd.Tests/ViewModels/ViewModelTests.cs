@@ -184,7 +184,20 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
             childViewModel.IsDirty = true;
             Assert.IsTrue(viewModel.IsDirty, "IsDirty wasn't set by the child viewmodel");
-            //Assert.IsFalse(viewModel.IsDirty, "IsDirty was set but the IsDirtyIgnoredAttribute was set");
+        }
+
+        [TestMethod]
+        public void TestIsDirtyChildren()
+        {
+            var viewModel = new TestViewModel
+            {
+                Values = new ObservableCollection<int>(),
+                IsDirty = false
+            };
+            Assert.IsFalse(viewModel.IsDirty, "IsDirty is not initially false");
+            
+            viewModel.Values.Add(1);
+            Assert.IsTrue(viewModel.IsDirty, "IsDirty was not set by the collection changed event");
         }
 
         [TestMethod]

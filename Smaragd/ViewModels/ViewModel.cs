@@ -17,21 +17,15 @@ namespace NKristek.Smaragd.ViewModels
     {
         protected ViewModel()
         {
-            // set IsDirty when a collection changes
+            // set IsDirty when any collection changes
             foreach (var collectionProperty in GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType)))
             {
                 if (PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(collectionProperty.Name))
                     continue;
 
                 if (collectionProperty.GetValue(this, null) is INotifyCollectionChanged collection)
-                    collection.CollectionChanged += OnCollectionChanged;
+                    collection.CollectionChanged += OnChildCollectionChanged;
             }
-        }
-
-        internal override void OnPropertyChangedNotificationsSuspendedChanged(bool suspended)
-        {
-            foreach (var child in Children)
-                child.PropertyChangedNotificationsSuspended = suspended;
         }
 
         private bool _isDirty;
@@ -45,19 +39,19 @@ namespace NKristek.Smaragd.ViewModels
             get => _isDirty;
             set
             {
-                SetProperty(ref _isDirty, value, out _);
-
-                // propagate changes to parent and children
-                if (value)
+                if (SetProperty(ref _isDirty, value, out _))
                 {
-                    var parent = Parent;
-                    if (parent != null && !parent.IsDirty)
-                        parent.SetIsDirty(this);
-                }
-                else
-                {
-                    foreach (var child in Children.Where(c => c.IsDirty))
-                        child.IsDirty = false;
+                    if (value)
+                    {
+                        var parent = Parent;
+                        if (parent != null && !parent.IsDirty)
+                            parent.SetIsDirty(this);
+                    }
+                    else
+                    {
+                        foreach (var child in Children.Where(c => c.IsDirty))
+                            child.IsDirty = false;
+                    }
                 }
             }
         }
@@ -83,8 +77,14 @@ namespace NKristek.Smaragd.ViewModels
                 _parent = value != null ? new WeakReference<ViewModel>(value) : null;
                 RaisePropertyChanged();
 
+                if (value == null)
+                    return;
+
                 if (IsDirty)
-                    Parent?.SetIsDirty(this);
+                    value.SetIsDirty(this);
+
+                if (value.IsReadOnly)
+                    IsReadOnly = true;
             }
         }
         
@@ -97,7 +97,14 @@ namespace NKristek.Smaragd.ViewModels
         public bool IsReadOnly
         {
             get => _isReadOnly;
-            set => SetProperty(ref _isReadOnly, value, out _);
+            set
+            {
+                if (SetProperty(ref _isReadOnly, value, out _))
+                {
+                    foreach (var child in Children)
+                        child.IsReadOnly = value;
+                }
+            }
         }
 
         /// <summary>
@@ -119,17 +126,17 @@ namespace NKristek.Smaragd.ViewModels
             if (propertyWasChanged && !PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(propertyName))
             {
                 IsDirty = true;
-
-                // set IsDirty when a collection changes
+                
                 if (oldValue is INotifyCollectionChanged oldCollection)
-                    oldCollection.CollectionChanged -= OnCollectionChanged;
+                    oldCollection.CollectionChanged -= OnChildCollectionChanged;
+
                 if (storage is INotifyCollectionChanged newCollection)
-                    newCollection.CollectionChanged += OnCollectionChanged;
+                    newCollection.CollectionChanged += OnChildCollectionChanged;
             }
             return propertyWasChanged;
         }
 
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             IsDirty = true;
         }
@@ -175,10 +182,9 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrEmpty(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            if (!_childViewModelPropertyMapping.ContainsKey(childViewModel))
+            if (!_childViewModelPropertyMapping.Remove(childViewModel))
                 return;
-
-            _childViewModelPropertyMapping.Remove(childViewModel);
+            
             childViewModel.PropertyChanged -= _ChildViewModel_PropertyChanged;
 
             childViewModel.Parent = null;
@@ -205,6 +211,9 @@ namespace NKristek.Smaragd.ViewModels
 
         internal void SetIsDirty(ViewModel childViewModel)
         {
+            if (IsDirty)
+                return;
+
             if (!_childViewModelPropertyMapping.TryGetValue(childViewModel, out var childViewModelPropertyName))
             {
                 // childViewModel is no single property, look in collections instead
