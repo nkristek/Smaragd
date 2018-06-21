@@ -26,18 +26,52 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
             
             [PropertySource(nameof(TestProperty))]
-            public bool AnotherTestProperty => _testProperty;
+            public bool AnotherTestProperty => TestProperty;
 
-            [CommandCanExecuteSource(nameof(TestProperty))]
+            [CommandCanExecuteSource(nameof(AnotherTestProperty))]
             public IRaiseCanExecuteChanged TestCommand { get; set; }
 
             public ObservableCollection<int> MyValues { get; } = new ObservableCollection<int>();
 
-            [PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+            [PropertySourceCollection(nameof(MyValues))]
             public int MinValue => MyValues.Min();
 
-            [PropertySource(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+            [PropertySourceCollection(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
             public int MaxValue => MyValues.Max();
+        }
+
+        private class PropertySourceLoopTest
+            : ComputedBindableBase
+        {
+            private bool _testProperty;
+            [PropertySource(nameof(AnotherTestProperty))]
+            public bool TestProperty
+            {
+                get => _testProperty;
+                set => SetProperty(ref _testProperty, value, out _);
+            }
+
+            private bool _anotherTestProperty;
+            [PropertySource(nameof(TestProperty))]
+            public bool AnotherTestProperty
+            {
+                get => _anotherTestProperty;
+                set => SetProperty(ref _anotherTestProperty, value, out _);
+            }
+        }
+
+        [TestMethod]
+        public void TestPropertySourceLoops()
+        {
+            var invokedPropertyChangedEvents = new List<string>();
+            var loopTest = new PropertySourceLoopTest();
+            loopTest.PropertyChanged += (sender, args) => { invokedPropertyChangedEvents.Add(args.PropertyName); };
+            loopTest.TestProperty = true;
+
+            // TestProperty, AnotherTestProperty
+            Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceLoopTest.TestProperty)), "The PropertyChanged event wasn't raised for the TestProperty property");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceLoopTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the AnotherTestProperty property");
         }
         
         [TestMethod]

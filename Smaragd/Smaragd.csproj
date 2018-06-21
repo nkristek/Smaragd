@@ -39,7 +39,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\CommandCanExecuteSourceCollectionAttribute.cs" />
     <Compile Include="Attributes\IsDirtyIgnoredAttribute.cs" />
+    <Compile Include="Attributes\PropertySourceCollectionAttribute.cs" />
     <Compile Include="Commands\AsyncBindableCommand.cs" />
     <Compile Include="Commands\AsyncCommand.cs" />
     <Compile Include="Commands\AsyncRelayCommand.cs" />

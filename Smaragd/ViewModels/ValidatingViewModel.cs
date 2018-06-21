@@ -88,7 +88,7 @@ namespace NKristek.Smaragd.ViewModels
         /// Returns if there are any validation errors
         /// </summary>
         [IsDirtyIgnored]
-        [PropertySource(nameof(Children), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
+        [PropertySourceCollection(nameof(Children))]
         public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
 
         /// <summary>
