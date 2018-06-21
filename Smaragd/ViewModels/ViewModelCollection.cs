@@ -134,6 +134,25 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
+        /// Adds a collection of <see cref="ViewModel"/> instances to this <see cref="ViewModelCollection{TViewModel}"/>.
+        /// This method exists because it is currently impossible to satisfy the generic constraint by casting. It is only used internally and thus only available internally.
+        /// </summary>
+        /// <param name="collectionChanged">The collection to add as <see cref="INotifyCollectionChanged"/></param>
+        /// <param name="enumerable">The collection to add as <see cref="IEnumerable{T}"/></param>
+        /// <param name="collectionPropertyName">The name of the property in the containing <see cref="ViewModel"/>. This will be used </param>
+        internal void AddCollection(INotifyCollectionChanged collectionChanged, IEnumerable<TViewModel> enumerable, string collectionPropertyName)
+        {
+            if (_knownCollections.ContainsKey(collectionChanged))
+                throw new Exception("Collection already exists in this ViewModelCollection");
+
+            _knownCollections[collectionChanged] = collectionPropertyName;
+
+            HandleNewItems(enumerable);
+
+            collectionChanged.CollectionChanged += OnSubCollectionChanged;
+        }
+
+        /// <summary>
         /// Removes the collection from this <see cref="ViewModelCollection"/>
         /// </summary>
         /// <typeparam name="TCollection">Type of the collection</typeparam>
@@ -147,6 +166,22 @@ namespace NKristek.Smaragd.ViewModels
             collection.CollectionChanged -= OnSubCollectionChanged;
 
             HandleOldItems(collection);
+        }
+
+        /// <summary>
+        /// Removes the collection from this <see cref="ViewModelCollection"/>.
+        /// This method exists because it is currently impossible to satisfy the generic constraint by casting. It is only used internally and thus only available internally.
+        /// </summary>
+        /// <param name="collectionChanged">The collection to remove as <see cref="INotifyCollectionChanged"/></param>
+        /// <param name="enumerable">The collection to remove as <see cref="IEnumerable{T}"/></param>
+        public void RemoveCollection(INotifyCollectionChanged collectionChanged, IEnumerable<TViewModel> enumerable)
+        {
+            if (!_knownCollections.Remove(collectionChanged))
+                throw new Exception("Collection does not exist in this ViewModelCollection");
+
+            collectionChanged.CollectionChanged -= OnSubCollectionChanged;
+
+            HandleOldItems(enumerable);
         }
 
         /// <summary>

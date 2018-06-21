@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Validation;
 using NKristek.Smaragd.ViewModels;
 
@@ -31,19 +32,11 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
             private TestValidatingModel _child;
 
+            [ChildViewModel]
             public TestValidatingModel Child
             {
                 get => _child;
-                set
-                {
-                    if (SetProperty(ref _child, value, out var oldValue))
-                    {
-                        if (oldValue != null)
-                            Children.RemoveViewModel(oldValue);
-                        if (value != null)
-                            Children.AddViewModel(value, nameof(Child));
-                    }
-                }
+                set => SetProperty(ref _child, value, out var oldValue);
             }
         }
 

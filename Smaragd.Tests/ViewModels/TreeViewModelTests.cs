@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
@@ -13,11 +14,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class FolderViewModel
             : TreeViewModel
         {
-            public FolderViewModel()
-            {
-                Children.AddCollection(Subfolders, nameof(Subfolders));
-            }
-
+            [ChildViewModelCollection]
             public ObservableCollection<FolderViewModel> Subfolders { get; } = new ObservableCollection<FolderViewModel>();
         }
 

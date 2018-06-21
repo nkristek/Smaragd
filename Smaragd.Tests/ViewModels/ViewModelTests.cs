@@ -23,37 +23,22 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
 
             private TestChildViewModel _child;
+
+            [ChildViewModel]
             public TestChildViewModel Child
             {
                 get => _child;
-                set
-                {
-                    if (SetProperty(ref _child, value, out var oldValue))
-                    {
-                        if (oldValue != null)
-                            Children.RemoveViewModel(oldValue);
-                        if (value != null)
-                            Children.AddViewModel(value, nameof(Child));
-                    }
-                }
+                set => SetProperty(ref _child, value, out var oldValue);
             }
 
             private TestChildViewModel _isDirtyIgnoredChild;
 
             [IsDirtyIgnored]
+            [ChildViewModel]
             public TestChildViewModel IsDirtyIgnoredChild
             {
                 get => _isDirtyIgnoredChild;
-                set
-                {
-                    if (SetProperty(ref _isDirtyIgnoredChild, value, out var oldValue))
-                    {
-                        if (oldValue != null)
-                            Children.RemoveViewModel(oldValue);
-                        if (value != null)
-                            Children.AddViewModel(value, nameof(IsDirtyIgnoredChild));
-                    }
-                }
+                set => SetProperty(ref _isDirtyIgnoredChild, value, out var oldValue);
             }
 
             private ObservableCollection<int> _values;
@@ -78,22 +63,14 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class TestChildrenViewModel
             : ViewModel
         {
-            public TestChildrenViewModel()
-            {
-                Children.AddCollection(TestChildren, nameof(TestChildren));
-            }
-
+            [ChildViewModelCollection]
             public ObservableCollection<TestChildrenViewModel> TestChildren { get; } = new ObservableCollection<TestChildrenViewModel>();
         }
 
         private class TestChildrenIsDirtyIgnoredViewModel
             : ViewModel
         {
-            public TestChildrenIsDirtyIgnoredViewModel()
-            {
-                Children.AddCollection(TestChildren, nameof(TestChildren));
-            }
-
+            [ChildViewModelCollection]
             public ObservableCollection<TestChildrenIsDirtyIgnoredViewModel> TestChildren { get; } = new ObservableCollection<TestChildrenIsDirtyIgnoredViewModel>();
         }
 

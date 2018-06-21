@@ -115,16 +115,26 @@ This property will be propagated to all children.
 
 ### Nested ViewModels
 
-If the property is a `ViewModel` you should call `Children.RemoveViewModel()` on the old value and `Children.AddViewModel()` on the new value if the property changed via SetProperty. This can be done like this:
+If the property is a `ViewModel` it is recommended to add the `ChildViewModel` attribute over the property. This automatically adds the `ViewModel` to the `Children` collection and sets the `Parent` property on the child.
+If you want to handle this on you own, you can do it like in the following example:
 ```csharp
 private ViewModel _child;
 
+[ChildViewModel]
 public ViewModel Child
 {
     get => _child;
+    set => SetProperty(ref _child, value, out _);
+}
+
+private ViewModel _anotherChild;
+
+public ViewModel AnotherChild
+{
+    get => _anotherChild;
     set
     {
-        if (SetProperty(ref _child, value, out var oldValue))
+        if (SetProperty(ref _anotherChild, value, out var oldValue))
         {
             if (oldValue != null)
                 Children.RemoveViewModel(oldValue);
@@ -135,9 +145,7 @@ public ViewModel Child
 }
 ```
 
-`ViewModel` has a `Children` collection. To add viewmodel collections to this `ViewModelCollection`, you have to use `AddViewModelCollection()` on the `Children` collection. This `ViewModelCollection` is otherwise read only. The idea is, that there are one or multiple `ObservableCollection<TViewModel>` on the inheriting instance which get added to the `Children` collection by using the `CollectionChanged` event.
-
-As said earlier, `AddChildViewModel` will set the `Parent` property of the child viewmodel.
+To add viewmodel collections to `Children`, you can either use the `ChildViewModelCollection` attribute on the collection property or use `Children.AddViewModelCollection()` and `Children.RemoveViewModelCollection()` like above. Please note, that viewmodel collections should implement `INotifyCollectionChanged` and `IEnumerable<ViewModel>` for this to work.
 
 ### ValidatingViewModel
 
@@ -181,6 +189,8 @@ Attributes:
 - `CommandCanExecuteSource` (usable on properties of instances of `ComputedBindableBase`)
 - `CommandCanExecuteSourceCollection` (usable on properties of instances of `ComputedBindableBase`)
 - `IsDirtyIgnored` (usable on properties of instances of `ViewModel`)
+- `ChildViewModel` (usable on properties of instances of `ViewModel`)
+- `ChildViewModelCollection` (usable on properties of instances of `ViewModel`)
 
 `INotifyPropertyChanged`:
 - `BindableBase`
