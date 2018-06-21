@@ -104,7 +104,7 @@ namespace NKristek.Smaragd.ViewModels
             if (notifyCollectionChanged == null)
                 return;
 
-            var collection = source as ICollection;
+            var collection = source as IEnumerable<TViewModel>;
             if (collection == null)
                 return;
 

@@ -16,8 +16,6 @@ namespace NKristek.Smaragd.ViewModels
     public abstract class ValidatingViewModel
         : ViewModel, IDataErrorInfo, INotifyDataErrorInfo
     {
-        private readonly object _lockObject = new object();
-        
         private readonly Dictionary<string, IList<IValidation>> _validations = new Dictionary<string, IList<IValidation>>();
 
         private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
@@ -29,45 +27,8 @@ namespace NKristek.Smaragd.ViewModels
 
         private void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    if (e.NewItems != null)
-                    {
-                        foreach (var newItem in e.NewItems.OfType<ValidatingViewModel>())
-                            newItem.ErrorsChanged += OnChildErrorsChanged;
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    if (e.OldItems != null)
-                    {
-                        foreach (var oldItem in e.OldItems.OfType<ValidatingViewModel>())
-                            oldItem.ErrorsChanged -= OnChildErrorsChanged;
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    if (e.OldItems != null)
-                    {
-                        foreach (var oldItem in e.OldItems.OfType<ValidatingViewModel>())
-                            oldItem.ErrorsChanged -= OnChildErrorsChanged;
-                    }
-                    if (e.NewItems != null)
-                    {
-                        foreach (var newItem in e.NewItems.OfType<ValidatingViewModel>())
-                            newItem.ErrorsChanged += OnChildErrorsChanged;
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    Validate();
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    break;
-            }
-        }
-
-        private void OnChildErrorsChanged(object sender, DataErrorsChangedEventArgs e)
-        {
-            RaiseErrorsChanged(nameof(Children));
+            if (e.Action != NotifyCollectionChangedAction.Move)
+                RaiseErrorsChanged(nameof(Children));
         }
 
         #region IDataErrorInfo
@@ -157,10 +118,11 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// Raises an event on the ErrorsChanged event
         /// </summary>
-        private void RaiseErrorsChanged(string propertyName = null)
+        protected internal void RaiseErrorsChanged(string propertyName = null)
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             RaisePropertyChanged(nameof(HasErrors));
+            (Parent as ValidatingViewModel)?.RaiseErrorsChanged(nameof(Children));
         }
 
         #endregion
@@ -172,19 +134,11 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         public bool ValidationSuspended
         {
-            get
-            {
-                lock (_lockObject)
-                {
-                    return _validationSuspended;
-                }
-            }
-
+            get => _validationSuspended;
             internal set
             {
-                lock (_lockObject)
+                if (SetProperty(ref _validationSuspended, value, out _))
                 {
-                    _validationSuspended = value;
                     foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
                         validatingChild.ValidationSuspended = value;
                 }
@@ -214,10 +168,9 @@ namespace NKristek.Smaragd.ViewModels
                 _validationErrors[propertyName] = errorList;
                 RaiseErrorsChanged(propertyName);
             }
-            else
+            else if(_validationErrors.Remove(propertyName))
             {
-                if (_validationErrors.Remove(propertyName))
-                    RaiseErrorsChanged(propertyName);
+                RaiseErrorsChanged(propertyName);
             }
 
         }
