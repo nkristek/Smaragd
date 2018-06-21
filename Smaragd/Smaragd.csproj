@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>2.2</Version>
+    <Version>2.2.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -17,8 +17,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>This release updates the library to .NET Standard.</PackageReleaseNotes>
+    <PackageReleaseNotes>This release improves XML comments and moves the AddChildViewModel() and RemoveChildViewModel() methods to the ViewModelCollection.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyVersion>2.2.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
