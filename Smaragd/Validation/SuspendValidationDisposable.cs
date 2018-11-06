@@ -1,6 +1,6 @@
 ﻿using System;
+using NKristek.Smaragd.Helpers;
 using NKristek.Smaragd.ViewModels;
-using NKristek.Smaragd.ViewModels.Helpers;
 
 namespace NKristek.Smaragd.Validation
 {

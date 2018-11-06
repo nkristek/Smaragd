@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NKristek.Smaragd.Attributes;
 
 namespace NKristek.Smaragd.ViewModels
@@ -35,18 +36,18 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Set <see cref="IsChecked"/> property and optionally update <see cref="ViewModel.Children"/> and <see cref="ViewModel.Parent"/>. 
+        /// Set <see cref="IsChecked"/> property and optionally update <see cref="TreeChildren"/> and <see cref="ViewModel.Parent"/>. 
         /// </summary>
         /// <param name="value">The value that should be set.</param>
-        /// <param name="updateChildren">If <see cref="ViewModel.Children"/> should be updated.</param>
+        /// <param name="updateChildren">If <see cref="TreeViewModel.TreeChildren"/> should be updated.</param>
         /// <param name="updateParent">If the <see cref="ViewModel.Parent"/> should be updated.</param>
         public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
             if (!SetProperty(ref _isChecked, value, out _, nameof(IsChecked)))
                 return;
 
-            if (updateChildren && IsChecked.HasValue)
-                foreach (var child in Children.OfType<TreeViewModel>())
+            if (updateChildren && IsChecked.HasValue && TreeChildren != null)
+                foreach (var child in TreeChildren)
                     child.SetIsChecked(IsChecked, true, false);
 
             if (updateParent)
@@ -54,16 +55,21 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// This reevaluates the <see cref="IsChecked"/> property based on the <see cref="ViewModel.Children"/> collection.
+        /// This reevaluates the <see cref="IsChecked"/> property based on the <see cref="TreeChildren"/> collection.
         /// </summary>
         protected void ReevaluateIsChecked()
         {
-            if (Children.OfType<TreeViewModel>().All(c => c.IsChecked == true))
+            if (TreeChildren != null && TreeChildren.All(c => c.IsChecked == true))
                 SetIsChecked(true, false, true);
-            else if (Children.OfType<TreeViewModel>().All(c => c.IsChecked == false))
+            else if (TreeChildren != null && TreeChildren.All(c => c.IsChecked == false))
                 SetIsChecked(false, false, true);
             else
                 SetIsChecked(null, false, true);
         }
+
+        /// <summary>
+        /// ChildViewModels in the Tree. It is used to update the state of <see cref="IsChecked"/>.
+        /// </summary>
+        protected virtual IEnumerable<TreeViewModel> TreeChildren { get; } = null;
     }
 }

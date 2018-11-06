@@ -33,11 +33,7 @@ namespace NKristek.Smaragd.Commands
                 return null;
             }
 
-            private set
-            {
-                if (Parent == value) return;
-                _parent = value != null ? new WeakReference<TViewModel>(value) : null;
-            }
+            private set => _parent = value != null ? new WeakReference<TViewModel>(value) : null;
         }
 
         /// <inheritdoc />

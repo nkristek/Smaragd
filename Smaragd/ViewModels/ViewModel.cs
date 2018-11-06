@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -19,29 +17,12 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         protected ViewModel()
         {
-            // set IsDirty when any collection changes and register ChildViewModel's and ChildViewModelCollection's
-            foreach (var property in GetType().GetProperties().Where(p => p.GetMethod.IsPublic))
+            // set IsDirty when any collection changes
+            var collectionProperties = GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType));
+            foreach (var property in collectionProperties)
             {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name) && typeof(INotifyCollectionChanged).IsAssignableFrom(property.PropertyType))
-                {
-                    if (property.GetValue(this, null) is INotifyCollectionChanged collection)
-                        collection.CollectionChanged += OnChildCollectionChanged;
-                }
-
-                if (PropertyNameHasAttribute<ChildViewModelAttribute>(property.Name) && typeof(ViewModel).IsAssignableFrom(property.PropertyType))
-                {
-                    if (property.GetValue(this, null) is ViewModel viewModel)
-                        Children.AddViewModel(viewModel, property.Name);
-                }
-
-                if (PropertyNameHasAttribute<ChildViewModelCollectionAttribute>(property.Name)
-                    && typeof(INotifyCollectionChanged).IsAssignableFrom(property.PropertyType)
-                    && typeof(IEnumerable<ViewModel>).IsAssignableFrom(property.PropertyType))
-                {
-                    var value = property.GetValue(this, null);
-                    if (value != null && value is INotifyCollectionChanged collectionChanged && value is IEnumerable<ViewModel> enumerable)
-                        Children.AddCollection(collectionChanged, enumerable, property.Name);
-                }
+                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name) && property.GetValue(this, null) is INotifyCollectionChanged collection)
+                    collection.CollectionChanged += OnChildCollectionChanged;
             }
         }
 
@@ -54,29 +35,13 @@ namespace NKristek.Smaragd.ViewModels
         public bool IsDirty
         {
             get => _isDirty;
-            set
-            {
-                if (SetProperty(ref _isDirty, value, out _))
-                {
-                    if (value)
-                    {
-                        var parent = Parent;
-                        if (parent != null && !parent.IsDirty)
-                            parent.SetIsDirty(this);
-                    }
-                    else
-                    {
-                        foreach (var child in Children.Where(c => c.IsDirty))
-                            child.IsDirty = false;
-                    }
-                }
-            }
+            set => SetProperty(ref _isDirty, value, out _);
         }
 
         private WeakReference<ViewModel> _parent;
 
         /// <summary>
-        /// The parent of this <see cref="ViewModel"/>
+        /// The parent of this <see cref="ViewModel"/>.
         /// </summary>
         [IsDirtyIgnored]
         public ViewModel Parent
@@ -93,15 +58,6 @@ namespace NKristek.Smaragd.ViewModels
                 if (Parent == value) return;
                 _parent = value != null ? new WeakReference<ViewModel>(value) : null;
                 RaisePropertyChanged();
-
-                if (value == null)
-                    return;
-
-                if (IsDirty)
-                    value.SetIsDirty(this);
-
-                if (value.IsReadOnly)
-                    IsReadOnly = true;
             }
         }
         
@@ -114,14 +70,7 @@ namespace NKristek.Smaragd.ViewModels
         public bool IsReadOnly
         {
             get => _isReadOnly;
-            set
-            {
-                if (SetProperty(ref _isReadOnly, value, out _))
-                {
-                    foreach (var child in Children)
-                        child.IsReadOnly = value;
-                }
-            }
+            set => SetProperty(ref _isReadOnly, value, out _);
         }
 
         /// <inheritdoc />
@@ -141,84 +90,26 @@ namespace NKristek.Smaragd.ViewModels
                 return false;
 
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
-            if (propertyWasChanged)
-            {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(propertyName))
-                {
-                    IsDirty = true;
+            if (!propertyWasChanged)
+                return false;
 
-                    if (oldValue is INotifyCollectionChanged oldCollection)
-                        oldCollection.CollectionChanged -= OnChildCollectionChanged;
+            if (PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(propertyName))
+                return true;
 
-                    if (storage is INotifyCollectionChanged newCollection)
-                        newCollection.CollectionChanged += OnChildCollectionChanged;
-                }
+            IsDirty = true;
 
-                if (PropertyNameHasAttribute<ChildViewModelAttribute>(propertyName))
-                {
-                    var oldViewModel = oldValue as ViewModel;
-                    if (oldViewModel != null)
-                        Children.RemoveViewModel(oldViewModel);
+            if (oldValue is INotifyCollectionChanged oldCollection)
+                oldCollection.CollectionChanged -= OnChildCollectionChanged;
 
-                    var newViewModel = storage as ViewModel;
-                    if (newViewModel != null)
-                        Children.AddViewModel(newViewModel, propertyName);
-                }
+            if (storage is INotifyCollectionChanged newCollection)
+                newCollection.CollectionChanged += OnChildCollectionChanged;
 
-                if (PropertyNameHasAttribute<ChildViewModelCollectionAttribute>(propertyName))
-                {
-                    if (oldValue is INotifyCollectionChanged oldCollectionChanged && storage is IEnumerable<ViewModel> oldEnumerable)
-                        Children.RemoveCollection(oldCollectionChanged, oldEnumerable);
-
-                    if (storage is INotifyCollectionChanged newCollectionChanged && storage is IEnumerable<ViewModel> newEnumerable)
-                        Children.AddCollection(newCollectionChanged, newEnumerable, propertyName);
-                }
-            }
-            return propertyWasChanged;
+            return true;
         }
         
         private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             IsDirty = true;
         }
-
-        /// <summary>
-        /// Sets <see cref="IsDirty"/> to <c>True</c> if no <see cref="IsDirtyIgnoredAttribute"/> is set on the property of the given <see cref="ViewModel"/> or on the property of the collection which contains the given <see cref="ViewModel"/>
-        /// </summary>
-        /// <param name="childViewModel"><see cref="ViewModel"/> which propagates the change of <see cref="IsDirty"/></param>
-        internal void SetIsDirty(ViewModel childViewModel)
-        {
-            if (IsDirty)
-                return;
-
-            var childViewModelPropertyName = Children.GetChildViewModelPropertyName(childViewModel);
-            if (String.IsNullOrEmpty(childViewModelPropertyName))
-            {
-                // childViewModel is no single property, look in collections instead
-                foreach (var collectionPropertyName in Children.GetContainingCollectionPropertyNames(childViewModel))
-                {
-                    if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(collectionPropertyName))
-                    {
-                        IsDirty = true;
-                        return;
-                    }
-                }
-            }
-            else
-            {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(childViewModelPropertyName))
-                    IsDirty = true;
-            }
-        }
-
-        private readonly ObservableCollection<ViewModel> _allChildren = new ObservableCollection<ViewModel>();
-
-        private ViewModelCollection _children;
-
-        /// <summary>
-        /// All children of this <see cref="ViewModel"/>
-        /// </summary>
-        [IsDirtyIgnored]
-        public ViewModelCollection Children => _children ?? (_children = new ViewModelCollection(_allChildren, this));
     }
 }

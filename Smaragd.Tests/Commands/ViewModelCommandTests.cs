@@ -5,9 +5,6 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.Commands
 {
-    /// <summary>
-    /// Summary description for ViewModelCommandTests
-    /// </summary>
     [TestClass]
     public class ViewModelCommandTests
     {
@@ -34,27 +31,34 @@ namespace NKristek.Smaragd.Tests.Commands
                     throw new Exception("invalid parameter");
             }
         }
-
-        [TestMethod]
-        public void TestViewModelCommand()
-        {
-            var viewModel = new TestViewModel();
-            var command = new TestCommand(viewModel);
-            command.Execute(viewModel);
-        }
-
+        
         [TestMethod]
         public void TestParent()
         {
             var viewModel = new TestViewModel();
             var command = new TestCommand(viewModel);
-            Assert.IsNotNull(command.Parent, "The command parent is null");
+            Assert.AreEqual(viewModel, command.Parent, "The command parent does not match");
         }
 
         [TestMethod]
         public void TestNoParentException()
         {
             Assert.ThrowsException<ArgumentNullException>(() => new TestCommand(null), "ViewModelCommand did not throw an exception when instancing with no parent");
+        }
+
+        [TestMethod]
+        public void TestCanExecute()
+        {
+            Assert.IsTrue(new TestCommand(new TestViewModel()).CanExecute(null), "CanExecute() should return true by default.");
+        }
+
+        [TestMethod]
+        public void TestDoExecute()
+        {
+            var viewModel = new TestViewModel();
+            var command = new TestCommand(viewModel);
+            command.Execute(viewModel);
+            Assert.ThrowsException<ArgumentNullException>(() => command.Execute(null), "DoExecute() should throw an exception when the parameter is null.");
         }
     }
 }

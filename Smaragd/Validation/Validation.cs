@@ -21,9 +21,20 @@ namespace NKristek.Smaragd.Validation
         /// <inheritdoc />
         public bool IsValid(object value, out string errorMessage)
         {
+            if (typeof(T).IsValueType)
+            {
+                if (value == null)
+                    throw new ArgumentException($"Value is null but type {typeof(T).Name} is a value type.");
+
+                if (!(value is T typedValue))
+                    throw new ArgumentException($"Value is not of type {typeof(T).Name}");
+
+                return IsValid(typedValue, out errorMessage);
+            }
+
             if (value != null && !(value is T))
                 throw new ArgumentException($"Value is not of type {typeof(T).Name}");
-
+            
             return IsValid((T)value, out errorMessage);
         }
     }

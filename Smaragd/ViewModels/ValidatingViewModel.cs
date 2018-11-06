@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,18 +19,6 @@ namespace NKristek.Smaragd.ViewModels
 
         private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
 
-        /// <inheritdoc />
-        protected ValidatingViewModel()
-        {
-            ((INotifyCollectionChanged) Children).CollectionChanged += OnChildrenCollectionChanged;
-        }
-
-        private void OnChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action != NotifyCollectionChangedAction.Move)
-                RaiseErrorsChanged(nameof(Children));
-        }
-
         #region IDataErrorInfo
         
         /// <inheritdoc />
@@ -45,26 +32,23 @@ namespace NKristek.Smaragd.ViewModels
                 if (_validationErrors.ContainsKey(propertyName))
                     return String.Join(Environment.NewLine, _validationErrors[propertyName]);
 
-                if (nameof(Children).Equals(propertyName))
-                    return String.Join(Environment.NewLine, GetChildrenErrors());
-
-                return String.Empty;
+                return null;
             }
         }
 
         /// <inheritdoc />
-        public string Error => String.Join(Environment.NewLine, GetAllErrors());
+        public string Error
+        {
+            get
+            {
+                var errors = GetAllErrors().ToList();
+                return errors.Any() ? String.Join(Environment.NewLine, errors) : null;
+            }
+        }
 
         private IEnumerable<string> GetAllErrors()
         {
-            var errors = _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
-            var childrenErrors = GetChildrenErrors();
-            return errors.Concat(childrenErrors);
-        }
-
-        private IEnumerable<string> GetChildrenErrors()
-        {
-            return Children.OfType<ValidatingViewModel>().SelectMany(c => c.GetErrors(null).OfType<string>()).Where(e => !String.IsNullOrEmpty(e));
+            return _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
         }
 
         #endregion
@@ -73,8 +57,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
-        [PropertySourceCollection(nameof(Children))]
-        public bool HasErrors => _validationErrors.Any() || Children.OfType<ValidatingViewModel>().Any(c => c.HasErrors);
+        public bool HasErrors => _validationErrors.Any();
 
         /// <inheritdoc />
         public System.Collections.IEnumerable GetErrors(string propertyName)
@@ -84,9 +67,6 @@ namespace NKristek.Smaragd.ViewModels
 
             if (_validationErrors.ContainsKey(propertyName))
                 return _validationErrors[propertyName];
-
-            if (nameof(Children).Equals(propertyName))
-                return GetChildrenErrors();
 
             return Enumerable.Empty<string>();
         }
@@ -101,29 +81,10 @@ namespace NKristek.Smaragd.ViewModels
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             RaisePropertyChanged(nameof(HasErrors));
-            (Parent as ValidatingViewModel)?.RaiseErrorsChanged(nameof(Children));
         }
 
         #endregion
-
-        private bool _validationSuspended;
-
-        /// <summary>
-        /// If the validation is temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendValidation"/> to unsuspend. Setting this property will propagate the value to all <see cref="ValidatingViewModel"/> items in the <see cref="ViewModel.Children"/> collection.
-        /// </summary>
-        public bool ValidationSuspended
-        {
-            get => _validationSuspended;
-            internal set
-            {
-                if (SetProperty(ref _validationSuspended, value, out _))
-                {
-                    foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
-                        validatingChild.ValidationSuspended = value;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// If data in this <see cref="ViewModel"/> is valid
         /// </summary>
@@ -164,9 +125,6 @@ namespace NKristek.Smaragd.ViewModels
                 var value = valueProperty.GetValue(this, null);
                 Validate(propertyValidation.Key, value, propertyValidation.Value);
             }
-
-            foreach (var validatingChild in Children.OfType<ValidatingViewModel>())
-                validatingChild.Validate();
         }
         
         /// <summary>
@@ -249,15 +207,14 @@ namespace NKristek.Smaragd.ViewModels
         
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
         {
-            var memberExpression = propertyExpression.Body as MemberExpression;
-            if (memberExpression == null)
+            if (!(propertyExpression.Body is MemberExpression memberExpression))
                 throw new Exception("Expression body is not of type MemberExpression");
-
             return memberExpression.Member.Name;
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Sets a property if <see cref="ViewModel.IsReadOnly"/> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>.
+        /// Sets a property if <see cref="P:NKristek.Smaragd.ViewModels.ViewModel.IsReadOnly" /> is not true and the value is different and raises an event on the <see cref="T:System.ComponentModel.PropertyChangedEventHandler" />.
         /// It will execute the appropriate validations for this property.
         /// </summary>
         /// <typeparam name="T">Type of the property to set</typeparam>
@@ -296,8 +253,19 @@ namespace NKristek.Smaragd.ViewModels
             SetValidationErrors(propertyName, errors);
         }
 
+        private bool _validationSuspended;
+
         /// <summary>
-        /// Temporarily suspends validation. This could be used in a batch update to prevent validation overhead. This will propagate to all <see cref="ValidatingViewModel"/> items in the <see cref="ViewModel.Children"/> collection.
+        /// If the validation is temporarily suspended. Dispose the <see cref="IDisposable"/> from <see cref="SuspendValidation"/> to unsuspend.
+        /// </summary>
+        public bool ValidationSuspended
+        {
+            get => _validationSuspended;
+            internal set => SetProperty(ref _validationSuspended, value, out _);
+        }
+
+        /// <summary>
+        /// Temporarily suspends validation. This could be used in a batch update to prevent validation overhead.
         /// </summary>
         /// <returns><see cref="IDisposable"/> which unsuspends validation when disposed.</returns>
         public IDisposable SuspendValidation()

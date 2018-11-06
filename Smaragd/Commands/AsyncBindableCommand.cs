@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
@@ -10,8 +14,16 @@ namespace NKristek.Smaragd.Commands
     /// Asynchronous <see cref="ICommand"/> with <see cref="INotifyPropertyChanged"/> support
     /// </summary>
     public abstract class AsyncBindableCommand
-        : ComputedBindableBase, IAsyncCommand, IRaiseCanExecuteChanged
+        : BindableBase, IAsyncCommand, IRaiseCanExecuteChanged
     {
+        /// <inheritdoc />
+        protected AsyncBindableCommand()
+        {
+            var canExecuteMethods = GetType().GetMethods().Where(m => m.Name == nameof(CanExecute));
+            var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
+            _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
+        }
+
         private bool _isWorking;
 
         /// <inheritdoc />
@@ -65,6 +77,14 @@ namespace NKristek.Smaragd.Commands
         public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private readonly IList<string> _cachedCanExecuteSourceNames;
+
+        /// <inheritdoc />
+        public bool ShouldRaiseCanExecuteChanged(IEnumerable<string> changedPropertyNames)
+        {
+            return changedPropertyNames.Any(pn => _cachedCanExecuteSourceNames.Contains(pn));
         }
     }
 }

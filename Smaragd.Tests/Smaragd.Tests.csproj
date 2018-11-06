@@ -52,13 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\AsyncBindableCommandTests.cs" />
-    <Compile Include="Commands\AsyncCommandTests.cs" />
-    <Compile Include="Commands\AsyncRelayCommandTests.cs" />
     <Compile Include="Commands\AsyncViewModelCommandTests.cs" />
     <Compile Include="Commands\BindableCommandTests.cs" />
-    <Compile Include="Commands\CommandTests.cs" />
-    <Compile Include="Commands\RelayCommandTests.cs" />
     <Compile Include="Commands\ViewModelCommandTests.cs" />
+    <Compile Include="Helpers\DisposableTests.cs" />
+    <Compile Include="Helpers\NotificationCacheTests.cs" />
+    <Compile Include="Validation\PredicateValidationTests.cs" />
+    <Compile Include="Validation\ValidationTests.cs" />
     <Compile Include="ViewModels\BindableBaseTests.cs" />
     <Compile Include="ViewModels\ComputedBindableBaseTests.cs" />
     <Compile Include="ViewModels\DialogModelTests.cs" />
@@ -76,6 +76,7 @@
       <Name>Smaragd</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

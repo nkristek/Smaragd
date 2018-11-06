@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Commands;
@@ -9,108 +7,100 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    /// <summary>
-    /// Summary description for ComputedBindableBaseTests
-    /// </summary>
     [TestClass]
     public class ComputedBindableBaseTests
     {
-        private class ComputedBindableBaseTest
+        private class PropertySourceTest
             : ComputedBindableBase
         {
             private bool _testProperty;
+
             public bool TestProperty
             {
                 get => _testProperty;
                 set => SetProperty(ref _testProperty, value, out _);
             }
-            
+
             [PropertySource(nameof(TestProperty))]
             public bool AnotherTestProperty => TestProperty;
-
-            [CommandCanExecuteSource(nameof(AnotherTestProperty))]
-            public IRaiseCanExecuteChanged TestCommand { get; set; }
-
-            public ObservableCollection<int> MyValues { get; } = new ObservableCollection<int>();
-
-            [PropertySourceCollection(nameof(MyValues))]
-            public int MinValue => MyValues.Min();
-
-            [PropertySourceCollection(nameof(MyValues), NotifyCollectionChangedAction.Add, NotifyCollectionChangedAction.Remove, NotifyCollectionChangedAction.Replace, NotifyCollectionChangedAction.Reset)]
-            public int MaxValue => MyValues.Max();
         }
 
-        private class PropertySourceLoopTest
+        private class CanExecuteSourceTest
             : ComputedBindableBase
         {
             private bool _testProperty;
-            [PropertySource(nameof(AnotherTestProperty))]
+
             public bool TestProperty
             {
                 get => _testProperty;
                 set => SetProperty(ref _testProperty, value, out _);
             }
 
-            private bool _anotherTestProperty;
-            [PropertySource(nameof(TestProperty))]
-            public bool AnotherTestProperty
+            public BindableCommand TestCommand { get; } = new CanExecuteSourceTestCommand();
+
+            public AsyncBindableCommand AsyncTestCommand { get; } = new AsyncCanExecuteSourceTestCommand();
+        }
+        
+        private class CanExecuteSourceTestCommand
+            : BindableCommand
+        {
+            [CanExecuteSource(nameof(CanExecuteSourceTest.TestProperty))]
+            public override bool CanExecute(object parameter)
             {
-                get => _anotherTestProperty;
-                set => SetProperty(ref _anotherTestProperty, value, out _);
+                return parameter is CanExecuteSourceTest test && test.TestProperty;
+            }
+
+            protected override void DoExecute(object parameter)
+            {
+                throw new System.NotImplementedException();
             }
         }
 
-        [TestMethod]
-        public void TestPropertySourceLoops()
+        private class AsyncCanExecuteSourceTestCommand
+            : AsyncBindableCommand
         {
-            var invokedPropertyChangedEvents = new List<string>();
-            var loopTest = new PropertySourceLoopTest();
-            loopTest.PropertyChanged += (sender, args) => { invokedPropertyChangedEvents.Add(args.PropertyName); };
-            loopTest.TestProperty = true;
+            [CanExecuteSource(nameof(CanExecuteSourceTest.TestProperty))]
+            public override bool CanExecute(object parameter)
+            {
+                return parameter is CanExecuteSourceTest test && test.TestProperty;
+            }
 
-            // TestProperty, AnotherTestProperty
-            Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceLoopTest.TestProperty)), "The PropertyChanged event wasn't raised for the TestProperty property");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceLoopTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the AnotherTestProperty property");
+            protected override async Task DoExecute(object parameter)
+            {
+                await Task.Run(() => throw new System.NotImplementedException());
+            }
         }
-        
+
         [TestMethod]
         public void TestPropertySourceAttribute()
         {
             var invokedPropertyChangedEvents = new List<string>();
 
-            var bindableObject = new ComputedBindableBaseTest();
-            bindableObject.MyValues.Add(1);
-            bindableObject.PropertyChanged += (sender, e) =>
-            {
-                invokedPropertyChangedEvents.Add(e.PropertyName);
-            };
-
+            var bindableObject = new PropertySourceTest();
+            bindableObject.PropertyChanged += (sender, e) => { invokedPropertyChangedEvents.Add(e.PropertyName); };
             bindableObject.TestProperty = true;
 
             Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
-            
-            bindableObject.MyValues.Add(2);
-            Assert.AreEqual(4, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(ComputedBindableBaseTest.MaxValue)), "The PropertyChanged event wasn't raised for the PropertySource property");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.TestProperty)), "The PropertyChanged event wasn't raised for the TestProperty property");
+            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
         }
-
+        
         [TestMethod]
         public void TestCommandCanExecuteSourceAttribute()
         {
-            var invokedCanExecuteChangedEvents = 0;
-            
-            var testCommand = new RelayCommand(o => { });
-            testCommand.CanExecuteChanged += (sender, e) => { invokedCanExecuteChangedEvents++; };
+            var testObject = new CanExecuteSourceTest();
+            Assert.IsFalse(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return false when TestProperty is false");
 
-            var bindableObject = new ComputedBindableBaseTest
-            {
-                TestCommand = testCommand,
-                TestProperty = true
-            };
-            
-            Assert.AreEqual(1, invokedCanExecuteChangedEvents, "Invalid count of invocations of CanExecuteChanged");
+            var invokedCanExecuteChangedEvents = 0;
+            testObject.TestCommand.CanExecuteChanged += (sender, e) => { invokedCanExecuteChangedEvents++; };
+
+            var asyncInvokedCanExecuteChangedEvents = 0;
+            testObject.AsyncTestCommand.CanExecuteChanged += (sender, e) => { asyncInvokedCanExecuteChangedEvents++; };
+
+            testObject.TestProperty = true;
+            Assert.IsTrue(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return true when TestProperty is true");
+            Assert.AreEqual(1, invokedCanExecuteChangedEvents, "Invalid count of invocations of CanExecuteChanged of the BindableCommand");
+            Assert.AreEqual(1, asyncInvokedCanExecuteChangedEvents, "Invalid count of invocations of CanExecuteChanged of the AsyncBindableCommand");
         }
     }
 }

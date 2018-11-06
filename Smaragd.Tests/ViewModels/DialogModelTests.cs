@@ -3,9 +3,6 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    /// <summary>
-    /// Summary description for DialogModelTests
-    /// </summary>
     [TestClass]
     public class DialogModelTests
     {

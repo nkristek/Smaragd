@@ -8,13 +8,14 @@ using NKristek.Smaragd.ViewModels;
 namespace NKristek.Smaragd.Attributes
 {
     /// <summary>
-    /// This attribute can be used on properties implementing <see cref="IRaiseCanExecuteChanged"/> in classes inheriting from <see cref="ComputedBindableBase"/>.
+    /// This attribute can be used on <see cref="ICommand.CanExecute"/> in a class implementing <see cref="IRaiseCanExecuteChanged"/>.
     /// <para />
-    /// It indicates, that the <see cref="ICommand.CanExecute"/> method depends on one or multiple properties.
-    /// Given one or multiple property names, a <see cref="ICommand.CanExecuteChanged"/> event will be raised on this property, if a <see cref="INotifyPropertyChanged.PropertyChanged"/> event was raised for one of the specified property names.
+    /// It indicates, that <see cref="ICommand.CanExecute"/> depends on one or multiple properties in the parent <see cref="ViewModel"/>.
+    /// <para />
+    /// Given one or multiple properties with the specified names raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/> of the parent <see cref="ViewModel"/>, a <see cref="ICommand.CanExecuteChanged"/> event will be raised as well.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public class CommandCanExecuteSourceAttribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public class CanExecuteSourceAttribute
         : Attribute
     {
         /// <summary>
@@ -26,7 +27,7 @@ namespace NKristek.Smaragd.Attributes
         /// Initializes a new instance of this class.
         /// </summary>
         /// <param name="propertyNames">Property names of source properties</param>
-        public CommandCanExecuteSourceAttribute(params string[] propertyNames)
+        public CanExecuteSourceAttribute(params string[] propertyNames)
         {
             PropertySources = propertyNames;
         }

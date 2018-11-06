@@ -13,9 +13,9 @@ namespace NKristek.Smaragd.ViewModels
     {
         /// <inheritdoc />
         public virtual event PropertyChangedEventHandler PropertyChanged;
-        
+
         /// <summary>
-        /// Raise an event on the <see cref="PropertyChangedEventHandler"/>
+        /// Raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/>.
         /// </summary>
         /// <param name="propertyName">Name of the property which changed</param>
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null)
@@ -24,7 +24,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Raise an event on the <see cref="PropertyChangedEventHandler"/>. Override to alter or extend the behaviour.
+        /// Raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/>.
         /// </summary>
         /// <param name="propertyName">Name of the property which changed</param>
         internal virtual void InternalRaisePropertyChanged(string propertyName)
@@ -33,7 +33,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Sets a property value if the value is different and raises an event on the <see cref="PropertyChangedEventHandler"/>
+        /// Set the property value and raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/> if the value was different.
         /// </summary>
         /// <typeparam name="T">Type of the property to set</typeparam>
         /// <param name="storage">Reference to the storage variable</param>
@@ -49,6 +49,7 @@ namespace NKristek.Smaragd.ViewModels
             oldValue = storage;
             if (EqualityComparer<T>.Default.Equals(storage, value))
                 return false;
+
             storage = value;
             RaisePropertyChanged(propertyName);
             return true;
