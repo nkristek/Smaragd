@@ -24,11 +24,6 @@ Create a subclass of `ViewModel` like shown below.
 ```csharp
 public class MyViewModel : ViewModel
 {
-    public MyViewModel()
-    {
-        DoStuffCommand = new DoStuffCommand(this);
-    }
-
     private int _firstProperty;
     
     public int FirstProperty
