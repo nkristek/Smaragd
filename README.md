@@ -1,4 +1,10 @@
 # Smaragd
+
+[![NuGet version](https://img.shields.io/nuget/v/NKristek.Smaragd.svg)](https://www.nuget.org/packages/NKristek.Smaragd/)
+[![NuGet downloads](https://img.shields.io/nuget/dt/NKristek.Smaragd.svg)](https://www.nuget.org/packages/NKristek.Smaragd/)
+![.NET Standard version: >= 2.0](https://img.shields.io/badge/.NET%20Standard-%3E%3D%202.0-green.svg)
+[![GitHub license](https://img.shields.io/github/license/nkristek/Smaragd.svg)](https://github.com/nkristek/Smaragd/blob/master/LICENSE)
+
 This library contains base classes for implementing a C# .NET application using the MVVM architecture.
 
 For an example project, please visit my other project [Stein](https://github.com/nkristek/Stein).
@@ -11,9 +17,9 @@ The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are bu
 
 The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases/latest) or compile it yourself.
 
-## How to use
+## Getting started
 
-To get started, create a subclass of `ViewModel` like shown below.
+Create a subclass of `ViewModel` like shown below.
 
 ```csharp
 public class MyViewModel : ViewModel
@@ -68,11 +74,28 @@ The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged
 
 ### CommandCanExecuteSource
 
-TODO
+The following `ViewModelCommand<>` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
 
-`DoStuffCommand` uses the `CommandCanExecuteSourceAttribute`, which indicates, that the `CanExecute()` method depends on the value of the properties named. When a `PropertyChanged` event for `ThirdProperty` is invoked, a `CanExecuteChanged` event is raised on the command (when using custom command implementations, also implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+```csharp
+private class TestCommand
+    : ViewModelCommand<TestViewModel>
+{
+    public TestCommand(TestViewModel parent) : base(parent) { }
 
-You can also use the `CollectionCanExecuteSourceCollection` attribute. See the documentation for `PropertySourceCollection` above for more details.
+    [CanExecuteSource(nameof(TestViewModel.TestProperty))]
+    public override bool CanExecute(TestViewModel viewModel, object parameter)
+    {
+        return viewModel.TestProperty;
+    }
+            
+    protected override void DoExecute(TestViewModel viewModel, object parameter)
+    {
+        // execute...
+    }
+}
+```
+
+When a `PropertyChanged` event for `TestProperty` is invoked, an event is raised on `CanExecuteChanged` (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
 
 ### IsDirty
 
