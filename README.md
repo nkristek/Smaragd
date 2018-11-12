@@ -19,7 +19,7 @@ The recommended way to use this library is via [Nuget](https://www.nuget.org/pac
 
 ## Getting started
 
-Create a subclass of `ViewModel` like shown below.
+Create a subclass of `ViewModel` and optionally a command subclassing `ViewModelCommand<>` like shown below.
 
 ```csharp
 public class MyViewModel : ViewModel
