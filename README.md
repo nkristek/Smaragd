@@ -24,8 +24,13 @@ Create a subclass of `ViewModel` like shown below.
 ```csharp
 public class MyViewModel : ViewModel
 {
+    public MyViewModel()
+    {
+        TestCommand = new TestCommand(this);
+    }
+
     private int _firstProperty;
-    
+
     public int FirstProperty
     {
         get => _firstProperty;
@@ -37,7 +42,7 @@ public class MyViewModel : ViewModel
     }
 
     private int _secondProperty;
-    
+
     public int SecondProperty
     {
         get => _secondProperty;
@@ -46,6 +51,25 @@ public class MyViewModel : ViewModel
 
     [PropertySource(nameof(FirstProperty), nameof(SecondProperty))]
     public int ThirdProperty => FirstProperty + SecondProperty;
+
+    public ViewModelCommand<MyViewModel> TestCommand { get; }
+}
+
+public class TestCommand
+    : ViewModelCommand<MyViewModel>
+{
+    public TestCommand(MyViewModel parent) : base(parent) { }
+
+    [CanExecuteSource(nameof(MyViewModel.ThirdProperty))]
+    protected override bool CanExecute(MyViewModel viewModel, object parameter)
+    {
+        return viewModel.ThirdProperty > 0;
+    }
+
+    protected override void DoExecute(MyViewModel viewModel, object parameter)
+    {
+        // execute...
+    }
 }
 ```
 
@@ -69,28 +93,9 @@ The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged
 
 ### CommandCanExecuteSource
 
-The following `ViewModelCommand<>` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
+`TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
 
-```csharp
-private class TestCommand
-    : ViewModelCommand<TestViewModel>
-{
-    public TestCommand(TestViewModel parent) : base(parent) { }
-
-    [CanExecuteSource(nameof(TestViewModel.TestProperty))]
-    public override bool CanExecute(TestViewModel viewModel, object parameter)
-    {
-        return viewModel.TestProperty;
-    }
-            
-    protected override void DoExecute(TestViewModel viewModel, object parameter)
-    {
-        // execute...
-    }
-}
-```
-
-When a `PropertyChanged` event for `TestProperty` is invoked, an event is raised on `CanExecuteChanged` (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+When a `PropertyChanged` event for `ThirdProperty` is invoked, an event is raised on `CanExecuteChanged` (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
 
 ### IsDirty
 
