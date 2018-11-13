@@ -91,7 +91,7 @@ Using `RaisePropertyChanged()` instead of raising an event on `INotifyPropertyCh
 `ThirdProperty` uses `PropertySourceAttribute` with the names of both `FirstProperty` and `SecondProperty`. 
 The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged.PropertyChanged` for `ThirdProperty` when one of the two properties is changed. 
 
-### CommandCanExecuteSource
+### CanExecuteSource
 
 `TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
 
