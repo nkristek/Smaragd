@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>3.0</Version>
+    <Version>3.0.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -17,22 +17,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>This release introduces better code coverage and fixes potential bugs. This is a major release since there are sourcebreaking changes, please read the readme.
-
-Changes include:
-
-CommandCanExecuteSourceAttribute was renamend to CanExecuteSourceAttribute and is now only allowed on ICommand.CanExecute() in classes implementing IRaiseCanExecuteChanged.
-
-PropertySourceCollectionAttribute and CommandCanExecuteSourceCollectionAttribute were removed with no replacement as part of a refactoring to reduce code complexity and potential of bugs.
-
-AsyncCommand, AsyncRelayCommand, Command and RelayCommand were removed, it is recommended to use AsyncViewModelCommand or ViewModelCommand instead.
-
-The ViewModel.Children property was removed, consequential ChildViewModelAttribute and ChildViewModelCollectionAttribute were also removed.
-
-In TreeViewModel, if children are present, the TreeChildren property should be overriden for IsChecked to work properly.</PackageReleaseNotes>
+    <PackageReleaseNotes>This release fixes a bug that prevented the use of the CanExecuteSourceAttribute in subclasses of ViewModelCommand/AsyncViewModelCommand.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>3.0.1.0</AssemblyVersion>
+    <FileVersion>3.0.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
