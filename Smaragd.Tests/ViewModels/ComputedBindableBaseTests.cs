@@ -44,10 +44,17 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class CanExecuteSourceTestCommand
             : BindableCommand
         {
-            [CanExecuteSource(nameof(CanExecuteSourceTest.TestProperty))]
+            // define the CanExecuteSourceAttribute on a protected method instead to test if it also works on protected methods.
+            //[CanExecuteSource(nameof(CanExecuteSourceTest.TestProperty))]
             public override bool CanExecute(object parameter)
             {
                 return parameter is CanExecuteSourceTest test && test.TestProperty;
+            }
+
+            [CanExecuteSource(nameof(CanExecuteSourceTest.TestProperty))]
+            protected bool CanExecute()
+            {
+                return true;
             }
 
             protected override void DoExecute(object parameter)

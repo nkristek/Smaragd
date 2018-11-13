@@ -19,7 +19,7 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         protected AsyncBindableCommand()
         {
-            var canExecuteMethods = GetType().GetMethods().Where(m => m.Name == nameof(CanExecute));
+            var canExecuteMethods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(m => m.Name == nameof(CanExecute));
             var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
             _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
         }
