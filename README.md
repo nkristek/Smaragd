@@ -10,10 +10,6 @@ This library contains base classes for implementing a C# .NET application using 
 
 For an example project, please visit my other project [Stein](https://github.com/nkristek/Stein).
 
-## Prerequisites
-
-The nuget package and [DLL](https://github.com/nkristek/Smaragd/releases) are built for .NET Standard 2.0, but you can compile the library yourself to fit your needs.
-
 ## Installation
 
 The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases/latest) or compile it yourself.
