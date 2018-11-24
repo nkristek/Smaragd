@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Commands;
 
 namespace NKristek.Smaragd.Tests.Commands
 {
-    [TestClass]
     public class BindableCommandTests
     {
         private class TestCommand
@@ -32,46 +31,48 @@ namespace NKristek.Smaragd.Tests.Commands
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCanExecuteChanged()
         {
             var command = new TestCommand();
             var canExecuteChangedInvokedCount = 0;
             command.CanExecuteChanged += (sender, e) => { canExecuteChangedInvokedCount++; };
             command.RaiseCanExecuteChanged();
-            Assert.AreEqual(1, canExecuteChangedInvokedCount, "Invalid count of invocations of the CanExecuteChanged event");
+            // CanExecuteChanged should have been raised 1 time
+            Assert.Equal(1, canExecuteChangedInvokedCount);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCanExecute()
         {
             var command = new TestCommand();
-            Assert.IsTrue(command.CanExecute(new object()), "CanExecute did not return true");
-            Assert.IsFalse(command.CanExecute(null), "CanExecute did not return false");
+            Assert.True(command.CanExecute(new object()), "CanExecute did not return true");
+            Assert.False(command.CanExecute(null), "CanExecute did not return false");
 
             // test the default implementation of CanExecute()
             var defaultCanExecuteCommand = new TestDefaultCanExecuteCommand();
-            Assert.IsTrue(defaultCanExecuteCommand.CanExecute(null), "CanExecute did not return true by default");
+            Assert.True(defaultCanExecuteCommand.CanExecute(null), "CanExecute did not return true by default");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestExecute()
         {
             var command = new TestCommand();
-            Assert.IsFalse(command.DidExecute, "DidExecute is already true");
+            Assert.False(command.DidExecute, "DidExecute is already true");
 
             command.Execute(null);
-            Assert.IsTrue(command.DidExecute, "DidExecute was not set to true");
+            Assert.True(command.DidExecute, "DidExecute was not set to true");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRaiseCanExecuteChanged()
         {
             var command = new TestCommand();
             var canExecuteChangedInvokedCount = 0;
             command.CanExecuteChanged += (sender, e) => { canExecuteChangedInvokedCount++; };
             command.RaiseCanExecuteChanged();
-            Assert.AreEqual(1, canExecuteChangedInvokedCount, "Invalid count of invocations of the CanExecuteChanged event");
+            // CanExecuteChanged should have been raised 1 time
+            Assert.Equal(1, canExecuteChangedInvokedCount);
         }
     }
 }

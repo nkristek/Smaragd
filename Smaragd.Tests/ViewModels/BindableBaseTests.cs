@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    [TestClass]
     public class BindableBaseTests
     {
         private class BindableBaseTest 
@@ -35,20 +34,22 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSetProperty()
         {
             var bindableObject = new BindableBaseTest
             {
                 TestProperty = true
             };
-            Assert.IsFalse(bindableObject.OldValue, "Old value has to be false.");
-            Assert.IsTrue(bindableObject.ValueWasSet, "The value was not set.");
-            Assert.IsTrue(bindableObject.TestProperty, "The value of the property is wrong.");
-            Assert.ThrowsException<ArgumentNullException>(() => bindableObject.SetPropertyExternal(ref bindableObject._testProperty, false, out _, null), "An empty property name should raise an exception.");
+            Assert.False(bindableObject.OldValue, "Old value has to be false.");
+            Assert.True(bindableObject.ValueWasSet, "The value was not set.");
+            Assert.True(bindableObject.TestProperty, "The value of the property is wrong.");
+
+            // An empty property name should raise an exception.
+            Assert.Throws<ArgumentNullException>(() => bindableObject.SetPropertyExternal(ref bindableObject._testProperty, false, out _, null));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPropertyChanged()
         {
             var invokedPropertyChangedEvents = new List<string>();
@@ -62,8 +63,8 @@ namespace NKristek.Smaragd.Tests.ViewModels
             bindableObject.TestProperty = true;
             bindableObject.TestProperty = true;
             
-            Assert.AreEqual(1, invokedPropertyChangedEvents.Count, "Invalid count of invocations on INotifyPropertyChanged.PropertyChanged.");
-            Assert.AreEqual("TestProperty", invokedPropertyChangedEvents.FirstOrDefault(), "No event on INotifyPropertyChanged.PropertyChanged was raised for the test property");
+            Assert.Single(invokedPropertyChangedEvents);
+            Assert.Equal("TestProperty", invokedPropertyChangedEvents.FirstOrDefault());
         }
     }
 }

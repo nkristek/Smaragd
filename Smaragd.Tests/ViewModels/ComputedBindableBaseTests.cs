@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Commands;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    [TestClass]
     public class ComputedBindableBaseTests
     {
         private class PropertySourceTest
@@ -78,7 +77,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPropertySourceAttribute()
         {
             var invokedPropertyChangedEvents = new List<string>();
@@ -87,16 +86,16 @@ namespace NKristek.Smaragd.Tests.ViewModels
             bindableObject.PropertyChanged += (sender, e) => { invokedPropertyChangedEvents.Add(e.PropertyName); };
             bindableObject.TestProperty = true;
 
-            Assert.AreEqual(2, invokedPropertyChangedEvents.Count, "Invalid count of invocations of the PropertyChanged event");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.TestProperty)), "The PropertyChanged event wasn't raised for the TestProperty property");
-            Assert.IsTrue(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
+            Assert.Equal(2, invokedPropertyChangedEvents.Count);
+            Assert.True(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.TestProperty)), "The PropertyChanged event wasn't raised for the TestProperty property");
+            Assert.True(invokedPropertyChangedEvents.Contains(nameof(PropertySourceTest.AnotherTestProperty)), "The PropertyChanged event wasn't raised for the PropertySource property");
         }
         
-        [TestMethod]
+        [Fact]
         public void TestCommandCanExecuteSourceAttribute()
         {
             var testObject = new CanExecuteSourceTest();
-            Assert.IsFalse(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return false when TestProperty is false");
+            Assert.False(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return false when TestProperty is false");
 
             var invokedCanExecuteChangedEvents = 0;
             testObject.TestCommand.CanExecuteChanged += (sender, e) => { invokedCanExecuteChangedEvents++; };
@@ -105,9 +104,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
             testObject.AsyncTestCommand.CanExecuteChanged += (sender, e) => { asyncInvokedCanExecuteChangedEvents++; };
 
             testObject.TestProperty = true;
-            Assert.IsTrue(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return true when TestProperty is true");
-            Assert.AreEqual(1, invokedCanExecuteChangedEvents, "Invalid count of invocations of CanExecuteChanged of the BindableCommand");
-            Assert.AreEqual(1, asyncInvokedCanExecuteChangedEvents, "Invalid count of invocations of CanExecuteChanged of the AsyncBindableCommand");
+            Assert.True(testObject.TestCommand.CanExecute(testObject), "CanExecute() should return true when TestProperty is true");
+            Assert.Equal(1, invokedCanExecuteChangedEvents);
+            Assert.Equal(1, asyncInvokedCanExecuteChangedEvents);
         }
     }
 }

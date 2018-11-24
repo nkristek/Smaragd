@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Helpers;
 
 namespace NKristek.Smaragd.Tests.Helpers
 {
-    [TestClass]
     public class DisposableTests
     {
         private static class DisposableDataStore
@@ -36,7 +35,7 @@ namespace NKristek.Smaragd.Tests.Helpers
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDispose()
         {
             DisposableDataStore.ManagedRessourcesDisposed = false;
@@ -45,11 +44,11 @@ namespace NKristek.Smaragd.Tests.Helpers
             var instance = new DisposableImpl();
             instance.Dispose();
 
-            Assert.IsTrue(DisposableDataStore.ManagedRessourcesDisposed);
-            Assert.IsTrue(DisposableDataStore.NativeRessourcesDisposed);
+            Assert.True(DisposableDataStore.ManagedRessourcesDisposed);
+            Assert.True(DisposableDataStore.NativeRessourcesDisposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFinalize()
         {
             DisposableDataStore.ManagedRessourcesDisposed = false;
@@ -60,8 +59,8 @@ namespace NKristek.Smaragd.Tests.Helpers
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            Assert.IsFalse(DisposableDataStore.ManagedRessourcesDisposed);
-            Assert.IsTrue(DisposableDataStore.NativeRessourcesDisposed);
+            Assert.False(DisposableDataStore.ManagedRessourcesDisposed);
+            Assert.True(DisposableDataStore.NativeRessourcesDisposed);
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]

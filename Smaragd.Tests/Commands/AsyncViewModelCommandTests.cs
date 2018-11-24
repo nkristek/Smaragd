@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Commands;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.Commands
 {
-    [TestClass]
     public class AsyncViewModelCommandTests
     {
         private class TestViewModel
@@ -36,33 +35,35 @@ namespace NKristek.Smaragd.Tests.Commands
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestParent()
         {
             var viewModel = new TestViewModel();
             var command = new TestCommand(viewModel);
-            Assert.AreEqual(viewModel, command.Parent, "The command parent does not match");
+            Assert.Equal(viewModel, command.Parent);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNoParentException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new TestCommand(null), "AsyncViewModelCommand did not throw an exception when instancing with no parent");
+            // AsyncViewModelCommand should throw an exception when instancing with no parent
+            Assert.Throws<ArgumentNullException>(() => new TestCommand(null));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCanExecute()
         {
-            Assert.IsTrue(new TestCommand(new TestViewModel()).CanExecute(null), "CanExecute() should return true by default.");
+            Assert.True(new TestCommand(new TestViewModel()).CanExecute(null), "CanExecute() should return true by default.");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestDoExecute()
         {
             var viewModel = new TestViewModel();
             var command = new TestCommand(viewModel);
             await command.ExecuteAsync(viewModel);
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await command.ExecuteAsync(null), "DoExecute() should throw an exception when the parameter is null.");
+            // Execute() should throw an exception when the parameter is null.
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await command.ExecuteAsync(null));
         }
     }
 }

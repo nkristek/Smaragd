@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NKristek.Smaragd.Commands;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Commands
 {
-    [TestClass]
     public class AsyncBindableCommandTests
     {
         private class TestIsWorkingCommand
@@ -33,54 +32,55 @@ namespace NKristek.Smaragd.Tests.Commands
             }
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestIsWorking()
         {
             var command = new TestIsWorkingCommand();
-            Assert.IsFalse(command.IsWorking, "Command.IsWorking is not false before executing");
-            
+            Assert.False(command.IsWorking, "Command.IsWorking is not false before executing");
+
             var executeTask = command.ExecuteAsync(null);
-            Assert.IsTrue(command.IsWorking, "Command.IsWorking is not set to true while executing");
-            
+            Assert.True(command.IsWorking, "Command.IsWorking is not set to true while executing");
+
             await executeTask;
-            Assert.IsFalse(command.IsWorking, "Command.IsWorking is not false after executing");
+            Assert.False(command.IsWorking, "Command.IsWorking is not false after executing");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestCanExecute()
         {
             var command = new TestCommand();
-            Assert.IsTrue(command.CanExecute(new object()), "CanExecute did not return true");
-            Assert.IsFalse(command.CanExecute(null), "CanExecute did not return false");
+            Assert.True(command.CanExecute(new object()), "CanExecute did not return true");
+            Assert.False(command.CanExecute(null), "CanExecute did not return false");
 
             // test the default implementation of CanExecute()
             var isWorkingCommand = new TestIsWorkingCommand();
-            Assert.IsTrue(isWorkingCommand.CanExecute(null), "CanExecute did not return true although the command is not working");
+            Assert.True(isWorkingCommand.CanExecute(null), "CanExecute did not return true although the command is not working");
 
             var executeTask = isWorkingCommand.ExecuteAsync(null);
-            Assert.IsFalse(isWorkingCommand.CanExecute(null), "CanExecute did not return false although the command is working");
+            Assert.False(isWorkingCommand.CanExecute(null), "CanExecute did not return false although the command is working");
 
             await executeTask;
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TestExecuteAsync()
         {
             var command = new TestCommand();
-            Assert.IsFalse(command.DidExecute, "DidExecute is already true");
+            Assert.False(command.DidExecute, "DidExecute is already true");
 
             await command.ExecuteAsync(null);
-            Assert.IsTrue(command.DidExecute, "DidExecute was not set to true");
+            Assert.True(command.DidExecute, "DidExecute was not set to true");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRaiseCanExecuteChanged()
         {
             var command = new TestCommand();
             var canExecuteChangedInvokedCount = 0;
             command.CanExecuteChanged += (sender, e) => { canExecuteChangedInvokedCount++; };
             command.RaiseCanExecuteChanged();
-            Assert.AreEqual(1, canExecuteChangedInvokedCount, "Invalid count of invocations of the CanExecuteChanged event");
+            // CanExecuteChanged should have been raised 1 time
+            Assert.Equal(1, canExecuteChangedInvokedCount);
         }
     }
 }

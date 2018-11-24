@@ -1,9 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    [TestClass]
     public class DialogModelTests
     {
         private class TestDialogModel
@@ -12,7 +11,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTitle()
         {
             const string title = "Test";
@@ -20,7 +19,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             {
                 Title = title
             };
-            Assert.AreEqual(title, dialogModel.Title, "Title property wasn't set");
+            Assert.Equal(title, dialogModel.Title);
         }
     }
 }

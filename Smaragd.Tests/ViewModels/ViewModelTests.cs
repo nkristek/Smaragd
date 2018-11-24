@@ -1,12 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
-    [TestClass]
     public class ViewModelTests
     {
         private class TestViewModel
@@ -63,43 +62,43 @@ namespace NKristek.Smaragd.Tests.ViewModels
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsDirty()
         {
             var viewModel = new TestIsDirtyViewModel();
-            Assert.IsFalse(viewModel.IsDirty, "IsDirty is initially true");
-            Assert.IsFalse(viewModel.TestProperty, "TestProperty is initially true");
-            Assert.IsFalse(viewModel.IsDirtyIgnoredProperty, "IsDirtyIgnoredProperty is initially true");
+            Assert.False(viewModel.IsDirty, "IsDirty is initially true");
+            Assert.False(viewModel.TestProperty, "TestProperty is initially true");
+            Assert.False(viewModel.IsDirtyIgnoredProperty, "IsDirtyIgnoredProperty is initially true");
 
             viewModel.TestProperty = true;
-            Assert.IsTrue(viewModel.IsDirty, "IsDirty wasn't set by the test property");
+            Assert.True(viewModel.IsDirty, "IsDirty wasn't set by the test property");
 
             viewModel.IsDirty = false;
-            Assert.IsFalse(viewModel.IsDirty, "IsDirty was not set to false");
+            Assert.False(viewModel.IsDirty, "IsDirty was not set to false");
 
             viewModel.IsDirtyIgnoredProperty = true;
-            Assert.IsFalse(viewModel.IsDirty, "IsDirtyIgnoredProperty was not ignored");
+            Assert.False(viewModel.IsDirty, "IsDirtyIgnoredProperty was not ignored");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsDirtyCollection()
         {
             var viewModel = new TestIsDirtyCollectionViewModel();
-            Assert.IsFalse(viewModel.IsDirty, "IsDirty is initially true");
-            Assert.IsFalse(viewModel.Values.Any(), "Values has initially items");
-            Assert.IsFalse(viewModel.IsDirtyIgnoredValues.Any(), "IsDirtyIgnoredValues has initially items");
+            Assert.False(viewModel.IsDirty, "IsDirty is initially true");
+            Assert.False(viewModel.Values.Any(), "Values has initially items");
+            Assert.False(viewModel.IsDirtyIgnoredValues.Any(), "IsDirtyIgnoredValues has initially items");
 
             viewModel.Values.Add(1);
-            Assert.IsTrue(viewModel.IsDirty, "IsDirty wasn't set by changing the collection");
+            Assert.True(viewModel.IsDirty, "IsDirty wasn't set by changing the collection");
 
             viewModel.IsDirty = false;
-            Assert.IsFalse(viewModel.IsDirty, "IsDirty was not set to false");
+            Assert.False(viewModel.IsDirty, "IsDirty was not set to false");
 
             viewModel.IsDirtyIgnoredValues.Add(1);
-            Assert.IsFalse(viewModel.IsDirty, "IsDirtyIgnoredValues was not ignored");
+            Assert.False(viewModel.IsDirty, "IsDirtyIgnoredValues was not ignored");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestParent()
         {
             var viewModel = new TestViewModel();
@@ -107,20 +106,20 @@ namespace NKristek.Smaragd.Tests.ViewModels
             {
                 Parent = viewModel
             };
-            Assert.IsNotNull(childViewModel.Parent, "Parent was not set");
+            Assert.NotNull(childViewModel.Parent);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsReadonly()
         {
             var viewModel = new TestViewModel
             {
                 IsReadOnly = true
             };
-            Assert.IsTrue(viewModel.IsReadOnly, "IsReadOnly wasn't set");
+            Assert.True(viewModel.IsReadOnly, "IsReadOnly wasn't set");
 
             viewModel.TestProperty = true;
-            Assert.IsFalse(viewModel.TestProperty, "TestProperty was set although the viewmodel was readonly");
+            Assert.False(viewModel.TestProperty, "TestProperty was set although the viewmodel was readonly");
         }
     }
 }

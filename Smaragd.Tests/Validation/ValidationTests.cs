@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using NKristek.Smaragd.Validation;
 
 namespace NKristek.Smaragd.Tests.Validation
 {
-    [TestClass]
     public class ValidationTests
     {
         private class TestValidation
@@ -49,32 +48,33 @@ namespace NKristek.Smaragd.Tests.Validation
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsValid()
         {
             var errorMessage = "Value should be at least 5.";
             var validation = new TestValidation(errorMessage);
 
-            Assert.IsFalse(validation.IsValid(4, out var returnedErrorMessage), "IsValid did not return false.");
-            Assert.AreEqual(errorMessage, returnedErrorMessage, "The returned error message does not match.");
+            Assert.False(validation.IsValid(4, out var returnedErrorMessage), "IsValid did not return false.");
+            Assert.Equal(errorMessage, returnedErrorMessage);
 
-            Assert.IsTrue(validation.IsValid(5, out returnedErrorMessage), "IsValid did not return true.");
-            Assert.IsNull(returnedErrorMessage, "The returned error message is not null.");
+            Assert.True(validation.IsValid(5, out returnedErrorMessage), "IsValid did not return true.");
+            Assert.Null(returnedErrorMessage);
 
-            Assert.ThrowsException<ArgumentException>(() => validation.IsValid("error", out returnedErrorMessage), "An invalid argument type did not raise an exception.");
-            Assert.ThrowsException<ArgumentException>(() => validation.IsValid(null, out returnedErrorMessage), "An invalid argument type did not raise an exception.");
+            // an invalid argument should raise an exception
+            Assert.Throws<ArgumentException>(() => validation.IsValid("error", out returnedErrorMessage));
+            Assert.Throws<ArgumentException>(() => validation.IsValid(null, out returnedErrorMessage));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsValidString()
         {
             var errorMessage = "Value should not be null or empty.";
             var validation = new TestStringValidation(errorMessage);
 
-            Assert.ThrowsException<ArgumentException>(() => validation.IsValid(4, out _), "IsValid did not return false.");
-            Assert.IsFalse(validation.IsValid(null, out _), "IsValid did not return false.");
-            Assert.IsTrue(validation.IsValid("Test", out _), "IsValid did not return true.");
-            Assert.ThrowsException<ArgumentException>(() => validation.IsValid(new object(), out _), "An invalid argument type did not raise an exception.");
+            Assert.Throws<ArgumentException>(() => validation.IsValid(4, out _));
+            Assert.False(validation.IsValid(null, out _), "IsValid did not return false.");
+            Assert.True(validation.IsValid("Test", out _), "IsValid did not return true.");
+            Assert.Throws<ArgumentException>(() => validation.IsValid(new object(), out _));
         }
     }
 }
