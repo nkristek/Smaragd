@@ -1,0 +1,9 @@
+language: csharp
+dist: trusty
+mono: none
+dotnet: 2.1
+install:
+- dotnet restore
+script:
+- dotnet build
+- dotnet test Smaragd.Tests/Smaragd.Tests.csproj
