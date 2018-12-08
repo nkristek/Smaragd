@@ -1,12 +1,12 @@
 ﻿using System;
-using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Attributes
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This attribute can be used on properties in classes inheriting from <see cref="ViewModel"/>.
+    /// This <see cref="Attribute"/> can be used on properties in classes inheriting from <see cref="T:NKristek.Smaragd.ViewModels.ViewModel" />.
     /// <para />
-    /// It indicates, that the property should not set <see cref="ViewModel.IsDirty"/> to <c>true</c> when it changes.
+    /// It indicates, that a property should not set <see cref="P:NKristek.Smaragd.ViewModels.ViewModel.IsDirty" /> to <c>true</c> when the property changes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class IsDirtyIgnoredAttribute

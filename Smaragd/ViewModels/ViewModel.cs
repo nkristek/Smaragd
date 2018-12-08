@@ -1,27 +1,45 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using NKristek.Smaragd.Attributes;
+using NKristek.Smaragd.Commands;
 
 namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc />
-    /// <summary>
-    /// ViewModel implementation, it supports the <see cref="IsDirtyIgnoredAttribute" /> above properties to prevent setting <see cref="IsDirty" /> for the property in question
-    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This class provides the following properties:
+    /// </para>
+    /// <para>
+    /// - <see cref="IsDirty"/>: Is set to <c>true</c> if a property changes through <see cref="SetProperty{T}"/>, if the <see cref="IsDirtyIgnoredAttribute" /> is not present above the property.
+    /// <see cref="IsDirty"/> will also be set to <c>true</c> if a property implements <see cref="INotifyCollectionChanged"/> and an event on <see cref="INotifyCollectionChanged.CollectionChanged"/> occurs.
+    /// </para>
+    /// <para>
+    /// - <see cref="Parent"/>: Parent of this <see cref="ViewModel"/>, which uses a <see cref="WeakReference{T}"/> to prevent circular references.
+    /// </para>
+    /// <para>
+    /// - <see cref="IsReadOnly"/>: If set to <c>true</c> <see cref="SetProperty{T}"/> will not change properties.
+    /// </para>
+    /// <para>
+    /// - <see cref="Commands"/>: A <see cref="Dictionary{TKey,TValue}"/> of all commands of this <see cref="ViewModel"/>. The key is the name of the command, the value the command itself.
+    /// </para>
+    /// </remarks>
     public abstract class ViewModel
-        : ComputedBindableBase
+        : ComputedBindable
     {
         /// <inheritdoc />
         protected ViewModel()
         {
-            // set IsDirty when any collection changes
-            var collectionProperties = GetType().GetProperties().Where(p => p.GetMethod.IsPublic && typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType));
+            var collectionProperties = GetType().GetProperties().Where(p => p.GetMethod.IsPublic);
             foreach (var property in collectionProperties)
             {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name) && property.GetValue(this, null) is INotifyCollectionChanged collection)
+                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name) 
+                    && typeof(INotifyCollectionChanged).IsAssignableFrom(property.PropertyType)
+                    && property.GetValue(this, null) is INotifyCollectionChanged collection)
                     collection.CollectionChanged += OnChildCollectionChanged;
             }
         }
@@ -29,7 +47,7 @@ namespace NKristek.Smaragd.ViewModels
         private bool _isDirty;
 
         /// <summary>
-        /// Indicates if a property changed on the <see cref="ViewModel"/> and the change is not persisted
+        /// Indicates if a property changed and is not persisted.
         /// </summary>
         [IsDirtyIgnored]
         public bool IsDirty
@@ -46,13 +64,7 @@ namespace NKristek.Smaragd.ViewModels
         [IsDirtyIgnored]
         public ViewModel Parent
         {
-            get
-            {
-                if (_parent != null && _parent.TryGetTarget(out var parent))
-                    return parent;
-                return null;
-            }
-
+            get => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
             set
             {
                 if (Parent == value) return;
@@ -64,7 +76,7 @@ namespace NKristek.Smaragd.ViewModels
         private bool _isReadOnly;
 
         /// <summary>
-        /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value
+        /// Indicates if this <see cref="ViewModel"/> instance is read only and it is not possible to change a property value.
         /// </summary>
         [IsDirtyIgnored]
         public bool IsReadOnly
@@ -73,16 +85,31 @@ namespace NKristek.Smaragd.ViewModels
             set => SetProperty(ref _isReadOnly, value, out _);
         }
 
-        /// <inheritdoc />
+        private Dictionary<string, ICommand> _commands;
+
         /// <summary>
-        /// Sets a property if <see cref="IsReadOnly" /> is not true and the value is different and raises an event on the <see cref="PropertyChangedEventHandler" />
+        /// Commands of this <see cref="ViewModel"/>.
         /// </summary>
-        /// <typeparam name="T">Type of the property to set</typeparam>
-        /// <param name="storage">Reference to the storage variable</param>
-        /// <param name="value">New value to set</param>
-        /// <param name="propertyName">Name of the property</param>
-        /// <param name="oldValue">The old value of the property</param>
-        /// <returns>True if the value was different from the storage variable and the PropertyChanged event was raised</returns>
+        public virtual Dictionary<string, ICommand> Commands => _commands ?? (_commands = new Dictionary<string, ICommand>());
+
+        /// <inheritdoc />
+        protected override void RaisePropertyChanged(string propertyName, IEnumerable<string> additionalPropertyNames)
+        {
+            var additionalPropertyNamesList = additionalPropertyNames.ToList();
+            base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
+
+            var propertyNamesToNotify = new List<string> { propertyName };
+            propertyNamesToNotify.AddRange(additionalPropertyNamesList);
+
+            foreach (var command in Commands.Select(c => c.Value).OfType<IRaiseCanExecuteChanged>())
+                if (command.ShouldRaiseCanExecuteChanged(propertyNamesToNotify))
+                    command.RaiseCanExecuteChanged();
+        }
+
+        /// <inheritdoc />
+        /// <remarks>
+        /// Set the property value only if <see cref="IsReadOnly" /> is <c>false</c>.
+        /// </remarks>
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
             oldValue = storage;

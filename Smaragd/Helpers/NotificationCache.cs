@@ -4,17 +4,22 @@ using System.Linq;
 
 namespace NKristek.Smaragd.Helpers
 {
+    /// <inheritdoc />
     internal sealed class NotificationCache
         : INotificationCache
     {
-        private readonly Dictionary<string, IList<string>> _cachedPropertyNamesToNotify = new Dictionary<string, IList<string>>();
-
-        /// <summary>
-        /// Key is property name of notifying property, value is list of all properties to notify
-        /// </summary>
         private readonly Dictionary<string, IList<string>> _propertiesNotifyingProperties = new Dictionary<string, IList<string>>();
+
+        private readonly Dictionary<string, IList<string>> _cachedPropertyNamesToNotify = new Dictionary<string, IList<string>>();
         
+        private void InvalidateCache()
+        {
+            _cachedPropertyNamesToNotify.Clear();
+        }
+
         /// <inheritdoc />
+        /// <exception cref="ArgumentNullException">If either <paramref name="propertyNameOfNotifyingProperty"/> or <paramref name="propertyNameToNotify"/> is null.</exception>
+        /// <exception cref="ArgumentException">If <paramref name="propertyNameOfNotifyingProperty"/> and <paramref name="propertyNameToNotify"/> are equal (a property should not notify itself).</exception>
         public void AddPropertyNameToNotify(string propertyNameOfNotifyingProperty, string propertyNameToNotify)
         {
             if (String.IsNullOrEmpty(propertyNameOfNotifyingProperty))
@@ -34,13 +39,9 @@ namespace NKristek.Smaragd.Helpers
             if (!_propertiesNotifyingProperties[propertyNameOfNotifyingProperty].Contains(propertyNameToNotify))
                 _propertiesNotifyingProperties[propertyNameOfNotifyingProperty].Add(propertyNameToNotify);
         }
-
-        private void InvalidateCache()
-        {
-            _cachedPropertyNamesToNotify.Clear();
-        }
-
+        
         /// <inheritdoc />
+        /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null.</exception>
         public IEnumerable<string> GetPropertyNamesToNotify(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
@@ -48,27 +49,24 @@ namespace NKristek.Smaragd.Helpers
 
             if (_cachedPropertyNamesToNotify.TryGetValue(propertyName, out var cachedPropertyNamesToNotify))
                 return cachedPropertyNamesToNotify.ToList();
+            
+            var propertyNamesToNotify = new List<string>();
+            CalculateRecursivePropertyNamesToNotify(propertyName, propertyNamesToNotify);
+            propertyNamesToNotify.Remove(propertyName);
 
-            _cachedPropertyNamesToNotify[propertyName] = GetRecursivePropertyNamesToNotify(propertyName, new List<string>()).ToList();
-            _cachedPropertyNamesToNotify[propertyName].Remove(propertyName); // a property should not notify itself
-            return _cachedPropertyNamesToNotify[propertyName].ToList(); // return a new list so the internal one can not be modified
+            _cachedPropertyNamesToNotify[propertyName] = propertyNamesToNotify;
+            return propertyNamesToNotify;
         }
 
-        private IEnumerable<string> GetRecursivePropertyNamesToNotify(string propertyName, IList<string> propertyNamesToNotify)
+        private void CalculateRecursivePropertyNamesToNotify(string propertyName, List<string> propertyNamesToNotify)
         {
-            if (!_propertiesNotifyingProperties.TryGetValue(propertyName, out var currentPropertyNamesToNotify))
-                return propertyNamesToNotify;
-            
-            foreach (var propertyNameToNotify in currentPropertyNamesToNotify)
-            {
-                if (propertyNamesToNotify.Contains(propertyNameToNotify))
-                    continue;
+            if (!_propertiesNotifyingProperties.TryGetValue(propertyName, out var propertyNamesToNotifyFromCurrentProperty))
+                return;
 
-                propertyNamesToNotify.Add(propertyNameToNotify);
-                GetRecursivePropertyNamesToNotify(propertyNameToNotify, propertyNamesToNotify);
-            }
-
-            return propertyNamesToNotify;
+            var newPropertyNames = propertyNamesToNotifyFromCurrentProperty.Where(name => !propertyNamesToNotify.Contains(name)).ToList();
+            propertyNamesToNotify.AddRange(newPropertyNames);
+            foreach (var propertyNameToNotify in newPropertyNames)
+                CalculateRecursivePropertyNamesToNotify(propertyNameToNotify, propertyNamesToNotify);
         }
     }
 }

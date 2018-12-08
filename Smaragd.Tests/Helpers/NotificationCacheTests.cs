@@ -1,55 +1,83 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 using NKristek.Smaragd.Helpers;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Helpers
 {
     public class NotificationCacheTests
     {
-        [Fact]
-        public void TestNotificationCache()
+        private INotificationCache NotificationCache { get; }
+
+        private string FirstProperty { get; }
+
+        private string SecondProperty { get; }
+
+        private string ThirdProperty { get; }
+
+        public NotificationCacheTests()
         {
-            var notifyingProperty = "NotifyingProperty";
-            var propertyToNotify = "PropertyToNotify";
-
-            var notificationCache = new NotificationCache();
-            Assert.False(notificationCache.GetPropertyNamesToNotify(notifyingProperty).Any(), "The NotificationCache returned names although there are none added yet.");
-
-            notificationCache.AddPropertyNameToNotify(notifyingProperty, propertyToNotify);
-            Assert.True(notificationCache.GetPropertyNamesToNotify(notifyingProperty).Contains(propertyToNotify), "The NotificationCache did not return the property to notify.");
-            
-            Assert.False(notificationCache.GetPropertyNamesToNotify("SomeOtherProperty").Any(), "The NotificationCache returned names although there should be none for a property which wasn't added.");
+            NotificationCache = new NotificationCache();
+            FirstProperty = nameof(FirstProperty);
+            SecondProperty = nameof(SecondProperty);
+            ThirdProperty = nameof(ThirdProperty);
+        }
+        
+        [Fact]
+        public void AddPropertyNameToNotify_PropertyNameOfNotifyingPropertyNull_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => NotificationCache.AddPropertyNameToNotify(null, FirstProperty));
         }
 
         [Fact]
-        public void TestNestedPropertySourcesAndLoops()
+        public void AddPropertyNameToNotify_PropertyNameToNotifyNull_ThrowsArgumentNullException()
         {
-            var firstProperty = "FirstProperty";
-            var secondProperty = "SecondProperty";
-            var thirdProperty = "ThirdProperty";
-
-            var notificationCache = new NotificationCache();
-            notificationCache.AddPropertyNameToNotify(firstProperty, secondProperty);
-            notificationCache.AddPropertyNameToNotify(secondProperty, thirdProperty);
-            notificationCache.AddPropertyNameToNotify(thirdProperty, firstProperty);
-
-            var propertyNamesToNotify = notificationCache.GetPropertyNamesToNotify(firstProperty).ToList();
-            Assert.True(propertyNamesToNotify.Count == 2, "The count of property names is not 2.");
-            Assert.True(propertyNamesToNotify.Contains(secondProperty), "The property names to notify did not contain SecondProperty");
-            Assert.True(propertyNamesToNotify.Contains(thirdProperty), "The property names to notify did not contain ThirdProperty");
+            Assert.Throws<ArgumentNullException>(() => NotificationCache.AddPropertyNameToNotify(FirstProperty, null));
         }
 
         [Fact]
-        public void TestExceptions()
+        public void AddPropertyNameToNotify_SameName_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => NotificationCache.AddPropertyNameToNotify(FirstProperty, FirstProperty));
+        }
+
+        [Fact]
+        public void GetPropertyNamesToNotify_PropertyNameNull_ThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => NotificationCache.GetPropertyNamesToNotify(null));
+        }
+
+        [Fact]
+        public void GetPropertyNamesToNotify()
         {
             var notificationCache = new NotificationCache();
+            notificationCache.AddPropertyNameToNotify(FirstProperty, SecondProperty);
+            var expectedPropertyNames = Enumerable.Repeat(SecondProperty, 1);
+            var propertyNames = notificationCache.GetPropertyNamesToNotify(FirstProperty);
+            Assert.Equal(expectedPropertyNames, propertyNames);
+        }
 
-            Assert.Throws<ArgumentNullException>(() => notificationCache.AddPropertyNameToNotify(null, "not null"));
-            Assert.Throws<ArgumentNullException>(() => notificationCache.AddPropertyNameToNotify("not null", null));
-            Assert.Throws<ArgumentException>(() => notificationCache.AddPropertyNameToNotify("The same", "The same"));
+        [Fact]
+        public void GetPropertyNamesToNotify_IndirectPropertyNames()
+        {
+            var notificationCache = new NotificationCache();
+            notificationCache.AddPropertyNameToNotify(FirstProperty, SecondProperty);
+            notificationCache.AddPropertyNameToNotify(SecondProperty, ThirdProperty);
+            var expectedPropertyNames = new List<string> { SecondProperty, ThirdProperty }.OrderBy(name => name);
+            var propertyNames = notificationCache.GetPropertyNamesToNotify(FirstProperty).OrderBy(name => name);
+            Assert.Equal(expectedPropertyNames, propertyNames);
+        }
 
-            Assert.Throws<ArgumentNullException>(() => notificationCache.GetPropertyNamesToNotify(null));
+        [Fact]
+        public void GetPropertyNamesToNotify_RecursivePropertyNames()
+        {
+            var notificationCache = new NotificationCache();
+            notificationCache.AddPropertyNameToNotify(FirstProperty, SecondProperty);
+            notificationCache.AddPropertyNameToNotify(SecondProperty, FirstProperty);
+            var expectedPropertyNames = Enumerable.Repeat(SecondProperty, 1);
+            var propertyNames = notificationCache.GetPropertyNamesToNotify(FirstProperty);
+            Assert.Equal(expectedPropertyNames, propertyNames);
         }
     }
 }

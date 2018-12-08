@@ -1,18 +1,18 @@
 ﻿namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc />
-    /// <summary>
-    /// A <see cref="ValidatingViewModel" /> which provides a title to use in dialogs
-    /// </summary>
+    /// <remarks>
+    /// This class provides a title property to use in dialogs.
+    /// </remarks>
     public abstract class DialogModel 
         : ValidatingViewModel
     {
         private string _title;
 
         /// <summary>
-        /// Dialog title
+        /// The title of the dialog.
         /// </summary>
-        public string Title
+        public virtual string Title
         {
             get => _title;
             set => SetProperty(ref _title, value, out _);

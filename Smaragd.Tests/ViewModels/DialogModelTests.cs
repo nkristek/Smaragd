@@ -1,5 +1,5 @@
-﻿using Xunit;
-using NKristek.Smaragd.ViewModels;
+﻿using NKristek.Smaragd.ViewModels;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
@@ -11,15 +11,21 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
         }
 
-        [Fact]
-        public void TestTitle()
+        private string Title { get; }
+
+        public DialogModelTests()
         {
-            const string title = "Test";
+            Title = "Test";
+        }
+
+        [Fact]
+        public void TitleProperty()
+        {
             var dialogModel = new TestDialogModel
             {
-                Title = title
+                Title = Title
             };
-            Assert.Equal(title, dialogModel.Title);
+            Assert.Equal(Title, dialogModel.Title);
         }
     }
 }

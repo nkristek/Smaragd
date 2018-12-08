@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Attributes
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This attribute can be used on properties in classes inheriting from <see cref="ComputedBindableBase"/>.
-    /// <para />
+    /// <para>
+    /// This <see cref="Attribute"/> can be used on properties in a class inheriting from <see cref="T:NKristek.Smaragd.ViewModels.ComputedBindableBase" />.
     /// It indicates, that the property depends on one or multiple properties.
-    /// Given one or multiple property names, an additional <see cref="INotifyPropertyChanged.PropertyChanged"/> event will be raised for this property, if one was raised for one of the specified property names.
-    /// <para />
+    /// </para>
+    /// <para>
+    /// <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged" /> will be raised, when <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged" /> is raised for one of the given property names.
+    /// </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class PropertySourceAttribute
         : Attribute
     {
         /// <summary>
-        /// Property names of source properties
+        /// Property names which should raise <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged"/>.
         /// </summary>
         public IEnumerable<string> PropertySources { get; }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of this class.
+        /// Initializes a new instance of the <see cref="T:NKristek.Smaragd.Attributes.PropertySourceAttribute" /> class with one or multiple names of properties the property depends on.
         /// </summary>
-        /// <param name="propertyNames">Property names of source properties</param>
+        /// <param name="propertyNames">Names of source properties.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="propertyNames"/> is null.</exception>
         public PropertySourceAttribute(params string[] propertyNames)
         {
-            PropertySources = propertyNames;
+            PropertySources = propertyNames ?? throw new ArgumentNullException(nameof(propertyNames));
         }
     }
 }

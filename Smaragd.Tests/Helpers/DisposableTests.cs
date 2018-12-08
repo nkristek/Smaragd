@@ -1,72 +1,86 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Xunit;
 using NKristek.Smaragd.Helpers;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Helpers
 {
     public class DisposableTests
     {
-        private static class DisposableDataStore
-        {
-            public static bool ManagedRessourcesDisposed { get; set; }
-            public static bool NativeRessourcesDisposed { get; set; }
-        }
-
         private class DisposableImpl
             : Disposable
         {
+            public Action OnDisposeManagedResources;
+
+            public Action OnDisposeNativeResources;
+
             protected override void DisposeManagedResources()
             {
                 base.DisposeManagedResources();
 
-                Console.WriteLine("Managed");
-
-                DisposableDataStore.ManagedRessourcesDisposed = true;
+                OnDisposeManagedResources?.Invoke();
             }
 
             protected override void DisposeNativeResources()
             {
                 base.DisposeNativeResources();
 
-                Console.WriteLine("Native");
-
-                DisposableDataStore.NativeRessourcesDisposed = true;
+                OnDisposeNativeResources?.Invoke();
             }
         }
 
         [Fact]
-        public void TestDispose()
+        public void DisposeManagedResources_Dispose()
         {
-            DisposableDataStore.ManagedRessourcesDisposed = false;
-            DisposableDataStore.NativeRessourcesDisposed = false;
-
-            var instance = new DisposableImpl();
+            var managedResourcesDisposed = false;
+            var instance = new DisposableImpl
+            {
+                OnDisposeManagedResources = () => managedResourcesDisposed = true
+            };
             instance.Dispose();
-
-            Assert.True(DisposableDataStore.ManagedRessourcesDisposed);
-            Assert.True(DisposableDataStore.NativeRessourcesDisposed);
+            Assert.True(managedResourcesDisposed);
         }
 
         [Fact]
-        public void TestFinalize()
+        public void DisposeNativeResourcesDisposed_Dispose()
         {
-            DisposableDataStore.ManagedRessourcesDisposed = false;
-            DisposableDataStore.NativeRessourcesDisposed = false;
+            var nativeResourcesDisposed = false;
+            var instance = new DisposableImpl
+            {
+                OnDisposeNativeResources = () => nativeResourcesDisposed = true
+            };
+            instance.Dispose();
+            Assert.True(nativeResourcesDisposed);
+        }
 
-            CreateInstance();
-
+        [Fact]
+        public void DisposeManagedResources_Finalize()
+        {
+            var managedResourcesDisposed = false;
+            CreateDisposableInstance(() => managedResourcesDisposed = true, null);
             GC.Collect();
             GC.WaitForPendingFinalizers();
+            Assert.False(managedResourcesDisposed);
+        }
 
-            Assert.False(DisposableDataStore.ManagedRessourcesDisposed);
-            Assert.True(DisposableDataStore.NativeRessourcesDisposed);
+        [Fact]
+        public void DisposeNativeResourcesDisposed_Finalize()
+        {
+            var nativeResourcesDisposed = false;
+            CreateDisposableInstance(null, () => nativeResourcesDisposed = true);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            Assert.True(nativeResourcesDisposed);
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
-        private static void CreateInstance()
+        private static void CreateDisposableInstance(Action onDisposeManagedResources, Action onDisposeNativeResources)
         {
-            var instance = new DisposableImpl();
+            var instance = new DisposableImpl
+            {
+                OnDisposeManagedResources = onDisposeManagedResources,
+                OnDisposeNativeResources = onDisposeNativeResources
+            };
         }
     }
 }

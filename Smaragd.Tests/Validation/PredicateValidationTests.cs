@@ -1,21 +1,49 @@
-﻿using Xunit;
+﻿using System;
 using NKristek.Smaragd.Validation;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Validation
 {
     public class PredicateValidationTests
     {
-        [Fact]
-        public void TestIsValid()
+        private string ErrorMessage { get; }
+
+        private PredicateValidation<int> Validation { get; }
+
+        public PredicateValidationTests()
         {
-            var errorMessage = "Value should be at least 5.";
-            var validation = new PredicateValidation<int>(i => i >= 5, errorMessage);
+            ErrorMessage = "Value should be at least 5.";
+            Validation = new PredicateValidation<int>(i => i >= 5, ErrorMessage);
+        }
 
-            Assert.False(validation.IsValid(4, out var returnedErrorMessage), "IsValid did not return false.");
-            Assert.Equal(errorMessage, returnedErrorMessage);
+        [Fact]
+        public void PredicateValidation_PredicateNullThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => new PredicateValidation<int>(null, "error"));
+        }
 
-            Assert.True(validation.IsValid(5, out returnedErrorMessage), "IsValid did not return true.");
-            Assert.Null(returnedErrorMessage);
+        [Fact]
+        public void PredicateValidation_ErrorMessageNullThrowsArgumentNullException()
+        {
+            Assert.Throws<ArgumentNullException>(() => new PredicateValidation<int>(i => i >= 5, null));
+        }
+
+        [Theory]
+        [InlineData(4, false)]
+        [InlineData(5, true)]
+        public void IsValid_ReturnsExpectedResult(int input, bool expectedResult)
+        {
+            var result = Validation.IsValid(input, out _);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Theory]
+        [InlineData(4, "Value should be at least 5.")]
+        [InlineData(5, null)]
+        public void IsValid_ReturnsExpectedErrorMessage(int input, string expectedErrorMessage)
+        {
+            Validation.IsValid(input, out var errorMessage);
+            Assert.Equal(expectedErrorMessage, errorMessage);
         }
     }
 }

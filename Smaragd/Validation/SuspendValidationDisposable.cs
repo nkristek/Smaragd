@@ -4,52 +4,33 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Validation
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This <see cref="IDisposable"/> suspends validations of the given <see cref="ValidatingViewModel"/> until disposed
+    /// This <see cref="T:System.IDisposable" /> suspends validations of the given <see cref="P:NKristek.Smaragd.Validation.SuspendValidationDisposable.ValidatingViewModel" /> until disposed.
     /// </summary>
     internal class SuspendValidationDisposable
         : Disposable
     {
-        private WeakReference<ValidatingViewModel> _validatingViewModel;
-        
-        private ValidatingViewModel ValidatingViewModel
-        {
-            get
-            {
-                if (_validatingViewModel != null && _validatingViewModel.TryGetTarget(out var viewModel))
-                    return viewModel;
-                return null;
-            }
-
-            set
-            {
-                if (ValidatingViewModel == value) return;
-                _validatingViewModel = value != null ? new WeakReference<ValidatingViewModel>(value) : null;
-            }
-        }
+        private readonly ValidatingViewModel _validatingViewModel;
 
         /// <summary>
-        /// Initializes a new instance of this class.
+        /// Initializes a new instance of the <see cref="SuspendValidationDisposable"/> class with the <paramref name="validatingViewModel"/> on which the validations should be suspended.
         /// </summary>
-        /// <param name="validatingViewModel"><see cref="ValidatingViewModel"/> of which the validations should be suspended</param>
+        /// <param name="validatingViewModel">A <see cref="ValidatingViewModel"/> of which the validations should be suspended.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="validatingViewModel"/> is null.</exception>
         internal SuspendValidationDisposable(ValidatingViewModel validatingViewModel)
         {
             if (validatingViewModel == null)
                 throw new ArgumentNullException(nameof(validatingViewModel));
 
             validatingViewModel.ValidationSuspended = true;
-            ValidatingViewModel = validatingViewModel;
+            _validatingViewModel = validatingViewModel;
         }
 
         /// <inheritdoc />
         protected override void DisposeManagedResources()
         {
-            var viewModel = ValidatingViewModel;
-            if (viewModel == null)
-                return;
-
-            viewModel.ValidationSuspended = false;
-            viewModel.Validate();
+            _validatingViewModel.ValidationSuspended = false;
         }
     }
 }

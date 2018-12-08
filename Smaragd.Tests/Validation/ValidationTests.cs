@@ -1,17 +1,17 @@
 ﻿using System;
-using Xunit;
 using NKristek.Smaragd.Validation;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Validation
 {
     public class ValidationTests
     {
-        private class TestValidation
+        private class IntAtLeast5Validation
             : Validation<int>
         {
             private readonly string _errorMessage;
             
-            public TestValidation(string errorMessage)
+            public IntAtLeast5Validation(string errorMessage)
             {
                 _errorMessage = errorMessage;
             }
@@ -27,12 +27,12 @@ namespace NKristek.Smaragd.Tests.Validation
             }
         }
 
-        private class TestStringValidation
+        private class StringNotNullOrEmptyValidation
             : Validation<string>
         {
             private readonly string _errorMessage;
 
-            public TestStringValidation(string errorMessage)
+            public StringNotNullOrEmptyValidation(string errorMessage)
             {
                 _errorMessage = errorMessage;
             }
@@ -48,33 +48,71 @@ namespace NKristek.Smaragd.Tests.Validation
             }
         }
 
-        [Fact]
-        public void TestIsValid()
+        private string IntValidationErrorMessage { get; }
+
+        private Validation<int> IntValidation { get; }
+
+        private string StringValidationErrorMessage { get; }
+
+        private Validation<string> StringValidation { get; }
+
+        public ValidationTests()
         {
-            var errorMessage = "Value should be at least 5.";
-            var validation = new TestValidation(errorMessage);
+            IntValidationErrorMessage = "Value should be at least 5.";
+            IntValidation = new IntAtLeast5Validation(IntValidationErrorMessage);
 
-            Assert.False(validation.IsValid(4, out var returnedErrorMessage), "IsValid did not return false.");
-            Assert.Equal(errorMessage, returnedErrorMessage);
+            StringValidationErrorMessage = "Value should not be null or empty.";
+            StringValidation = new StringNotNullOrEmptyValidation(StringValidationErrorMessage);
+        }
+        
+        [Theory]
+        [InlineData(4, false)]
+        [InlineData(5, true)]
+        public void StructValidation_IsValid_ReturnsExpectedResult(int input, bool expectedResult)
+        {
+            var result = ((IValidation)IntValidation).IsValid(input, out _);
+            Assert.Equal(expectedResult, result);
+        }
 
-            Assert.True(validation.IsValid(5, out returnedErrorMessage), "IsValid did not return true.");
-            Assert.Null(returnedErrorMessage);
+        [Theory]
+        [InlineData(4, "Value should be at least 5.")]
+        [InlineData(5, null)]
+        public void StructValidation_IsValid_ReturnsExpectedErrorMessage(int input, string expectedErrorMessage)
+        {
+            ((IValidation)IntValidation).IsValid(input, out var errorMessage);
+            Assert.Equal(expectedErrorMessage, errorMessage);
+        }
 
-            // an invalid argument should raise an exception
-            Assert.Throws<ArgumentException>(() => validation.IsValid("error", out returnedErrorMessage));
-            Assert.Throws<ArgumentException>(() => validation.IsValid(null, out returnedErrorMessage));
+        [Theory]
+        [InlineData(null)]
+        [InlineData("error")]
+        public void StructValidation_IsValid_InvalidArgumentThrowsArgumentException(object input)
+        {
+            Assert.Throws<ArgumentException>(() => ((IValidation)IntValidation).IsValid(input, out _));
+        }
+
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData("Not empty", true)]
+        public void ClassValidation_IsValid_ReturnsExpectedResult(string input, bool expectedResult)
+        {
+            var result = ((IValidation)StringValidation).IsValid(input, out _);
+            Assert.Equal(expectedResult, result);
+        }
+
+        [Theory]
+        [InlineData(null, "Value should not be null or empty.")]
+        [InlineData("Not empty", null)]
+        public void ClassValidation_IsValid_ReturnsExpectedErrorMessage(string input, string expectedErrorMessage)
+        {
+            ((IValidation)StringValidation).IsValid(input, out var errorMessage);
+            Assert.Equal(expectedErrorMessage, errorMessage);
         }
 
         [Fact]
-        public void TestIsValidString()
+        public void ClassValidation_IsValid_InvalidArgumentThrowsArgumentException()
         {
-            var errorMessage = "Value should not be null or empty.";
-            var validation = new TestStringValidation(errorMessage);
-
-            Assert.Throws<ArgumentException>(() => validation.IsValid(4, out _));
-            Assert.False(validation.IsValid(null, out _), "IsValid did not return false.");
-            Assert.True(validation.IsValid("Test", out _), "IsValid did not return true.");
-            Assert.Throws<ArgumentException>(() => validation.IsValid(new object(), out _));
+            Assert.Throws<ArgumentException>(() => ((IValidation)StringValidation).IsValid(new object(), out _));
         }
     }
 }

@@ -5,21 +5,18 @@ namespace NKristek.Smaragd.Commands
 {
     /// <inheritdoc />
     /// <summary>
-    /// An asynchronous <see cref="ICommand"/>
+    /// Defines an asynchronous command.
     /// </summary>
     public interface IAsyncCommand
         : ICommand
     {
         /// <summary>
-        /// Indicates if <see cref="ExecuteAsync(object)"/> is working
+        /// Indicates if <see cref="ExecuteAsync"/> is working.
         /// </summary>
         bool IsWorking { get; }
 
-        /// <summary>
-        /// Execute this command asynchrously
-        /// </summary>
-        /// <param name="parameter">Optional parameter</param>
-        /// <returns>The <see cref="Task"/> of this execution</returns>
+        /// <inheritdoc cref="ICommand.Execute" />
+        /// <returns>The <see cref="Task"/> of the asynchronous execution.</returns>
         Task ExecuteAsync(object parameter);
     }
 }

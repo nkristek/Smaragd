@@ -5,17 +5,23 @@ using NKristek.Smaragd.Attributes;
 namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc />
-    /// <summary>
-    /// This <see cref="ViewModel" /> provides an <see cref="IsChecked" /> property to use in a TreeView. It will update its parent <see cref="TreeViewModel" /> and children <see cref="TreeViewModel" /> with appropriate states for <see cref="IsChecked" />.
-    /// </summary>
+    /// <remarks>
+    /// This class provides an <see cref="IsChecked" /> property to use in a TreeView.
+    /// It will update its parent <see cref="TreeViewModel" /> and children <see cref="TreeViewModel" /> with appropriate states for <see cref="IsChecked" />.
+    /// To propagate changes to children, it is necessary to override <see cref="TreeChildren"/> with the appropriate collection.
+    /// </remarks>
     public abstract class TreeViewModel
         : ViewModel
     {
-        private bool? _isChecked;
+        private bool? _isChecked = false;
 
         /// <summary>
+        /// <para>
         /// If this <see cref="TreeViewModel"/> is checked. This property will get updated by children and updates its children when set.
-        /// A checkbox with threestate enabled will set null after true. Since this is not the desired behaviour, setting this property to null will result in false. If you want to set null, use <see cref="SetIsChecked"/> instead.
+        /// </para>
+        /// <para>
+        /// A checkbox with three-state enabled will set <c>null</c> after the value was <c>true</c>. Since this is, most of the time, not the desired behaviour, setting this property directly to <c>null</c> will result in it being <c>false</c>. If you want to set <c>null</c>, use <see cref="SetIsChecked"/> instead.
+        /// </para>
         /// </summary>
         public bool? IsChecked
         {
@@ -26,7 +32,7 @@ namespace NKristek.Smaragd.ViewModels
         private bool _isExpanded;
 
         /// <summary>
-        /// If this <see cref="TreeViewModel"/> is expanded in the tree.
+        /// If this <see cref="TreeViewModel"/> is expanded.
         /// </summary>
         [IsDirtyIgnored]
         public bool IsExpanded
@@ -36,10 +42,10 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// Set <see cref="IsChecked"/> property and optionally update <see cref="TreeChildren"/> and <see cref="ViewModel.Parent"/>. 
+        /// Set the <see cref="IsChecked"/> property and optionally update <see cref="TreeChildren"/> and <see cref="ViewModel.Parent"/>. 
         /// </summary>
         /// <param name="value">The value that should be set.</param>
-        /// <param name="updateChildren">If <see cref="TreeViewModel.TreeChildren"/> should be updated.</param>
+        /// <param name="updateChildren">If <see cref="TreeChildren"/> should be updated.</param>
         /// <param name="updateParent">If the <see cref="ViewModel.Parent"/> should be updated.</param>
         public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
@@ -59,16 +65,19 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         protected void ReevaluateIsChecked()
         {
-            if (TreeChildren != null && TreeChildren.All(c => c.IsChecked == true))
+            if (TreeChildren == null)
+                return;
+
+            if (TreeChildren.All(c => c.IsChecked == true))
                 SetIsChecked(true, false, true);
-            else if (TreeChildren != null && TreeChildren.All(c => c.IsChecked == false))
+            else if (TreeChildren.All(c => c.IsChecked == false))
                 SetIsChecked(false, false, true);
             else
                 SetIsChecked(null, false, true);
         }
 
         /// <summary>
-        /// ChildViewModels in the Tree. It is used to update the state of <see cref="IsChecked"/>.
+        /// Children in the Tree. It is used to update the state of <see cref="IsChecked"/>.
         /// </summary>
         protected virtual IEnumerable<TreeViewModel> TreeChildren { get; } = null;
     }
