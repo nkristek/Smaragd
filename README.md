@@ -173,14 +173,8 @@ There is also a `DialogModel` class, which inherits from `ValidatingViewModel` a
 
 This library provides the following classes:
 
-### ViewModels namespace
+### ViewModels
 
-Attributes:
-- `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
-- `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<T>`.
-- `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
-
-ViewModel classes:
 - `Bindable: INotifyPropertyChanged`
 - `ComputedBindable: Bindable`
 - `ViewModel: ComputedBindable`
@@ -188,24 +182,24 @@ ViewModel classes:
 - `DialogModel: ValidatingViewModel`
 - `TreeViewModel: ViewModel`
 
-### Validation
+### Attributes:
 
-Interfaces:
-- `IValidation`
+- `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
+- `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<T>`.
+- `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
 
-Classes:
-- `Validation<T>: IValidation`
-- `PredicateValidation<T>: Validation<T>`
+### Commands
 
-### Commands namespace
-
-Interfaces:
 - `IRaiseCanExecuteChanged`
 - `IAsyncCommand: ICommand`
-
-Classes:
 - `ViewModelCommand: Bindable, ICommand, IRaiseCanExecuteChanged`
 - `AsyncViewModelCommand: Bindable, IAsyncCommand: IRaiseCanExecuteChanged`
+
+### Validation
+
+- `IValidation`
+- `Validation<T>: IValidation`
+- `PredicateValidation<T>: Validation<T>`
 
 ## Contribution
 
