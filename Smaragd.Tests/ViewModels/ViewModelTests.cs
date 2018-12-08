@@ -26,7 +26,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
             : ViewModelCommand<TestViewModel>
         {
             /// <inheritdoc />
-            public TestViewModelCommand(TestViewModel parent) : base(parent) { }
+            public TestViewModelCommand(TestViewModel parent) : base(parent)
+            {
+            }
 
             /// <inheritdoc />
             [CanExecuteSource(nameof(TestViewModel.TestProperty))]
@@ -230,7 +232,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             {
                 Parent = parentViewModel
             };
-            
+
             viewModel.Parent = null;
             Assert.Null(viewModel.Parent);
         }
@@ -272,7 +274,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             };
             Assert.False(viewModel.IsDirty);
         }
-        
+
         [Fact]
         public void SetProperty_IsReadonly()
         {

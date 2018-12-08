@@ -21,7 +21,7 @@ namespace NKristek.Smaragd.ViewModels
         private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
 
         #region IDataErrorInfo
-        
+
         /// <inheritdoc />
         public string this[string propertyName]
         {
@@ -78,14 +78,14 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         #endregion
-        
+
         /// <summary>
         /// If data in this <see cref="ViewModel"/> is valid.
         /// </summary>
         [IsDirtyIgnored]
         [PropertySource(nameof(HasErrors))]
         public bool IsValid => !HasErrors;
-        
+
         /// <summary>
         /// Add a validation for the property returned by the lambda expression
         /// </summary>
@@ -103,14 +103,14 @@ namespace NKristek.Smaragd.ViewModels
             }
             else
             {
-                existingValidations = new List<IValidation> { validation };
+                existingValidations = new List<IValidation> {validation};
                 _validations.Add(propertyName, existingValidations);
             }
 
             if (!ValidationSuspended)
                 Validate(propertyName, initialValue, existingValidations.OfType<Validation<T>>());
         }
-        
+
         private void Validate(string propertyName, object value, IEnumerable<IValidation> validations)
         {
             var errors = new List<string>();
@@ -119,6 +119,7 @@ namespace NKristek.Smaragd.ViewModels
                 if (!validation.IsValid(value, out var errorMessage))
                     errors.Add(errorMessage);
             }
+
             SetValidationErrors(propertyName, errors);
         }
 
@@ -130,6 +131,7 @@ namespace NKristek.Smaragd.ViewModels
                 if (!validation.IsValid(value, out var errorMessage))
                     errors.Add(errorMessage);
             }
+
             SetValidationErrors(propertyName, errors);
         }
 
@@ -196,9 +198,11 @@ namespace NKristek.Smaragd.ViewModels
         public IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector)
         {
             var propertyName = GetPropertyName(propertySelector);
-            return _validations.TryGetValue(propertyName, out var validationsOfProperty) ? validationsOfProperty.OfType<Validation<T>>() : Enumerable.Empty<Validation<T>>();
+            return _validations.TryGetValue(propertyName, out var validationsOfProperty)
+                ? validationsOfProperty.OfType<Validation<T>>()
+                : Enumerable.Empty<Validation<T>>();
         }
-        
+
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
         {
             if (!(propertyExpression.Body is MemberExpression memberExpression))
@@ -217,7 +221,7 @@ namespace NKristek.Smaragd.ViewModels
                 Validate(propertyName, value, validations.OfType<Validation<T>>());
             return propertyWasChanged;
         }
-        
+
         private bool _validationSuspended;
 
         /// <summary>

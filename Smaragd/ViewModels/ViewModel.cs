@@ -37,7 +37,7 @@ namespace NKristek.Smaragd.ViewModels
             var collectionProperties = GetType().GetProperties().Where(p => p.GetMethod.IsPublic);
             foreach (var property in collectionProperties)
             {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name) 
+                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name)
                     && typeof(INotifyCollectionChanged).IsAssignableFrom(property.PropertyType)
                     && property.GetValue(this, null) is INotifyCollectionChanged collection)
                     collection.CollectionChanged += OnChildCollectionChanged;
@@ -72,7 +72,7 @@ namespace NKristek.Smaragd.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private bool _isReadOnly;
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace NKristek.Smaragd.ViewModels
             var additionalPropertyNamesList = additionalPropertyNames.ToList();
             base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
 
-            var propertyNamesToNotify = new List<string> { propertyName };
+            var propertyNamesToNotify = new List<string> {propertyName};
             propertyNamesToNotify.AddRange(additionalPropertyNamesList);
 
             foreach (var command in Commands.Select(c => c.Value).OfType<IRaiseCanExecuteChanged>())
@@ -133,7 +133,7 @@ namespace NKristek.Smaragd.ViewModels
 
             return true;
         }
-        
+
         private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             IsDirty = true;

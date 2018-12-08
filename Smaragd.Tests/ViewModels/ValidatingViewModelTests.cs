@@ -104,7 +104,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             };
             Assert.False(validatingModel.HasErrors);
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -162,19 +162,16 @@ namespace NKristek.Smaragd.Tests.ViewModels
             };
             Assert.True(validatingModel.IsValid);
         }
-        
+
         [Fact]
         public void IsValid_PropertyChanged()
         {
             var invokedPropertyChangedEvents = new List<string>();
 
             var viewModel = new TestValidatingModel();
-            viewModel.PropertyChanged += (sender, e) =>
-            {
-                invokedPropertyChangedEvents.Add(e.PropertyName);
-            };
+            viewModel.PropertyChanged += (sender, e) => { invokedPropertyChangedEvents.Add(e.PropertyName); };
             viewModel.TestProperty = 5;
-            
+
             var expectedPropertyChangedEvents = new List<string>
             {
                 nameof(TestValidatingModel.TestProperty),
@@ -184,7 +181,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             };
             Assert.Equal(expectedPropertyChangedEvents.OrderBy(n => n), invokedPropertyChangedEvents.OrderBy(n => n));
         }
-        
+
         [Fact]
         public void Validations_empty()
         {
@@ -274,7 +271,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, secondValidation);
             Assert.Empty(validatingViewModel.Validations().SelectMany(v => v.Value));
         }
-        
+
         [Fact]
         public void RemoveValidation_validation_already_removed()
         {

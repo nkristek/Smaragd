@@ -10,7 +10,7 @@ namespace NKristek.Smaragd.Tests.Validation
             : Validation<int>
         {
             private readonly string _errorMessage;
-            
+
             public IntAtLeast5Validation(string errorMessage)
             {
                 _errorMessage = errorMessage;
@@ -64,13 +64,13 @@ namespace NKristek.Smaragd.Tests.Validation
             StringValidationErrorMessage = "Value should not be null or empty.";
             StringValidation = new StringNotNullOrEmptyValidation(StringValidationErrorMessage);
         }
-        
+
         [Theory]
         [InlineData(4, false)]
         [InlineData(5, true)]
         public void StructValidation_IsValid_ReturnsExpectedResult(int input, bool expectedResult)
         {
-            var result = ((IValidation)IntValidation).IsValid(input, out _);
+            var result = ((IValidation) IntValidation).IsValid(input, out _);
             Assert.Equal(expectedResult, result);
         }
 
@@ -79,7 +79,7 @@ namespace NKristek.Smaragd.Tests.Validation
         [InlineData(5, null)]
         public void StructValidation_IsValid_ReturnsExpectedErrorMessage(int input, string expectedErrorMessage)
         {
-            ((IValidation)IntValidation).IsValid(input, out var errorMessage);
+            ((IValidation) IntValidation).IsValid(input, out var errorMessage);
             Assert.Equal(expectedErrorMessage, errorMessage);
         }
 
@@ -88,7 +88,7 @@ namespace NKristek.Smaragd.Tests.Validation
         [InlineData("error")]
         public void StructValidation_IsValid_InvalidArgumentThrowsArgumentException(object input)
         {
-            Assert.Throws<ArgumentException>(() => ((IValidation)IntValidation).IsValid(input, out _));
+            Assert.Throws<ArgumentException>(() => ((IValidation) IntValidation).IsValid(input, out _));
         }
 
         [Theory]
@@ -96,7 +96,7 @@ namespace NKristek.Smaragd.Tests.Validation
         [InlineData("Not empty", true)]
         public void ClassValidation_IsValid_ReturnsExpectedResult(string input, bool expectedResult)
         {
-            var result = ((IValidation)StringValidation).IsValid(input, out _);
+            var result = ((IValidation) StringValidation).IsValid(input, out _);
             Assert.Equal(expectedResult, result);
         }
 
@@ -105,14 +105,14 @@ namespace NKristek.Smaragd.Tests.Validation
         [InlineData("Not empty", null)]
         public void ClassValidation_IsValid_ReturnsExpectedErrorMessage(string input, string expectedErrorMessage)
         {
-            ((IValidation)StringValidation).IsValid(input, out var errorMessage);
+            ((IValidation) StringValidation).IsValid(input, out var errorMessage);
             Assert.Equal(expectedErrorMessage, errorMessage);
         }
 
         [Fact]
         public void ClassValidation_IsValid_InvalidArgumentThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => ((IValidation)StringValidation).IsValid(new object(), out _));
+            Assert.Throws<ArgumentException>(() => ((IValidation) StringValidation).IsValid(new object(), out _));
         }
     }
 }

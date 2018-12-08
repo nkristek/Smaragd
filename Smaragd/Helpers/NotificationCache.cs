@@ -11,7 +11,7 @@ namespace NKristek.Smaragd.Helpers
         private readonly Dictionary<string, IList<string>> _propertiesNotifyingProperties = new Dictionary<string, IList<string>>();
 
         private readonly Dictionary<string, IList<string>> _cachedPropertyNamesToNotify = new Dictionary<string, IList<string>>();
-        
+
         private void InvalidateCache()
         {
             _cachedPropertyNamesToNotify.Clear();
@@ -39,7 +39,7 @@ namespace NKristek.Smaragd.Helpers
             if (!_propertiesNotifyingProperties[propertyNameOfNotifyingProperty].Contains(propertyNameToNotify))
                 _propertiesNotifyingProperties[propertyNameOfNotifyingProperty].Add(propertyNameToNotify);
         }
-        
+
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null.</exception>
         public IEnumerable<string> GetPropertyNamesToNotify(string propertyName)
@@ -49,7 +49,7 @@ namespace NKristek.Smaragd.Helpers
 
             if (_cachedPropertyNamesToNotify.TryGetValue(propertyName, out var cachedPropertyNamesToNotify))
                 return cachedPropertyNamesToNotify.ToList();
-            
+
             var propertyNamesToNotify = new List<string>();
             CalculateRecursivePropertyNamesToNotify(propertyName, propertyNamesToNotify);
             propertyNamesToNotify.Remove(propertyName);

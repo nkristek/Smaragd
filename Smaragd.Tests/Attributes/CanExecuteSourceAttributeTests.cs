@@ -12,7 +12,7 @@ namespace NKristek.Smaragd.Tests.Attributes
 
         public CanExecuteSourceAttributeTests()
         {
-            PropertySources = new[] { "FirstProperty", "SecondProperty" };
+            PropertySources = new[] {"FirstProperty", "SecondProperty"};
             Attribute = new CanExecuteSourceAttribute(PropertySources);
         }
 

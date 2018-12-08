@@ -28,7 +28,8 @@ namespace NKristek.Smaragd.Commands
         {
             _parent = new WeakReference<TViewModel>(parent ?? throw new ArgumentNullException(nameof(parent)));
 
-            var canExecuteMethods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(m => m.Name == nameof(CanExecute));
+            var canExecuteMethods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                .Where(m => m.Name == nameof(CanExecute));
             var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
             _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
         }

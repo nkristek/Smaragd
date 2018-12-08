@@ -7,7 +7,9 @@ namespace NKristek.Smaragd.Tests.Validation
 {
     public class SuspendValidationDisposableTests
     {
-        private class TestViewModel : ValidatingViewModel { }
+        private class TestViewModel : ValidatingViewModel
+        {
+        }
 
         [Fact]
         public void SuspendValidationDisposable_ViewModelNullThrowsArgumentNullException()

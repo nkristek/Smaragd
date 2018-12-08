@@ -24,7 +24,7 @@ namespace NKristek.Smaragd.ViewModels
         {
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
-                
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

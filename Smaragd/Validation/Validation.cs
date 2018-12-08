@@ -35,8 +35,8 @@ namespace NKristek.Smaragd.Validation
 
             if (value != null && !(value is T))
                 throw new ArgumentException($"Value is not of type {typeof(T).Name}");
-            
-            return IsValid((T)value, out errorMessage);
+
+            return IsValid((T) value, out errorMessage);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
 {
     public class BindableTests
     {
-        private class BindableTest 
+        private class BindableTest
             : Bindable
         {
             public bool TestPropertyStorage;
@@ -18,7 +18,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 get => TestPropertyStorage;
                 set => SetProperty(ref TestPropertyStorage, value, out var oldValue);
             }
-            
+
             public void RaisePropertyChangedExternal(string propertyName = null)
             {
                 base.RaisePropertyChanged(propertyName);

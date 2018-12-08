@@ -12,6 +12,5 @@ namespace NKristek.Smaragd.Attributes
     public class IsDirtyIgnoredAttribute
         : Attribute
     {
-
     }
 }

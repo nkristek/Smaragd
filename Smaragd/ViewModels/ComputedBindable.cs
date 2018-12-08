@@ -32,8 +32,8 @@ namespace NKristek.Smaragd.ViewModels
                 var propertyName = propertyAttributes.Key;
                 var attributes = propertyAttributes.Value;
                 foreach (var attribute in attributes.OfType<PropertySourceAttribute>().Where(a => a.PropertySources != null))
-                    foreach (var propertySource in attribute.PropertySources.Where(ps => ps != propertyName && allPropertyNames.Contains(ps)))
-                        _notificationCache.AddPropertyNameToNotify(propertySource, propertyName);
+                foreach (var propertySource in attribute.PropertySources.Where(ps => ps != propertyName && allPropertyNames.Contains(ps)))
+                    _notificationCache.AddPropertyNameToNotify(propertySource, propertyName);
             }
         }
 
@@ -59,7 +59,7 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            var propertyNamesToNotify = new List<string> { propertyName };
+            var propertyNamesToNotify = new List<string> {propertyName};
             if (additionalPropertyNames != null)
                 propertyNamesToNotify.AddRange(additionalPropertyNames);
 

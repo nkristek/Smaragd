@@ -35,7 +35,7 @@ namespace NKristek.Smaragd.Tests.Commands
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
-            
+
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
                 return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
@@ -50,7 +50,9 @@ namespace NKristek.Smaragd.Tests.Commands
         private class DefaultViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            public DefaultViewModelCommand(TestViewModel parent) : base(parent) { }
+            public DefaultViewModelCommand(TestViewModel parent) : base(parent)
+            {
+            }
 
             protected override void Execute(TestViewModel viewModel, object parameter)
             {
@@ -68,15 +70,19 @@ namespace NKristek.Smaragd.Tests.Commands
         private class CanExecuteSourceViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            public CanExecuteSourceViewModelCommand(TestViewModel parent) : base(parent) { }
-            
+            public CanExecuteSourceViewModelCommand(TestViewModel parent) : base(parent)
+            {
+            }
+
             [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
                 return viewModel.TestProperty;
             }
 
-            protected override void Execute(TestViewModel viewModel, object parameter) { }
+            protected override void Execute(TestViewModel viewModel, object parameter)
+            {
+            }
         }
 
         [Fact]
@@ -159,7 +165,7 @@ namespace NKristek.Smaragd.Tests.Commands
             var viewModel = new TestViewModel();
             return new DefaultViewModelCommand(viewModel);
         }
-        
+
         [Theory]
         [InlineData(false, false)]
         [InlineData(true, true)]
@@ -197,7 +203,7 @@ namespace NKristek.Smaragd.Tests.Commands
             command.Execute(null);
             Assert.True(executeWasExecuted);
         }
-        
+
         [Fact]
         public void Execute_ViewModel_NotNull()
         {
@@ -211,7 +217,7 @@ namespace NKristek.Smaragd.Tests.Commands
             });
             command.Execute(null);
         }
-        
+
         [Fact]
         public void Execute_Parameter_NotNull()
         {
@@ -225,7 +231,7 @@ namespace NKristek.Smaragd.Tests.Commands
             });
             command.Execute(viewModel);
         }
-        
+
         [Fact]
         public void RaiseCanExecuteChanged_raises_event_on_CanExecuteChanged()
         {
@@ -237,7 +243,7 @@ namespace NKristek.Smaragd.Tests.Commands
             command.RaiseCanExecuteChanged();
             Assert.Equal(1, invokedCanExecuteChangedEvents);
         }
-        
+
         [Theory]
         [InlineData("TestProperty", true)]
         [InlineData("NotTestProperty", false)]

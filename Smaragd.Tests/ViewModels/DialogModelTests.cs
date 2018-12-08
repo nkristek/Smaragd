@@ -8,7 +8,6 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class TestDialogModel
             : DialogModel
         {
-
         }
 
         private string Title { get; }

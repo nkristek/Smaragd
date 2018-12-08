@@ -23,7 +23,7 @@ namespace NKristek.Smaragd.Tests.Helpers
             SecondProperty = nameof(SecondProperty);
             ThirdProperty = nameof(ThirdProperty);
         }
-        
+
         [Fact]
         public void AddPropertyNameToNotify_PropertyNameOfNotifyingPropertyNull_ThrowsArgumentNullException()
         {
@@ -64,7 +64,7 @@ namespace NKristek.Smaragd.Tests.Helpers
             var notificationCache = new NotificationCache();
             notificationCache.AddPropertyNameToNotify(FirstProperty, SecondProperty);
             notificationCache.AddPropertyNameToNotify(SecondProperty, ThirdProperty);
-            var expectedPropertyNames = new List<string> { SecondProperty, ThirdProperty }.OrderBy(name => name);
+            var expectedPropertyNames = new List<string> {SecondProperty, ThirdProperty}.OrderBy(name => name);
             var propertyNames = notificationCache.GetPropertyNamesToNotify(FirstProperty).OrderBy(name => name);
             Assert.Equal(expectedPropertyNames, propertyNames);
         }

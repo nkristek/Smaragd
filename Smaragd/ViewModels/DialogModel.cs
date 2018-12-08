@@ -4,7 +4,7 @@
     /// <remarks>
     /// This class provides a title property to use in dialogs.
     /// </remarks>
-    public abstract class DialogModel 
+    public abstract class DialogModel
         : ValidatingViewModel
     {
         private string _title;

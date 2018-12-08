@@ -20,8 +20,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set => SetProperty(ref _testProperty, value, out _);
             }
 
-            [PropertySource(nameof(TestProperty))]
-            public bool AnotherTestProperty => TestProperty;
+            [PropertySource(nameof(TestProperty))] public bool AnotherTestProperty => TestProperty;
 
             [PropertySource("NotExistingProperty")]
             public bool TestPropertyWithNonExistentSource { get; }
@@ -41,14 +40,14 @@ namespace NKristek.Smaragd.Tests.ViewModels
         }
 
         [Fact]
-        public void PropertySourceAttribute_raises_event_on_PropertyChanged() 
+        public void PropertySourceAttribute_raises_event_on_PropertyChanged()
         {
             var invokedPropertyChangedEvents = new List<string>();
             var computedBindable = new PropertySourceComputedBindable();
             computedBindable.PropertyChanged += (sender, e) => invokedPropertyChangedEvents.Add(e.PropertyName);
             computedBindable.TestProperty = true;
-            var expectedPropertyChangedEvents = new List<string> 
-            { 
+            var expectedPropertyChangedEvents = new List<string>
+            {
                 nameof(PropertySourceComputedBindable.TestProperty),
                 nameof(PropertySourceComputedBindable.AnotherTestProperty)
             };
@@ -59,7 +58,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [InlineData(nameof(PropertySourceComputedBindable.AnotherTestProperty), true)]
         [InlineData(nameof(PropertySourceComputedBindable.TestProperty), false)]
         [InlineData("NotExistingProperty", false)]
-        public void PropertyNameHasAttribute(string propertyName, bool expectedResult) 
+        public void PropertyNameHasAttribute(string propertyName, bool expectedResult)
         {
             var computedBindable = new PropertySourceComputedBindable();
             Assert.Equal(expectedResult, computedBindable.PropertyNameHasAttribute<PropertySourceAttribute>(propertyName));

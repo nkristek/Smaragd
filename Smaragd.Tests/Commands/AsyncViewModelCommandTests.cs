@@ -30,14 +30,14 @@ namespace NKristek.Smaragd.Tests.Commands
             private readonly Func<TestViewModel, object, Task> _execute;
 
             private readonly Func<TestViewModel, object, bool> _canExecute;
-            
+
             public AsyncRelayViewModelCommand(TestViewModel parent, Func<TestViewModel, object, Task> execute,
                 Func<TestViewModel, object, bool> canExecute = null) : base(parent)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
-            
+
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
                 return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
@@ -52,7 +52,9 @@ namespace NKristek.Smaragd.Tests.Commands
         private class DefaultAsyncViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            public DefaultAsyncViewModelCommand(TestViewModel parent) : base(parent) { }
+            public DefaultAsyncViewModelCommand(TestViewModel parent) : base(parent)
+            {
+            }
 
             protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
             {
@@ -73,7 +75,9 @@ namespace NKristek.Smaragd.Tests.Commands
         private class CanExecuteSourceAsyncViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            public CanExecuteSourceAsyncViewModelCommand(TestViewModel parent) : base(parent) { }
+            public CanExecuteSourceAsyncViewModelCommand(TestViewModel parent) : base(parent)
+            {
+            }
 
             [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
@@ -82,7 +86,9 @@ namespace NKristek.Smaragd.Tests.Commands
             }
 
 #pragma warning disable 1998
-            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter) { }
+            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            {
+            }
 #pragma warning restore 1998
         }
 
@@ -134,7 +140,7 @@ namespace NKristek.Smaragd.Tests.Commands
             }));
             Assert.NotEqual(firstCommand.Name, secondCommand.Name);
         }
-        
+
         [Fact]
         public void Parent_was_set()
         {
@@ -174,7 +180,7 @@ namespace NKristek.Smaragd.Tests.Commands
             var viewModel = new TestViewModel();
             return new DefaultAsyncViewModelCommand(viewModel);
         }
-        
+
         [Fact]
         public async Task CanExecute_returns_false_if_command_is_working()
         {
@@ -184,7 +190,6 @@ namespace NKristek.Smaragd.Tests.Commands
             {
                 lock (lockObject)
                 {
-
                 }
             }));
 
@@ -194,6 +199,7 @@ namespace NKristek.Smaragd.Tests.Commands
                 executeTask = command.ExecuteAsync(null);
                 Assert.False(command.CanExecute(null));
             }
+
             await executeTask;
         }
 
@@ -203,7 +209,8 @@ namespace NKristek.Smaragd.Tests.Commands
         public void CanExecute_With_ViewModel_Is_Evaluated(bool input, bool expectedResult)
         {
             var viewModel = new TestViewModel();
-            var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) => await Task.Run(() => { }), (vm, para) => para is bool boolPara && boolPara);
+            var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) => await Task.Run(() => { }),
+                (vm, para) => para is bool boolPara && boolPara);
             Assert.Equal(expectedResult, command.CanExecute(input));
         }
 
@@ -238,7 +245,7 @@ namespace NKristek.Smaragd.Tests.Commands
                     executeWasExecuted = true;
                 }
             }));
-            ((ICommand)command).Execute(null);
+            ((ICommand) command).Execute(null);
 
             lock (lockObject)
                 Assert.True(executeWasExecuted);
@@ -263,7 +270,6 @@ namespace NKristek.Smaragd.Tests.Commands
             {
                 lock (lockObject)
                 {
-
                 }
             }));
 
@@ -273,16 +279,17 @@ namespace NKristek.Smaragd.Tests.Commands
                 executeTask = command.ExecuteAsync(null);
                 Assert.True(command.IsWorking);
             }
+
             await executeTask;
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_ViewModel_NotNull()
         {
             var viewModel = new TestViewModel();
             var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) =>
             {
-                await Task.Run(() => 
+                await Task.Run(() =>
                 {
                     if (vm == null)
                         throw new ArgumentNullException(nameof(vm));
@@ -292,7 +299,7 @@ namespace NKristek.Smaragd.Tests.Commands
             });
             await command.ExecuteAsync(null);
         }
-        
+
         [Fact]
         public async Task ExecuteAsync_Parameter_NotNull()
         {
@@ -309,7 +316,7 @@ namespace NKristek.Smaragd.Tests.Commands
             });
             await command.ExecuteAsync(viewModel);
         }
-        
+
         [Fact]
         public void RaiseCanExecuteChanged_raises_event_on_CanExecuteChanged()
         {

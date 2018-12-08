@@ -17,7 +17,9 @@ namespace NKristek.Smaragd.Helpers
         /// A managed resource is another managed type, which implements <see cref="IDisposable"/>.
         /// </para>
         /// </summary>
-        protected virtual void DisposeManagedResources() { }
+        protected virtual void DisposeManagedResources()
+        {
+        }
 
         /// <summary>
         /// <para>
@@ -27,7 +29,9 @@ namespace NKristek.Smaragd.Helpers
         /// Native resources are anything outside the managed world such as native Windows handles etc.
         /// </para>
         /// </summary>
-        protected virtual void DisposeNativeResources() { }
+        protected virtual void DisposeNativeResources()
+        {
+        }
 
         /// <inheritdoc />
         public void Dispose()
@@ -41,7 +45,7 @@ namespace NKristek.Smaragd.Helpers
         {
             Dispose(false);
         }
-        
+
         private void Dispose(bool managed)
         {
             DisposeNativeResources();
