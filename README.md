@@ -23,7 +23,8 @@ public class MyViewModel : ViewModel
 {
     public MyViewModel()
     {
-        TestCommand = new TestCommand(this);
+        var testCommand = new TestCommand(this);
+        Commands[testCommand.Name] = testCommand;
     }
 
     private int _firstProperty;
@@ -63,7 +64,7 @@ public class TestCommand
         return viewModel.ThirdProperty > 0;
     }
 
-    protected override void DoExecute(MyViewModel viewModel, object parameter)
+    protected override void Execute(MyViewModel viewModel, object parameter)
     {
         // execute...
     }
@@ -72,9 +73,9 @@ public class TestCommand
 
 ### SetProperty
 
-There are a few things to notice here. Firstly, in setters of properties the use of `SetProperty()` is **highly** recommended. It will check if the new value is different from the existing value in the field and sets it if different. If the value changed it will return true and raise an event on `INotifyPropertyChanged.PropertyChanged` with the property name using `[CallerMemberName]`.
+There are a few things to notice here. Firstly, using `SetProperty()` in setters of properties is **highly** recommended. It will check if the new value is different from the existing value in the field and sets it if different. If the value changed it will return true and raise an event on `INotifyPropertyChanged.PropertyChanged` with the property name using `[CallerMemberName]`.
 
-Depending on the type of the `ViewModel` (e.g. `ValidatingViewModel`) additional logic will be executed.
+Depending on the type of the `ViewModel` additional logic will be executed, like validation (`ValidatingViewModel`).
 
 In this example, when `FirstProperty` is set to 1, `SecondProperty` will be set to 2. 
 
@@ -83,16 +84,18 @@ In this example, when `FirstProperty` is set to 1, `SecondProperty` will be set 
 If you want to manually raise an event on `INotifyPropertyChanged.PropertyChanged`, you can use `RaisePropertyChanged()` with the name of the property. Under normal conditions, this should not be necessary, since `SetProperty()` already does this.
 Using `RaisePropertyChanged()` instead of raising an event on `INotifyPropertyChanged.PropertyChanged` directly is **highly** recommended, otherwise `PropertySourceAttribute` etc. won't work correctly.
 
-### PropertySource
+### PropertySourceAttribute
 
 `ThirdProperty` uses `PropertySourceAttribute` with the names of both `FirstProperty` and `SecondProperty`. 
 The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged.PropertyChanged` for `ThirdProperty` when one of the two properties is changed. 
 
-### CanExecuteSource
+### CanExecuteSourceAttribute
 
 `TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
 
 When a `PropertyChanged` event for `ThirdProperty` is invoked, an event is raised on `CanExecuteChanged` (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+
+The command also has to be added to the `Commands` dictionary on the `ViewModel`.
 
 ### IsDirty
 
@@ -112,6 +115,7 @@ public bool TestProperty
 ```
 
 Now, when `TestProperty` changes, `IsDirty` will not be automatically set to true.
+This will also work for properties implementing `INotifyCollectionChanged` when the `CollectionChanged` event occurs.
 
 ### Parent
 
@@ -135,7 +139,7 @@ You can call `Validate()` to execute all validations again.
 
 For most validations the `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit from `Validation<T>`.
 
-If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the returned `IDisposable` to continue validation.
+If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the `IDisposable` after your work is done to continue validation.
 
 ### TreeViewModel
 
@@ -159,9 +163,11 @@ private class FolderViewModel
 
 There is also a `DialogModel` class, which inherits from `ValidatingViewModel` and implements a `Title` property to use in your dialog.
 
-### Command
+### Commands
 
 `ViewModelCommand` and `AsyncViewModelCommand` provide base implementations for `ICommand`, `IAsyncCommand` and `IRaiseCanExecuteChanged`.
+
+`ViewModel` has a `Commands` property and it is **highly** recommended to add all available commands to that dictionary. Otherwise the `CommandCanExecuteSourceAttribute` won't work.
 
 ## Overview
 
@@ -170,13 +176,13 @@ This library provides the following classes:
 ### ViewModels namespace
 
 Attributes:
-- `PropertySource`: usable on properties of classes inheriting from `ComputedBindableBase` (e.g. `ViewModel`)
-- `CommandCanExecuteSource`: usable on ICommand.CanExecute of classes implementing `IRaiseCanExecuteChanged` (the parent has to inherit from `ComputedBindableBase` (e.g. `ViewModel`))
-- `IsDirtyIgnored`: usable on properties of classes inheriting from `ViewModel`
+- `PropertySource`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
+- `CommandCanExecuteSource`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<T>`.
+- `IsDirtyIgnored`: usable on properties of classes inheriting from `ViewModel`.
 
 `INotifyPropertyChanged`:
-- `BindableBase`
-- `ComputedBindableBase`
+- `Bindable`
+- `ComputedBindable`
 - `ViewModel`
 - `ValidatingViewModel`
 - `DialogModel`
@@ -198,11 +204,9 @@ Interfaces:
 - `IAsyncCommand`
 
 `ICommand`:
- - `BindableCommand`
  - `ViewModelCommand`
 
 `IAsyncCommand`:
- - `AsyncBindableCommand`
  - `AsyncViewModelCommand`
 
 ## Contribution
