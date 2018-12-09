@@ -174,15 +174,16 @@ This library provides the following classes/interfaces:
 ### ViewModels
 
 Interfaces:
+- `IRaisePropertyChanging: INotifyPropertyChanging`
 - `IRaisePropertyChanged: INotifyPropertyChanged`
-- `IViewModel: IRaisePropertyChanged`
+- `IViewModel: IRaisePropertyChanging, IRaisePropertyChanged`
 - `IRaiseErrorsChanged: INotifyDataErrorInfo`
 - `IValidatingViewModel: IViewModel, IDataErrorInfo, IRaiseErrorsChanged`
 - `IDialogModel: IViewModel`
 - `ITreeViewModel: IViewModel`
 
 Classes:
-- `Bindable: IRaisePropertyChanged`
+- `Bindable: IRaisePropertyChanging, IRaisePropertyChanged`
 - `ComputedBindable: Bindable`
 - `ViewModel: ComputedBindable, IViewModel`
 - `ValidatingViewModel: ViewModel, IValidatingViewModel`

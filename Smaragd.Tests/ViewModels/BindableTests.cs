@@ -19,15 +19,42 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set => SetProperty(ref TestPropertyStorage, value, out var oldValue);
             }
 
-            public void RaisePropertyChangedExternal(string propertyName = null)
-            {
-                base.RaisePropertyChanged(propertyName);
-            }
-
             public bool SetPropertyExternal<T>(ref T storage, T value, out T oldValue, string propertyName = "")
             {
                 return SetProperty(ref storage, value, out oldValue, propertyName);
             }
+        }
+
+        [Fact]
+        public void RaisePropertyChanging_raises_event_on_PropertyChanged()
+        {
+            const string propertyName = nameof(BindableTest.TestProperty);
+            var invokedPropertyChangingEvents = new List<string>();
+            var bindable = new BindableTest();
+            bindable.PropertyChanging += (sender, args) => invokedPropertyChangingEvents.Add(args.PropertyName);
+            bindable.RaisePropertyChanging(propertyName);
+            Assert.Equal(Enumerable.Repeat(propertyName, 1), invokedPropertyChangingEvents);
+        }
+
+        [Fact]
+        public void RaisePropertyChanging_PropertyNameEmpty_ThrowsArgumentNullException()
+        {
+            var bindable = new BindableTest();
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanging(String.Empty));
+        }
+
+        [Fact]
+        public void RaisePropertyChanging_PropertyNameWhitespace_ThrowsArgumentNullException()
+        {
+            var bindable = new BindableTest();
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanging(" "));
+        }
+
+        [Fact]
+        public void RaisePropertyChanging_PropertyNameNull_ThrowsArgumentNullException()
+        {
+            var bindable = new BindableTest();
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanging(null));
         }
 
         [Fact]
@@ -37,7 +64,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             var invokedPropertyChangedEvents = new List<string>();
             var bindable = new BindableTest();
             bindable.PropertyChanged += (sender, args) => invokedPropertyChangedEvents.Add(args.PropertyName);
-            bindable.RaisePropertyChangedExternal(propertyName);
+            bindable.RaisePropertyChanged(propertyName);
             Assert.Equal(Enumerable.Repeat(propertyName, 1), invokedPropertyChangedEvents);
         }
 
@@ -45,21 +72,21 @@ namespace NKristek.Smaragd.Tests.ViewModels
         public void RaisePropertyChanged_PropertyNameEmpty_ThrowsArgumentNullException()
         {
             var bindable = new BindableTest();
-            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChangedExternal(""));
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanged(String.Empty));
         }
 
         [Fact]
         public void RaisePropertyChanged_PropertyNameWhitespace_ThrowsArgumentNullException()
         {
             var bindable = new BindableTest();
-            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChangedExternal(" "));
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanged(" "));
         }
 
         [Fact]
         public void RaisePropertyChanged_PropertyNameNull_ThrowsArgumentNullException()
         {
             var bindable = new BindableTest();
-            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChangedExternal(null));
+            Assert.Throws<ArgumentNullException>(() => bindable.RaisePropertyChanged(null));
         }
 
         [Fact]
@@ -113,6 +140,18 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 TestProperty = initialValue
             };
             Assert.Equal(expectedResult, bindable.SetPropertyExternal(ref bindable.TestPropertyStorage, input, out _, nameof(bindable.TestProperty)));
+        }
+
+        [Theory]
+        [InlineData(true, 1)]
+        [InlineData(false, 0)]
+        public void SetProperty_raises_event_on_PropertyChanging(bool input, int expectedCountOfPropertyChangingEvents)
+        {
+            var invokedPropertyChangingEvents = new List<string>();
+            var bindable = new BindableTest();
+            bindable.PropertyChanging += (sender, args) => invokedPropertyChangingEvents.Add(args.PropertyName);
+            bindable.TestProperty = input;
+            Assert.Equal(Enumerable.Repeat(nameof(bindable.TestProperty), expectedCountOfPropertyChangingEvents), invokedPropertyChangingEvents);
         }
 
         [Theory]

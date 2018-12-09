@@ -7,11 +7,31 @@ namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc cref="INotifyPropertyChanged" />
     /// <summary>
-    /// This class provides an implementation of <see cref="INotifyPropertyChanged"/>, <see cref="IRaisePropertyChanged"/> and a method to set the value of a property and automatically raise an event on <see cref="PropertyChanged"/> if the value changed.
+    /// This class provides an implementation of <see cref="INotifyPropertyChanging"/>, <see cref="IRaisePropertyChanging"/>, <see cref="INotifyPropertyChanged"/>, <see cref="IRaisePropertyChanged"/> and a method to set the value of a property and automatically raise an event on <see cref="PropertyChanged"/> if the value changed.
     /// </summary>
     public abstract class Bindable
-        : IRaisePropertyChanged
+        : IRaisePropertyChanging, IRaisePropertyChanged
     {
+        #region IRaisePropertyChanging
+
+        /// <inheritdoc />
+        public virtual event PropertyChangingEventHandler PropertyChanging;
+
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException">If <paramref name="propertyName" /> is null or whitespace.</exception>
+        public virtual void RaisePropertyChanging([CallerMemberName] string propertyName = null)
+        {
+            if (String.IsNullOrWhiteSpace(propertyName))
+                throw new ArgumentNullException(nameof(propertyName));
+
+            var argument = new PropertyChangingEventArgs(propertyName);
+            PropertyChanging?.Invoke(this, argument);
+        }
+
+        #endregion
+
+        #region IRaisePropertyChanged
+
         /// <inheritdoc />
         public virtual event PropertyChangedEventHandler PropertyChanged;
 
@@ -22,11 +42,19 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            var argument = new PropertyChangedEventArgs(propertyName);
+            PropertyChanged?.Invoke(this, argument);
         }
 
+        #endregion
+
         /// <summary>
-        /// Set the property value and raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/> if the value changed.
+        /// <para>
+        /// Set the property value.
+        /// </para>
+        /// <para>
+        /// If the given value is different than the current value raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage changed.
+        /// </para>
         /// </summary>
         /// <typeparam name="T">Type of the property to set.</typeparam>
         /// <param name="storage">Reference to the storage variable.</param>
@@ -44,6 +72,7 @@ namespace NKristek.Smaragd.ViewModels
             if (EqualityComparer<T>.Default.Equals(storage, value))
                 return false;
 
+            RaisePropertyChanging(propertyName);
             storage = value;
             RaisePropertyChanged(propertyName);
             return true;
