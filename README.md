@@ -169,10 +169,11 @@ There is also a `DialogModel` class, which inherits from `ValidatingViewModel` a
 
 ## Overview
 
-This library provides the following classes:
+This library provides the following classes/interfaces:
 
 ### ViewModels
 
+Interfaces:
 - `IRaisePropertyChanged: INotifyPropertyChanged`
 - `IViewModel: IRaisePropertyChanged`
 - `IRaiseErrorsChanged: INotifyDataErrorInfo`
@@ -180,6 +181,7 @@ This library provides the following classes:
 - `IDialogModel: IViewModel`
 - `ITreeViewModel: IViewModel`
 
+Classes:
 - `Bindable: IRaisePropertyChanged`
 - `ComputedBindable: Bindable`
 - `ViewModel: ComputedBindable, IViewModel`
@@ -189,21 +191,28 @@ This library provides the following classes:
 
 ### Attributes:
 
+Classes:
 - `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
 - `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<T>`.
 - `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
 
 ### Commands
 
+Interfaces:
 - `IRaiseCanExecuteChanged: ICommand`
 - `IAsyncCommand: ICommand`
 - `INamedCommand: ICommand`
+
+Classes:
 - `ViewModelCommand: Bindable, INamedCommand, IRaiseCanExecuteChanged`
 - `AsyncViewModelCommand: Bindable, INamedCommand, IAsyncCommand, IRaiseCanExecuteChanged`
 
 ### Validation
 
+Interfaces:
 - `IValidation`
+
+Classes:
 - `Validation<T>: IValidation`
 - `PredicateValidation<T>: Validation<T>`
 
