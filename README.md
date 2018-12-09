@@ -49,8 +49,6 @@ public class MyViewModel : ViewModel
 
     [PropertySource(nameof(FirstProperty), nameof(SecondProperty))]
     public int ThirdProperty => FirstProperty + SecondProperty;
-
-    public ViewModelCommand<MyViewModel> TestCommand { get; }
 }
 
 public class TestCommand
@@ -175,12 +173,19 @@ This library provides the following classes:
 
 ### ViewModels
 
-- `Bindable: INotifyPropertyChanged`
+- `IRaisePropertyChanged: INotifyPropertyChanged`
+- `IViewModel: IRaisePropertyChanged`
+- `IRaiseErrorsChanged: INotifyDataErrorInfo`
+- `IValidatingViewModel: IViewModel, IDataErrorInfo, IRaiseErrorsChanged`
+- `IDialogModel: IViewModel`
+- `ITreeViewModel: IViewModel`
+
+- `Bindable: IRaisePropertyChanged`
 - `ComputedBindable: Bindable`
-- `ViewModel: ComputedBindable`
-- `ValidatingViewModel: ViewModel, IDataErrorInfo, INotifyDataErrorInfo`
-- `DialogModel: ValidatingViewModel`
-- `TreeViewModel: ViewModel`
+- `ViewModel: ComputedBindable, IViewModel`
+- `ValidatingViewModel: ViewModel, IValidatingViewModel`
+- `DialogModel: ValidatingViewModel, IDialogModel`
+- `TreeViewModel: ViewModel, ITreeViewModel`
 
 ### Attributes:
 
@@ -190,10 +195,11 @@ This library provides the following classes:
 
 ### Commands
 
-- `IRaiseCanExecuteChanged`
+- `IRaiseCanExecuteChanged: ICommand`
 - `IAsyncCommand: ICommand`
-- `ViewModelCommand: Bindable, ICommand, IRaiseCanExecuteChanged`
-- `AsyncViewModelCommand: Bindable, IAsyncCommand: IRaiseCanExecuteChanged`
+- `INamedCommand: ICommand`
+- `ViewModelCommand: Bindable, INamedCommand, IRaiseCanExecuteChanged`
+- `AsyncViewModelCommand: Bindable, INamedCommand, IAsyncCommand, IRaiseCanExecuteChanged`
 
 ### Validation
 

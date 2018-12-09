@@ -39,7 +39,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null or whitespace.</exception>
-        protected sealed override void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        public sealed override void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));

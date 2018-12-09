@@ -12,13 +12,12 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             public ObservableCollection<FolderViewModel> Subfolders { get; } = new ObservableCollection<FolderViewModel>();
 
-            protected override IEnumerable<TreeViewModel> TreeChildren => Subfolders;
+            public override IEnumerable<ITreeViewModel> TreeChildren => Subfolders;
         }
 
         private class FileViewModel
             : TreeViewModel
         {
-            public IEnumerable<TreeViewModel> TreeChildrenExternal => TreeChildren;
         }
 
         [Fact]
@@ -122,7 +121,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         public void TreeChildren_DefaultValue()
         {
             var fileViewModel = new FileViewModel();
-            Assert.Null(fileViewModel.TreeChildrenExternal);
+            Assert.Null(fileViewModel.TreeChildren);
         }
 
         [Fact]

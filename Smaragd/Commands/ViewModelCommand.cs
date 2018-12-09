@@ -14,7 +14,7 @@ namespace NKristek.Smaragd.Commands
     /// </summary>
     /// <typeparam name="TViewModel">Type of the parent ViewModel.</typeparam>
     public abstract class ViewModelCommand<TViewModel>
-        : Bindable, ICommand, IRaiseCanExecuteChanged where TViewModel : ViewModel
+        : Bindable, INamedCommand, IRaiseCanExecuteChanged where TViewModel : class, IViewModel
     {
         private readonly IList<string> _cachedCanExecuteSourceNames;
 
@@ -34,9 +34,7 @@ namespace NKristek.Smaragd.Commands
             _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
         }
 
-        /// <summary>
-        /// Name of this <see cref="AsyncViewModelCommand{TViewModel}"/>.
-        /// </summary>
+        /// <inheritdoc />
         /// <remarks>
         /// This defaults to the name of the type, including its namespace but not its assembly.
         /// </remarks>

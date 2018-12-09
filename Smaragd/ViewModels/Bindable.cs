@@ -5,22 +5,19 @@ using System.Runtime.CompilerServices;
 
 namespace NKristek.Smaragd.ViewModels
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="INotifyPropertyChanged" />
     /// <summary>
-    /// This class provides an implementation of <see cref="INotifyPropertyChanged"/> and methods to set the value of a property and automatically raise an event on <see cref="PropertyChanged"/> if the value changed.
+    /// This class provides an implementation of <see cref="INotifyPropertyChanged"/>, <see cref="IRaisePropertyChanged"/> and a method to set the value of a property and automatically raise an event on <see cref="PropertyChanged"/> if the value changed.
     /// </summary>
     public abstract class Bindable
-        : INotifyPropertyChanged
+        : IRaisePropertyChanged
     {
         /// <inheritdoc />
         public virtual event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>
-        /// Raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/>.
-        /// </summary>
-        /// <param name="propertyName">Name of the changed property.</param>
-        /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null or whitespace.</exception>
-        protected virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException">If <paramref name="propertyName" /> is null or whitespace.</exception>
+        public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
