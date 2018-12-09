@@ -34,7 +34,7 @@ namespace NKristek.Smaragd.Commands
             var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
             _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
         }
-        
+
         /// <inheritdoc />
         /// <remarks>
         /// This defaults to the name of the type, including its namespace but not its assembly.

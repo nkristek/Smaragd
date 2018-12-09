@@ -73,7 +73,7 @@ namespace NKristek.Smaragd.ViewModels
         #endregion
 
         #region IValidatingViewModel
-        
+
         /// <inheritdoc />
         [IsDirtyIgnored]
         [PropertySource(nameof(HasErrors))]
@@ -223,7 +223,7 @@ namespace NKristek.Smaragd.ViewModels
                 RaiseErrorsChanged(propertyName);
             }
         }
-        
+
         private static string GetPropertyName<T>(Expression<Func<T>> propertyExpression)
         {
             if (!(propertyExpression.Body is MemberExpression memberExpression))

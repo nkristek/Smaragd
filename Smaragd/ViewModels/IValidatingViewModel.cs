@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Text;
 using NKristek.Smaragd.Validation;
 
 namespace NKristek.Smaragd.ViewModels
