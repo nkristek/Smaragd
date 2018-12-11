@@ -1,9 +1,10 @@
 language: csharp
 dist: trusty
-mono: none
+solution: ./src/Smaragd.sln
 dotnet: 2.1
+mono: none
 install:
-- dotnet restore
+  - dotnet restore ./src/Smaragd.sln
 script:
-- dotnet build
-- dotnet test Smaragd.Tests/Smaragd.Tests.csproj
+  - dotnet build ./src/Smaragd.sln -c Release
+  - dotnet test ./src/Smaragd.Tests/Smaragd.Tests.csproj -c Release

@@ -87,7 +87,7 @@ namespace NKristek.Smaragd.Commands
             }
         }
 
-        /// <inheritdoc cref="IAsyncCommand.CanExecute" />
+        /// <inheritdoc cref="ICommand.CanExecute" />
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
