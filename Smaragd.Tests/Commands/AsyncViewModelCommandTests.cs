@@ -235,20 +235,12 @@ namespace NKristek.Smaragd.Tests.Commands
         [Fact]
         public void ICommandExecute_executes_ExecuteAsync()
         {
-            var lockObject = new object();
             var executeWasExecuted = false;
             var viewModel = new TestViewModel();
-            var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) => await Task.Run(() =>
-            {
-                lock (lockObject)
-                {
-                    executeWasExecuted = true;
-                }
-            }));
+            var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) => await Task.Run(() => executeWasExecuted = true));
             ((ICommand) command).Execute(null);
-
-            lock (lockObject)
-                Assert.True(executeWasExecuted);
+            while (command.IsWorking);
+            Assert.True(executeWasExecuted);
         }
 
         [Fact]
