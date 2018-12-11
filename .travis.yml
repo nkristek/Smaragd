@@ -5,11 +5,11 @@ dotnet: 2.1
 mono: none
 install:
   - dotnet restore ./src/Smaragd.sln
-  - dotnet tool install coveralls.net --version 1.0.0 --tool-path tools
+  - dotnet tool install --global coveralls.net --version 1.0.0
 script:
   - dotnet build ./src/Smaragd.sln -c Release
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover ./src/Smaragd.Tests/Smaragd.Tests.csproj -c Release
   - REPO_COMMIT_AUTHOR=$(git show -s --pretty=format:"%cn")
   - REPO_COMMIT_AUTHOR_EMAIL=$(git show -s --pretty=format:"%ce")
   - REPO_COMMIT_MESSAGE=$(git show -s --pretty=format:"%s")
-  - ./tools/csmacnz.Coveralls.exe --opencover ./src/Smaragd.Tests/coverage.opencover.xml --repoToken $COVERALLS_REPO_TOKEN --commitId $TRAVIS_COMMIT --commitBranch $TRAVIS_BRANCH --commitAuthor "$REPO_COMMIT_AUTHOR" --commitEmail "$REPO_COMMIT_AUTHOR_EMAIL" --commitMessage "$REPO_COMMIT_MESSAGE" --jobId $TRAVIS_JOB_ID  --serviceName "travis-ci"  --useRelativePaths
+  - csmacnz.Coveralls --opencover ./src/Smaragd.Tests/coverage.opencover.xml --repoToken $COVERALLS_REPO_TOKEN --commitId $TRAVIS_COMMIT --commitBranch $TRAVIS_BRANCH --commitAuthor "$REPO_COMMIT_AUTHOR" --commitEmail "$REPO_COMMIT_AUTHOR_EMAIL" --commitMessage "$REPO_COMMIT_MESSAGE" --jobId $TRAVIS_JOB_ID  --serviceName "travis-ci"  --useRelativePaths
