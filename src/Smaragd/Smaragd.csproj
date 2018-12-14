@@ -11,7 +11,7 @@
     <Product>Smaragd</Product>
     <PackageId>NKristek.Smaragd</PackageId>
     <Copyright>Copyright ©  2018 Niclas Kristek</Copyright>
-    <PackageLicenseUrl>https://github.com/nkristek/Smaragd/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/nkristek/Smaragd</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
