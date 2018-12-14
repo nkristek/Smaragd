@@ -100,7 +100,7 @@ namespace NKristek.Smaragd.Commands
         public virtual event EventHandler CanExecuteChanged;
 
         /// <inheritdoc />
-        public void RaiseCanExecuteChanged()
+        public virtual void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
