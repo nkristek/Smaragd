@@ -55,7 +55,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
-        public bool IsReadOnly
+        public virtual bool IsReadOnly
         {
             get => _isReadOnly;
             set => SetProperty(ref _isReadOnly, value, out _);
