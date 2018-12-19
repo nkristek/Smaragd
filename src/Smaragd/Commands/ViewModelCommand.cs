@@ -8,13 +8,9 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
 {
-    /// <inheritdoc cref="ICommand" />
-    /// <summary>
-    /// Implementation of <see cref="ICommand"/> with  support for <see cref="T:System.ComponentModel.INotifyPropertyChanged"/> and <see cref="IRaiseCanExecuteChanged"/>.
-    /// </summary>
-    /// <typeparam name="TViewModel">Type of the parent ViewModel.</typeparam>
+    /// <inheritdoc cref="IViewModelCommand{TViewModel}" />
     public abstract class ViewModelCommand<TViewModel>
-        : Bindable, INamedCommand, IRaiseCanExecuteChanged where TViewModel : class, IViewModel
+        : Bindable, IViewModelCommand<TViewModel> where TViewModel : class, IViewModel
     {
         private readonly IList<string> _cachedCanExecuteSourceNames;
 
@@ -42,9 +38,7 @@ namespace NKristek.Smaragd.Commands
 
         private readonly WeakReference<TViewModel> _parent;
 
-        /// <summary>
-        /// Parent of this <see cref="ViewModelCommand{TViewModel}"/>.
-        /// </summary>
+        /// <inheritdoc />
         public TViewModel Parent => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
 
         /// <inheritdoc />

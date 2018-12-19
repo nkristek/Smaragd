@@ -9,13 +9,12 @@ using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
 {
-    /// <inheritdoc cref="IAsyncCommand" />
-    /// <summary>
-    /// Implementation of <see cref="IAsyncCommand"/> with support for <see cref="T:System.ComponentModel.INotifyPropertyChanged"/> and <see cref="IRaiseCanExecuteChanged"/>.
-    /// </summary>
-    /// <typeparam name="TViewModel">Type of the parent ViewModel.</typeparam>
+    /// <inheritdoc cref="IViewModelCommand{TViewModel}" />
+    /// <remarks>
+    /// This defines an asynchronous command.
+    /// </remarks>
     public abstract class AsyncViewModelCommand<TViewModel>
-        : Bindable, INamedCommand, IAsyncCommand, IRaiseCanExecuteChanged where TViewModel : class, IViewModel
+        : Bindable, IViewModelCommand<TViewModel>, IAsyncCommand where TViewModel : class, IViewModel
     {
         private readonly IList<string> _cachedCanExecuteSourceNames;
 
@@ -43,9 +42,7 @@ namespace NKristek.Smaragd.Commands
 
         private readonly WeakReference<TViewModel> _parent;
 
-        /// <summary>
-        /// Parent of this <see cref="AsyncViewModelCommand{TViewModel}"/>.
-        /// </summary>
+        /// <inheritdoc />
         public TViewModel Parent => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
 
         private bool _isWorking;
