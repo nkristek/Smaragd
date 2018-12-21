@@ -1,5 +1,4 @@
-﻿// Enable unit testing of internal classes
+﻿using System.Runtime.CompilerServices;
 
-using System.Runtime.CompilerServices;
-
+// Enable unit testing of internal classes
 [assembly: InternalsVisibleTo("NKristek.Smaragd.Tests")]

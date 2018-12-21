@@ -239,7 +239,7 @@ namespace NKristek.Smaragd.Tests.Commands
             var viewModel = new TestViewModel();
             var command = new AsyncRelayViewModelCommand(viewModel, async (vm, para) => await Task.Run(() => executeWasExecuted = true));
             ((ICommand) command).Execute(null);
-            while (command.IsWorking);
+            while (command.IsWorking) ;
             Assert.True(executeWasExecuted);
         }
 

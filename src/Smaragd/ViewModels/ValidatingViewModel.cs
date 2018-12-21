@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace NKristek.Smaragd.ViewModels
         public bool HasErrors => _validationErrors.Any();
 
         /// <inheritdoc />
-        public System.Collections.IEnumerable GetErrors(string propertyName)
+        public IEnumerable GetErrors(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
                 return GetAllErrors();
@@ -66,7 +67,8 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         public virtual void RaiseErrorsChanged(string propertyName = null)
         {
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            var argument = new DataErrorsChangedEventArgs(propertyName);
+            ErrorsChanged?.Invoke(this, argument);
             RaisePropertyChanged(nameof(HasErrors));
         }
 

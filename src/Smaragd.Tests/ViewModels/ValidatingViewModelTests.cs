@@ -177,7 +177,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 nameof(TestValidatingModel.TestProperty),
                 nameof(TestValidatingModel.IsDirty),
                 nameof(TestValidatingModel.HasErrors),
-                nameof(TestValidatingModel.IsValid),
+                nameof(TestValidatingModel.IsValid)
             };
             Assert.Equal(expectedPropertyChangedEvents.OrderBy(n => n), invokedPropertyChangedEvents.OrderBy(n => n));
         }
