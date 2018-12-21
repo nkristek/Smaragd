@@ -49,7 +49,7 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         protected void ReevaluateIsChecked()
         {
-            if (TreeChildren == null)
+            if (TreeChildren == null || !TreeChildren.Any())
                 return;
 
             if (TreeChildren.All(c => c.IsChecked == true))
