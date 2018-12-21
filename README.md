@@ -210,8 +210,8 @@ Interfaces:
 - `IViewModelCommand: INamedCommand, IRaiseCanExecuteChanged, IBindableCommand`
 
 Classes:
-- `ViewModelCommand: Bindable, INamedCommand, IRaiseCanExecuteChanged`
-- `AsyncViewModelCommand: Bindable, INamedCommand, IAsyncCommand, IRaiseCanExecuteChanged`
+- `ViewModelCommand: Bindable, IViewModelCommand`
+- `AsyncViewModelCommand: Bindable, IViewModelCommand, IAsyncCommand`
 
 ### Validation
 
