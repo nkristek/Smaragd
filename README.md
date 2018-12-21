@@ -17,7 +17,7 @@ The recommended way to use this library is via [Nuget](https://www.nuget.org/pac
 
 ## Getting started
 
-Create a subclass of `ViewModel` and optionally a command subclassing `ViewModelCommand<>` like shown below.
+To get started, create a subclass of `ViewModel` and optionally a command subclassing `ViewModelCommand<>`:
 
 ```csharp
 public class MyViewModel : ViewModel
@@ -72,7 +72,7 @@ public class TestCommand
 
 ### SetProperty
 
-There are a few things to notice here. Firstly, using `SetProperty()` in setters of properties is **highly** recommended. It will check if the new value is different from the existing value in the field and sets it if different. If the value changed it will return true and raise an event on `INotifyPropertyChanged.PropertyChanged` with the property name using `[CallerMemberName]`.
+There are a few things to notice here. Firstly, using `SetProperty()` in setters of properties is **highly** recommended. It will check, if the new value is different from the existing value in the field. If the value is different, it sets it, raise events on `INotifyPropertyChanging.PropertyChanging` and `INotifyPropertyChanged.PropertyChanged` and returns true.
 
 Depending on the type of the `ViewModel` additional logic will be executed, like validation (`ValidatingViewModel`).
 
@@ -80,21 +80,23 @@ In this example, when `FirstProperty` is set to 1, `SecondProperty` will be set 
 
 ### RaisePropertyChanged
 
-If you want to manually raise an event on `INotifyPropertyChanged.PropertyChanged`, you can use `RaisePropertyChanged()` with the name of the property. Under normal conditions, this should not be necessary, since `SetProperty()` already does this.
-Using `RaisePropertyChanged()` instead of raising an event on `INotifyPropertyChanged.PropertyChanged` directly is **highly** recommended, otherwise `PropertySourceAttribute` etc. won't work correctly.
+If you want to manually raise an event on `INotifyPropertyChanged.PropertyChanged`, you should use `RaisePropertyChanged()` with the name of the property.
+
+Using `RaisePropertyChanged()` instead of directly raising events on `INotifyPropertyChanged.PropertyChanged` directly is **highly** recommended, otherwise `PropertySourceAttribute` and other functionality won't work correctly.
 
 ### PropertySourceAttribute
 
 `ThirdProperty` uses `PropertySourceAttribute` with the names of both `FirstProperty` and `SecondProperty`. 
-The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged.PropertyChanged` for `ThirdProperty` when one of the two properties is changed. 
+
+The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged.PropertyChanged` for `ThirdProperty` when `INotifyPropertyChanged.PropertyChanged` is raised for one of the two properties (in this case `FirstProperty` and `SecondProperty`). 
 
 ### CanExecuteSourceAttribute
 
-`TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the properties named. 
+`TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the named properties. 
 
-When a `PropertyChanged` event for `ThirdProperty` is invoked, an event is raised on `CanExecuteChanged` (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
+When `INotifyPropertyChanged.PropertyChanged` is raised for `ThirdProperty`, `CanExecuteChanged` will be raised also (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
 
-The command also has to be added to the `Commands` dictionary on the `ViewModel`.
+For this to work, the command has to be added to the `Commands` dictionary on the `ViewModel`.
 
 ### IsDirty
 
@@ -113,12 +115,13 @@ public bool TestProperty
 }
 ```
 
-Now, when `TestProperty` changes, `IsDirty` will not be automatically set to true.
-This will also work for properties implementing `INotifyCollectionChanged` when the `CollectionChanged` event occurs.
+Now, when `TestProperty` changes, `IsDirty` will **not** be automatically set to true.
+
+Also, if the property implements `INotifyCollectionChanged` and no `IsDirtyIgnoredAttribute` exists, the `ViewModel` will set `IsDirty` when `INotifyCollectionChanged.CollectionChanged` is raised.
 
 ### Parent
 
-The `Parent` property on `ViewModel` uses a `WeakReference` internally.
+The `Parent` property on `ViewModel` internally uses a `WeakReference`.
 
 ### IsReadOnly
 
@@ -134,9 +137,8 @@ AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5
 ```
 
 This will execute this validation everytime `SetProperty()` changes this property.
-You can call `Validate()` to execute all validations again.
 
-For most validations the `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit from `Validation<T>`.
+Most of the time `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit from `Validation<T>`.
 
 If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the `IDisposable` after your work is done to continue validation.
 
@@ -204,6 +206,8 @@ Interfaces:
 - `IRaiseCanExecuteChanged: ICommand`
 - `IAsyncCommand: ICommand`
 - `INamedCommand: ICommand`
+- `IBindableCommand: ICommand, IRaisePropertyChanging, IRaisePropertyChanged`
+- `IViewModelCommand: INamedCommand, IRaiseCanExecuteChanged, IBindableCommand`
 
 Classes:
 - `ViewModelCommand: Bindable, INamedCommand, IRaiseCanExecuteChanged`
