@@ -17,7 +17,7 @@ namespace NKristek.Smaragd.Attributes
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class CanExecuteSourceAttribute
+    public sealed class CanExecuteSourceAttribute
         : Attribute
     {
         /// <summary>

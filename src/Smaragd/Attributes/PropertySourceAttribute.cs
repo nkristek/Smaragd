@@ -14,7 +14,7 @@ namespace NKristek.Smaragd.Attributes
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class PropertySourceAttribute
+    public sealed class PropertySourceAttribute
         : Attribute
     {
         /// <summary>

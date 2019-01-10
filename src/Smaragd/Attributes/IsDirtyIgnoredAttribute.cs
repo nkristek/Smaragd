@@ -9,7 +9,7 @@ namespace NKristek.Smaragd.Attributes
     /// It indicates, that a property should not set <see cref="P:NKristek.Smaragd.ViewModels.ViewModel.IsDirty" /> to <c>true</c> when the property changes.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class IsDirtyIgnoredAttribute
+    public sealed class IsDirtyIgnoredAttribute
         : Attribute
     {
     }
