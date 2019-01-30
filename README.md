@@ -173,6 +173,51 @@ There is also a `DialogModel` class, which inherits from `ValidatingViewModel` a
 
 `ViewModel` has a `Commands` property and it is recommended to add all available commands to that dictionary using `AddCommand()`.
 
+## Attributes when a property is overriden
+
+When a property is overriden in a subclass, attributes are **not** inherited by default. As the overriden property most probably has different dependecies, you should redeclare the `PropertySourceAttribute` with the new dependencies. 
+
+Example:
+```csharp
+class Base
+{
+    [IsDirtyIgnored]
+    bool TestProperty { get; }
+
+    [PropertySource(nameof(TestProperty))]
+    virtual bool AnotherTestProperty => TestProperty;
+}
+
+class Derived : Base
+{
+    override bool AnotherTestProperty => true;
+}
+```
+
+In that example, when using `Derived`, **only** the `IsDirtyIgnoredAttribute` from `TestProperty` is processed since this property is not overriden. 
+No event on `PropertyChanged` will be raised for `AnotherTestProperty` when `TestProperty` changes.
+
+If you access the base implementation in the override, you should define a `PropertySourceAttribute` with the `InheritAttributes` option set to true. In that case you can also define additional sources.
+
+Example:
+```csharp
+class Base
+{
+    bool TestProperty { get; }
+
+    [PropertySource(nameof(TestProperty))]
+    virtual bool AnotherTestProperty => TestProperty;
+}
+
+class Derived : Base
+{
+    bool NewTestProperty { get; }
+
+    [PropertySource(nameof(NewTestProperty), InheritAttributes = true)]
+    override bool AnotherTestProperty => base.AnotherTestProperty && NewTestProperty;
+}
+```
+
 ## Overview
 
 This library provides the following classes/interfaces:

@@ -12,5 +12,9 @@ namespace NKristek.Smaragd.Attributes
     public sealed class IsDirtyIgnoredAttribute
         : Attribute
     {
+        /// <summary>
+        /// Indicates if the attributes from the base class should be considered.
+        /// </summary>
+        public bool InheritAttributes { get; set; }
     }
 }

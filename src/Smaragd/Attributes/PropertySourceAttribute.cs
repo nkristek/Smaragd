@@ -13,14 +13,19 @@ namespace NKristek.Smaragd.Attributes
     /// <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged" /> will be raised, when <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged" /> is raised for one of the given property names.
     /// </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertySourceAttribute
         : Attribute
     {
         /// <summary>
         /// Property names which should raise <see cref="E:System.ComponentModel.INotifyPropertyChanged.PropertyChanged"/>.
         /// </summary>
-        public IEnumerable<string> PropertySources { get; }
+        public IEnumerable<string> PropertySources { get; set; }
+
+        /// <summary>
+        /// Indicates if the attributes from the base class should be considered.
+        /// </summary>
+        public bool InheritAttributes { get; set; }
 
         /// <inheritdoc />
         /// <summary>

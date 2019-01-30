@@ -23,7 +23,7 @@ namespace NKristek.Smaragd.Attributes
         /// <summary>
         /// Property names of the parent <see cref="ViewModel"/> which should raise <see cref="M:System.Windows.Input.ICommand.CanExecuteChanged"/>.
         /// </summary>
-        public IEnumerable<string> PropertySources { get; }
+        public IEnumerable<string> PropertySources { get; set; }
 
         /// <inheritdoc />
         /// <summary>

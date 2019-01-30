@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using NKristek.Smaragd.Attributes;
@@ -17,12 +18,11 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         protected ViewModel()
         {
-            var collectionProperties = GetType().GetProperties().Where(p => p.GetMethod.IsPublic);
-            foreach (var property in collectionProperties)
+            var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var collectionProperties = properties.Where(p => typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType));
+            foreach (var collectionProperty in collectionProperties.Where(p => !IsDirtyIgnoredProperties.Contains(p.Name)))
             {
-                if (!PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(property.Name)
-                    && typeof(INotifyCollectionChanged).IsAssignableFrom(property.PropertyType)
-                    && property.GetValue(this, null) is INotifyCollectionChanged collection)
+                if (collectionProperty.GetValue(this, null) is INotifyCollectionChanged collection)
                     collection.CollectionChanged += OnChildCollectionChanged;
             }
         }
@@ -93,7 +93,7 @@ namespace NKristek.Smaragd.ViewModels
             if (!propertyWasChanged)
                 return false;
 
-            if (PropertyNameHasAttribute<IsDirtyIgnoredAttribute>(propertyName))
+            if (IsDirtyIgnoredProperties.Contains(propertyName))
                 return true;
 
             IsDirty = true;

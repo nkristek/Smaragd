@@ -18,25 +18,63 @@ namespace NKristek.Smaragd.ViewModels
     {
         private readonly INotificationCache _notificationCache = new NotificationCache();
 
+        internal HashSet<string> IsDirtyIgnoredProperties = new HashSet<string>();
+
         /// <inheritdoc />
         protected ComputedBindable()
         {
-            InitializeNotificationCache();
+            InitAttributes();
         }
 
-        private void InitializeNotificationCache()
+        private void InitAttributes()
         {
-            var allPropertyNames = GetType().GetProperties().Where(p => p.GetMethod.IsPublic).Select(p => p.Name).ToList();
-            foreach (var propertyAttributes in CachedAttributes)
+            var inheritPropertySource = new Dictionary<string, bool>();
+            var inheritIsDirty = new Dictionary<string, bool>();
+
+            var currentType = GetType();
+            while (currentType != null)
             {
-                var propertyName = propertyAttributes.Key;
-                var attributes = propertyAttributes.Value;
-                foreach (var attribute in attributes.OfType<PropertySourceAttribute>().Where(a => a.PropertySources != null))
-                foreach (var propertySource in attribute.PropertySources.Where(ps => ps != propertyName && allPropertyNames.Contains(ps)))
-                    _notificationCache.AddPropertyNameToNotify(propertySource, propertyName);
+                var properties = currentType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                foreach (var property in properties)
+                {
+                    var attributes = property.GetCustomAttributes(false);
+
+                    if (!inheritPropertySource.ContainsKey(property.Name) || inheritPropertySource[property.Name])
+                    {
+                        var propertySourceAttribute = attributes.OfType<PropertySourceAttribute>().SingleOrDefault();
+                        if (propertySourceAttribute != null)
+                        {
+                            inheritPropertySource[property.Name] = propertySourceAttribute.InheritAttributes;
+
+                            foreach (var propertySource in propertySourceAttribute.PropertySources)
+                                _notificationCache.AddPropertyNameToNotify(propertySource, property.Name);
+                        }
+                        else
+                        {
+                            inheritPropertySource[property.Name] = false;
+                        }
+                    }
+
+                    if (!inheritIsDirty.ContainsKey(property.Name) || inheritIsDirty[property.Name])
+                    {
+                        var isDirtyIgnoredAttribute = attributes.OfType<IsDirtyIgnoredAttribute>().SingleOrDefault();
+                        if (isDirtyIgnoredAttribute != null)
+                        {
+                            if (isDirtyIgnoredAttribute.InheritAttributes)
+                                inheritIsDirty[property.Name] = true;
+                            else
+                                IsDirtyIgnoredProperties.Add(property.Name);
+                        }
+                        else
+                        {
+                            inheritIsDirty[property.Name] = false;
+                        }
+                    }
+                }
+                currentType = currentType.BaseType;
             }
         }
-
+        
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null or whitespace.</exception>
         public sealed override void RaisePropertyChanged([CallerMemberName] string propertyName = null)
@@ -44,7 +82,7 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            var additionalPropertyNames = _notificationCache.GetPropertyNamesToNotify(propertyName).ToList();
+            var additionalPropertyNames = _notificationCache.GetPropertyNamesToNotify(propertyName);
             RaisePropertyChanged(propertyName, additionalPropertyNames);
         }
 
@@ -59,37 +97,13 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            var propertyNamesToNotify = new List<string> {propertyName};
-            if (additionalPropertyNames != null)
-                propertyNamesToNotify.AddRange(additionalPropertyNames);
+            base.RaisePropertyChanged(propertyName);
 
-            foreach (var propertyNameToNotify in propertyNamesToNotify)
+            if (additionalPropertyNames == null)
+                return;
+
+            foreach (var propertyNameToNotify in additionalPropertyNames)
                 base.RaisePropertyChanged(propertyNameToNotify);
-        }
-
-        private Dictionary<string, IList<Attribute>> _cachedAttributes;
-
-        private Dictionary<string, IList<Attribute>> CachedAttributes => _cachedAttributes ?? (_cachedAttributes = GetAllAttributes());
-
-        private Dictionary<string, IList<Attribute>> GetAllAttributes()
-        {
-            var cachedAttributes = new Dictionary<string, IList<Attribute>>();
-
-            foreach (var property in GetType().GetProperties().Where(p => p.GetMethod.IsPublic))
-                cachedAttributes[property.Name] = property.GetCustomAttributes().ToList();
-
-            return cachedAttributes;
-        }
-
-        /// <summary>
-        /// Returns if the attribute is set on the property with the given name
-        /// </summary>
-        /// <typeparam name="TAttribute">The <see cref="Attribute"/> which may exist on the property</typeparam>
-        /// <param name="propertyName">Name of the property</param>
-        /// <returns>If the attribute is set on the property</returns>
-        internal bool PropertyNameHasAttribute<TAttribute>(string propertyName) where TAttribute : Attribute
-        {
-            return CachedAttributes.TryGetValue(propertyName, out var propertyAttributes) && propertyAttributes.Any(a => a is TAttribute);
         }
     }
 }

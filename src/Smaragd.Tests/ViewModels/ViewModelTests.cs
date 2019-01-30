@@ -134,6 +134,61 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.False(viewModel.IsDirty);
         }
 
+        private class InheritIsDirtyIgnoredParent
+            : ViewModel
+        {
+            private bool _testProperty;
+
+            public virtual bool TestProperty
+            {
+                get => _testProperty;
+                set => SetProperty(ref _testProperty, value, out _);
+            }
+
+            private bool _isDirtyIgnoredProperty;
+
+            [IsDirtyIgnored]
+            public virtual bool IsDirtyIgnoredProperty
+            {
+                get => _isDirtyIgnoredProperty;
+                set => SetProperty(ref _isDirtyIgnoredProperty, value, out _);
+            }
+        }
+
+        private class InheritIsDirtyIgnoredChild
+            : InheritIsDirtyIgnoredParent
+        {
+            private bool _testProperty;
+
+            [IsDirtyIgnored(InheritAttributes = true)]
+            public override bool TestProperty
+            {
+                get => _testProperty;
+                set => SetProperty(ref _testProperty, value, out _);
+            }
+
+            private bool _isDirtyIgnoredProperty;
+
+            [IsDirtyIgnored(InheritAttributes = true)]
+            public override bool IsDirtyIgnoredProperty
+            {
+                get => _isDirtyIgnoredProperty;
+                set => SetProperty(ref _isDirtyIgnoredProperty, value, out _);
+            }
+        }
+
+        [Fact]
+        public void SetProperty_IsDirty_IsDirtyIgnoredAttribute_InheritAttributes()
+        {
+            var viewModel = new InheritIsDirtyIgnoredChild
+            {
+                IsDirtyIgnoredProperty = true
+            };
+            Assert.False(viewModel.IsDirty);
+            viewModel.TestProperty = true;
+            Assert.True(viewModel.IsDirty);
+        }
+
         [Fact]
         public void IsDirty_from_collection()
         {
