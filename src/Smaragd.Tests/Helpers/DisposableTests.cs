@@ -58,8 +58,7 @@ namespace NKristek.Smaragd.Tests.Helpers
         {
             var managedResourcesDisposed = false;
             CreateDisposableInstance(() => managedResourcesDisposed = true, null);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            GCHelper.TriggerGC();
             Assert.False(managedResourcesDisposed);
         }
 
@@ -68,8 +67,7 @@ namespace NKristek.Smaragd.Tests.Helpers
         {
             var nativeResourcesDisposed = false;
             CreateDisposableInstance(null, () => nativeResourcesDisposed = true);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            GCHelper.TriggerGC();
             Assert.True(nativeResourcesDisposed);
         }
 

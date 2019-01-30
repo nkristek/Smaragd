@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -20,18 +21,19 @@ namespace NKristek.Smaragd.Commands
 
         /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncViewModelCommand{TViewModel}" /> class with its parent.
+        /// Initializes a new instance of the <see cref="AsyncViewModelCommand{TViewModel}" /> class.
         /// </summary>
-        /// <param name="parent">Parent of this <see cref="AsyncViewModelCommand{TViewModel}" />.</param>
-        /// <exception cref="ArgumentNullException">If <paramref name="parent"/> is null.</exception>
-        protected AsyncViewModelCommand(TViewModel parent)
+        protected AsyncViewModelCommand()
         {
-            _parent = new WeakReference<TViewModel>(parent ?? throw new ArgumentNullException(nameof(parent)));
+            _cachedCanExecuteSourceNames = GetCanExecuteSourceNames();
+        }
 
+        private IList<string> GetCanExecuteSourceNames()
+        {
             var canExecuteMethods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Where(m => m.Name == nameof(CanExecute));
             var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
-            _cachedCanExecuteSourceNames = canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
+            return canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
         }
 
         /// <inheritdoc />
@@ -40,10 +42,32 @@ namespace NKristek.Smaragd.Commands
         /// </remarks>
         public virtual string Name => GetType().FullName;
 
-        private readonly WeakReference<TViewModel> _parent;
+        private WeakReference<TViewModel> _parent;
 
         /// <inheritdoc />
-        public TViewModel Parent => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
+        public TViewModel Parent
+        {
+            get => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
+            set
+            {
+                if (value == Parent) return;
+                var oldValue = Parent;
+                if (oldValue != null)
+                    oldValue.PropertyChanged -= ParentOnPropertyChanged;
+
+                _parent = value != null ? new WeakReference<TViewModel>(value) : null;
+                RaisePropertyChanged();
+
+                if (value != null)
+                    value.PropertyChanged += ParentOnPropertyChanged;
+            }
+        }
+
+        private void ParentOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_cachedCanExecuteSourceNames.Contains(e.PropertyName))
+                RaiseCanExecuteChanged();
+        }
 
         private bool _isWorking;
 
@@ -100,12 +124,6 @@ namespace NKristek.Smaragd.Commands
         public virtual void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <inheritdoc />
-        public bool ShouldRaiseCanExecuteChanged(IEnumerable<string> changedPropertyNames)
-        {
-            return changedPropertyNames.Any(pn => _cachedCanExecuteSourceNames.Contains(pn));
         }
     }
 }

@@ -24,8 +24,11 @@ public class MyViewModel : ViewModel
 {
     public MyViewModel()
     {
-        var testCommand = new TestCommand(this);
-        Commands[testCommand.Name] = testCommand;
+        var testCommand = new TestCommand
+        {
+            Parent = this
+        };
+        AddCommand(testCommand);
     }
 
     private int _firstProperty;
@@ -96,7 +99,7 @@ The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged
 
 When `INotifyPropertyChanged.PropertyChanged` is raised for `ThirdProperty`, `CanExecuteChanged` will be raised also (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
 
-For this to work, the command has to be added to the `Commands` dictionary on the `ViewModel`.
+Setting the `Parent` property of the command attaches the command to `INotifyPropertyChanged.PropertyChanged` and raises the events on `CanExecuteChanged` accordingly. **Please note**, that the `ViewModel` now holds a strong reference. Set the `Parent` property to null to detach the command from `INotifyPropertyChanged.PropertyChanged`.
 
 ### IsDirty
 
@@ -168,7 +171,7 @@ There is also a `DialogModel` class, which inherits from `ValidatingViewModel` a
 
 `ViewModelCommand` and `AsyncViewModelCommand` provide base implementations for `ICommand`, `IAsyncCommand` and `IRaiseCanExecuteChanged`.
 
-`ViewModel` has a `Commands` property and it is **highly** recommended to add all available commands to that dictionary. Otherwise the `CommandCanExecuteSourceAttribute` won't work.
+`ViewModel` has a `Commands` property and it is recommended to add all available commands to that dictionary using `AddCommand()`.
 
 ## Overview
 

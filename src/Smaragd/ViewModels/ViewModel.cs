@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -61,23 +62,21 @@ namespace NKristek.Smaragd.ViewModels
             set => SetProperty(ref _isReadOnly, value, out _);
         }
 
-        private Dictionary<string, ICommand> _commands;
+        private readonly IDictionary<string, ICommand> _commands = new Dictionary<string, ICommand>();
 
         /// <inheritdoc />
-        public virtual Dictionary<string, ICommand> Commands => _commands ?? (_commands = new Dictionary<string, ICommand>());
+        public IReadOnlyDictionary<string, ICommand> Commands => new ReadOnlyDictionary<string, ICommand>(_commands);
 
         /// <inheritdoc />
-        protected override void RaisePropertyChanged(string propertyName, IEnumerable<string> additionalPropertyNames)
+        public void AddCommand(INamedCommand command)
         {
-            var additionalPropertyNamesList = additionalPropertyNames.ToList();
-            base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
+            _commands[command.Name] = command;
+        }
 
-            var propertyNamesToNotify = new List<string> {propertyName};
-            propertyNamesToNotify.AddRange(additionalPropertyNamesList);
-
-            foreach (var command in Commands.Select(c => c.Value).OfType<IRaiseCanExecuteChanged>())
-                if (command.ShouldRaiseCanExecuteChanged(propertyNamesToNotify))
-                    command.RaiseCanExecuteChanged();
+        /// <inheritdoc />
+        public bool RemoveCommand(INamedCommand command)
+        {
+            return _commands.Remove(command.Name);
         }
 
         /// <inheritdoc />

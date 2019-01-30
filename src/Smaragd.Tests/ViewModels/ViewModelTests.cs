@@ -26,11 +26,6 @@ namespace NKristek.Smaragd.Tests.ViewModels
             : ViewModelCommand<TestViewModel>
         {
             /// <inheritdoc />
-            public TestViewModelCommand(TestViewModel parent) : base(parent)
-            {
-            }
-
-            /// <inheritdoc />
             [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
@@ -202,11 +197,10 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             var viewModel = new TestViewModel();
             SetDisposingParent(viewModel);
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            GCHelper.TriggerGC();
             Assert.Null(viewModel.Parent);
         }
-
+        
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         private static void SetDisposingParent(ViewModel viewModel)
         {
@@ -287,16 +281,36 @@ namespace NKristek.Smaragd.Tests.ViewModels
         }
 
         [Fact]
-        public void Notify_commands_CanExecuteSourceAttribute()
+        public void Commands_not_null()
         {
             var viewModel = new TestViewModel();
-            var command = new TestViewModelCommand(viewModel);
-            viewModel.Commands[command.Name] = command;
+            Assert.NotNull(viewModel.Commands);
+        }
 
-            var canExecuteChangedInvocations = 0;
-            command.CanExecuteChanged += (sender, args) => canExecuteChangedInvocations++;
-            viewModel.TestProperty = true;
-            Assert.Equal(1, canExecuteChangedInvocations);
+        [Fact]
+        public void AddCommand()
+        {
+            var viewModel = new TestViewModel();
+            var command = new TestViewModelCommand
+            {
+                Parent = viewModel
+            };
+            viewModel.AddCommand(command);
+            Assert.True(viewModel.Commands.ContainsKey(command.Name));
+            Assert.Equal(command, viewModel.Commands[command.Name]);
+        }
+
+        [Fact]
+        public void RemoveCommand()
+        {
+            var viewModel = new TestViewModel();
+            var command = new TestViewModelCommand
+            {
+                Parent = viewModel
+            };
+            viewModel.AddCommand(command);
+            Assert.True(viewModel.RemoveCommand(command));
+            Assert.False(viewModel.Commands.ContainsKey(command.Name));
         }
     }
 }

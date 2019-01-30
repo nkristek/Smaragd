@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Commands;
@@ -29,8 +28,8 @@ namespace NKristek.Smaragd.Tests.Commands
 
             private readonly Func<TestViewModel, object, bool> _canExecute;
 
-            public RelayViewModelCommand(TestViewModel parent, Action<TestViewModel, object> execute,
-                Func<TestViewModel, object, bool> canExecute = null) : base(parent)
+            public RelayViewModelCommand(Action<TestViewModel, object> execute,
+                Func<TestViewModel, object, bool> canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
@@ -50,10 +49,6 @@ namespace NKristek.Smaragd.Tests.Commands
         private class DefaultViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            public DefaultViewModelCommand(TestViewModel parent) : base(parent)
-            {
-            }
-
             protected override void Execute(TestViewModel viewModel, object parameter)
             {
                 if (viewModel == null)
@@ -70,10 +65,6 @@ namespace NKristek.Smaragd.Tests.Commands
         private class CanExecuteSourceViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            public CanExecuteSourceViewModelCommand(TestViewModel parent) : base(parent)
-            {
-            }
-
             [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
@@ -86,41 +77,25 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void Constructor_ParentNull_ThrowsArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new DefaultViewModelCommand(null));
-        }
-
-        [Fact]
-        public void Constructor_ParentNotNull_ThrowsNoException()
-        {
-            var viewModel = new TestViewModel();
-            var command = new DefaultViewModelCommand(viewModel);
-        }
-
-        [Fact]
         public void Name_NotNullOrWhitespace()
         {
-            var viewModel = new TestViewModel();
-            var command = new DefaultViewModelCommand(viewModel);
+            var command = new DefaultViewModelCommand();
             Assert.False(String.IsNullOrWhiteSpace(command.Name));
         }
 
         [Fact]
         public void Name_is_the_same_for_the_same_commandType()
         {
-            var viewModel = new TestViewModel();
-            var firstCommand = new DefaultViewModelCommand(viewModel);
-            var secondCommand = new DefaultViewModelCommand(viewModel);
+            var firstCommand = new DefaultViewModelCommand();
+            var secondCommand = new DefaultViewModelCommand();
             Assert.Equal(firstCommand.Name, secondCommand.Name);
         }
 
         [Fact]
         public void Name_is_different_for_different_commandTypes()
         {
-            var viewModel = new TestViewModel();
-            var firstCommand = new DefaultViewModelCommand(viewModel);
-            var secondCommand = new RelayViewModelCommand(viewModel, (vm, para) =>
+            var firstCommand = new DefaultViewModelCommand();
+            var secondCommand = new RelayViewModelCommand((vm, para) =>
             {
                 if (vm == null)
                     throw new ArgumentNullException(nameof(vm));
@@ -135,18 +110,9 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void Parent_was_set()
-        {
-            var viewModel = new TestViewModel();
-            var command = new DefaultViewModelCommand(viewModel);
-            Assert.Equal(viewModel, command.Parent);
-        }
-
-        [Fact]
         public void CanExecute_returns_true_by_default()
         {
-            var viewModel = new TestViewModel();
-            var command = new DefaultViewModelCommand(viewModel);
+            var command = new DefaultViewModelCommand();
             Assert.True(command.CanExecute(null));
         }
 
@@ -154,8 +120,7 @@ namespace NKristek.Smaragd.Tests.Commands
         public void Parent_disposed_is_null()
         {
             var command = CreateTestCommandWithDisposedParent();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            GCHelper.TriggerGC();
             Assert.Null(command.Parent);
         }
 
@@ -163,7 +128,10 @@ namespace NKristek.Smaragd.Tests.Commands
         private static DefaultViewModelCommand CreateTestCommandWithDisposedParent()
         {
             var viewModel = new TestViewModel();
-            return new DefaultViewModelCommand(viewModel);
+            return new DefaultViewModelCommand
+            {
+                Parent = viewModel
+            };
         }
 
         [Theory]
@@ -171,8 +139,7 @@ namespace NKristek.Smaragd.Tests.Commands
         [InlineData(true, true)]
         public void CanExecute_With_ViewModel_Is_Evaluated(bool input, bool expectedResult)
         {
-            var viewModel = new TestViewModel();
-            var command = new RelayViewModelCommand(viewModel, (vm, para) => { }, (vm, para) => para is bool boolPara && boolPara);
+            var command = new RelayViewModelCommand((vm, para) => { }, (vm, para) => para is bool boolPara && boolPara);
             Assert.Equal(expectedResult, command.CanExecute(input));
         }
 
@@ -181,7 +148,7 @@ namespace NKristek.Smaragd.Tests.Commands
         {
             var canExecuteWasExecuted = false;
             var viewModel = new TestViewModel();
-            var command = new RelayViewModelCommand(viewModel, (vm, para) => { }, (vm, para) =>
+            var command = new RelayViewModelCommand((vm, para) => { }, (vm, para) =>
             {
                 if (vm == null)
                     throw new ArgumentNullException(nameof(vm));
@@ -189,7 +156,10 @@ namespace NKristek.Smaragd.Tests.Commands
                     throw new ArgumentException(nameof(vm));
                 canExecuteWasExecuted = true;
                 return true;
-            });
+            })
+            {
+                Parent = viewModel
+            };
             command.CanExecute(null);
             Assert.True(canExecuteWasExecuted);
         }
@@ -198,8 +168,7 @@ namespace NKristek.Smaragd.Tests.Commands
         public void ICommandExecute_executes_Execute()
         {
             var executeWasExecuted = false;
-            var viewModel = new TestViewModel();
-            var command = new RelayViewModelCommand(viewModel, (vm, para) => executeWasExecuted = true);
+            var command = new RelayViewModelCommand((vm, para) => executeWasExecuted = true);
             command.Execute(null);
             Assert.True(executeWasExecuted);
         }
@@ -208,13 +177,16 @@ namespace NKristek.Smaragd.Tests.Commands
         public void Execute_ViewModel_NotNull()
         {
             var viewModel = new TestViewModel();
-            var command = new RelayViewModelCommand(viewModel, (vm, para) =>
+            var command = new RelayViewModelCommand((vm, para) =>
             {
                 if (vm == null)
                     throw new ArgumentNullException(nameof(vm));
                 if (vm != viewModel)
                     throw new ArgumentException(nameof(vm));
-            });
+            })
+            {
+                Parent = viewModel
+            };
             command.Execute(null);
         }
 
@@ -222,7 +194,7 @@ namespace NKristek.Smaragd.Tests.Commands
         public void Execute_Parameter_NotNull()
         {
             var viewModel = new TestViewModel();
-            var command = new RelayViewModelCommand(viewModel, (vm, para) =>
+            var command = new RelayViewModelCommand((vm, para) =>
             {
                 if (para == null)
                     throw new ArgumentNullException(nameof(para));
@@ -236,22 +208,75 @@ namespace NKristek.Smaragd.Tests.Commands
         public void RaiseCanExecuteChanged_raises_event_on_CanExecuteChanged()
         {
             var invokedCanExecuteChangedEvents = 0;
-            var viewModel = new TestViewModel();
-            var command = new DefaultViewModelCommand(viewModel);
+            var command = new DefaultViewModelCommand();
             command.RaiseCanExecuteChanged();
             command.CanExecuteChanged += (sender, args) => invokedCanExecuteChangedEvents++;
             command.RaiseCanExecuteChanged();
             Assert.Equal(1, invokedCanExecuteChangedEvents);
         }
 
-        [Theory]
-        [InlineData("TestProperty", true)]
-        [InlineData("NotTestProperty", false)]
-        public void ShouldRaiseCanExecuteChanged(string input, bool expectedResult)
+        [Fact]
+        public void ParentPropertyChanged_raises_event_on_CanExecuteChanged()
         {
             var viewModel = new TestViewModel();
-            var command = new CanExecuteSourceViewModelCommand(viewModel);
-            Assert.Equal(expectedResult, command.ShouldRaiseCanExecuteChanged(Enumerable.Repeat(input, 1)));
+            var command = new CanExecuteSourceViewModelCommand
+            {
+                Parent = viewModel
+            };
+
+            var invokedCanExecuteChangedEvents = 0;
+            command.CanExecuteChanged += (sender, args) => invokedCanExecuteChangedEvents++;
+            viewModel.TestProperty = true;
+            Assert.Equal(1, invokedCanExecuteChangedEvents);
+        }
+
+        [Fact]
+        public void Parent_set()
+        {
+            var viewModel = new TestViewModel();
+            var command = new DefaultViewModelCommand
+            {
+                Parent = viewModel
+            };
+            Assert.Equal(viewModel, command.Parent);
+        }
+
+        [Fact]
+        public void Parent_set_twice()
+        {
+            var viewModel = new TestViewModel();
+            var command = new DefaultViewModelCommand
+            {
+                Parent = viewModel
+            };
+            command.Parent = viewModel;
+            Assert.Equal(viewModel, command.Parent);
+        }
+
+        [Fact]
+        public void Parent_set_after_set()
+        {
+            var firstViewModel = new TestViewModel();
+            var secondViewModel = new TestViewModel();
+            var command = new DefaultViewModelCommand
+            {
+                Parent = firstViewModel
+            };
+            command.Parent = secondViewModel;
+            Assert.Equal(secondViewModel, command.Parent);
+        }
+
+        [Fact]
+        public void Parent_set_to_null()
+        {
+            var viewModel = new TestViewModel();
+            var command = new DefaultViewModelCommand
+            {
+                Parent = viewModel
+            };
+
+            command.Parent = null;
+            Assert.Null(command.Parent);
         }
     }
 }
