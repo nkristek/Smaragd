@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>4.0</Version>
+    <Version>4.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -17,31 +17,18 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>This release includes improved XML documentation, more interfaces and more:
-- adjust visibility of methods and make more methods virtual
-- ViewModelCommand and AsyncViewModelCommand now has a Name property which defaults to the name of its type including its namespace
-- remove BindableCommand and integrate logic in ViewModelCommand
-- abstract method ViewModelCommand.DoExecute is now called Execute
-- remove AsyncBindableCommand and integrate logic in AsyncViewModelCommand
-- abstract method AsyncViewModelCommand.DoExecute is now called ExecuteAsync
-- throw ArgumentNullExceptions for parameters which should not be null
-- rename BindableBase to Bindable
-- rename ComputedBindableBase to ComputedBindable
-- ComputedBindable now introduces a virtual RaisePropertyChanged method with all indirect notified propertyNames as a second argument
-- ViewModel now has a Commands property of type Dictionary&lt;string, ICommand&gt;. The key will be its name, the value the command itself. Commands should be added to this Dictionary for the CanExecuteSourceAttribute to work
-- Bindable now implements INotifyPropertyChanging in addition to INotifyPropertyChanged
-
-New interfaces:
-- INamedCommand: Defines a Name property which uniquely identifies the command
-- IRaiseErrorsChanged: Provides methods for raising events on the ErrorsChanged event handler.
-- IRaisePropertyChanged: Provides methods for raising events on the PropertyChanged event handler.
-- IDialogModel: Defines a viewmodel to use in a dialog
-- ITreeViewModel: Defines a viewmodel to use in a tree view
-- IValidatingViewModel: Defines a viewmodel which performs validation
-- IViewModel: Defines a viewmodel</PackageReleaseNotes>
+    <PackageReleaseNotes>- New interface IViewModelCommand and add conformance to ViewModelCommand and AsyncViewModelCommand
+- New interface IBindableCommand and add conformance to IViewModelCommand
+- IRaiseCanExecuteChanged.RaiseCanExecuteChanged() of ViewModelCommand and AsyncViewModelCommand is now virtual
+- IRaiseCanExecuteChanged.ShouldRaiseCanExecuteChanged was removed, the commands will now attach themselves to Parent.PropertyChanged
+- IViewModelCommand.Parent can now be set, the TViewModel generic type is not marked as out anymore
+- ViewModel.IsReadOnly is now virtual
+- Fix potential bug in TreeViewModel.ReevaluateIsChecked() when the Children collection is empty
+- CanExecuteSourceAttribute, PropertySourceAttribute and IsDirtyIgnoredAttribute are now sealed
+- inheriting attributes like PropertySourceAttribute is now possible by adding the attribute with the InheritAttributes option set to true. Please read "Attributes when a property is overriden" in the readme for more info.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-    <FileVersion>4.0.0.0</FileVersion>
+    <AssemblyVersion>4.1.0.0</AssemblyVersion>
+    <FileVersion>4.1.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
