@@ -161,17 +161,29 @@ namespace NKristek.Smaragd.ViewModels
         {
             return _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
         }
-
+        
         /// <inheritdoc />
-        /// <remarks>
-        /// Setting a property will also execute the appropriate validations for this property.
-        /// </remarks>
-        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
+        protected override void RaisePropertyChanged(string propertyName, IEnumerable<string> additionalPropertyNames)
         {
-            var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
-            if (propertyWasChanged && !ValidationSuspended && _validations.TryGetValue(propertyName, out var validations))
-                Validate(propertyName, value, validations.OfType<Validation<T>>());
-            return propertyWasChanged;
+            var additionalPropertyNamesList = additionalPropertyNames.ToList();
+            base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
+
+            if (ValidationSuspended)
+                return;
+
+            var type = GetType();
+            foreach (var propertyNameToValidate in Enumerable.Repeat(propertyName, 1).Concat(additionalPropertyNamesList))
+            {
+                if (!_validations.TryGetValue(propertyNameToValidate, out var validations))
+                    continue;
+
+                var valueProperty = type.GetProperty(propertyNameToValidate);
+                if (valueProperty == null)
+                    continue;
+
+                var value = valueProperty.GetValue(this, null);
+                Validate(propertyNameToValidate, value, validations);
+            }
         }
 
         private void ValidateAll()
