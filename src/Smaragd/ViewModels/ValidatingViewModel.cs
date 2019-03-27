@@ -79,7 +79,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         [IsDirtyIgnored]
         [PropertySource(nameof(HasErrors))]
-        public bool IsValid => !HasErrors;
+        public virtual bool IsValid => !HasErrors;
 
         private bool _validationSuspended;
 
