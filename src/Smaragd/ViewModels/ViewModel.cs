@@ -96,8 +96,6 @@ namespace NKristek.Smaragd.ViewModels
             if (IsDirtyIgnoredProperties.Contains(propertyName))
                 return true;
 
-            IsDirty = true;
-
             if (oldValue is INotifyCollectionChanged oldCollection)
                 oldCollection.CollectionChanged -= OnChildCollectionChanged;
 
@@ -110,6 +108,16 @@ namespace NKristek.Smaragd.ViewModels
         private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             IsDirty = true;
+        }
+
+        /// <inheritdoc />
+        protected override void RaisePropertyChanged(string propertyName, IEnumerable<string> additionalPropertyNames)
+        {
+            var additionalPropertyNamesList = additionalPropertyNames.ToList();
+            base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
+
+            if (!IsDirtyIgnoredProperties.Contains(propertyName) || additionalPropertyNamesList.Any(p => !IsDirtyIgnoredProperties.Contains(p)))
+                IsDirty = true;
         }
     }
 }

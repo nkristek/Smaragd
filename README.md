@@ -104,7 +104,7 @@ Setting the `Parent` property of the command attaches the command to `INotifyPro
 ### IsDirty
 
 `ViewModel` implements an `IsDirty` property which is initially false.
-If `SetProperty()` changes a value and `IsDirtyIgnoredAttribute` is not defined on the property, it will set `IsDirty` to true. 
+If `RaisePropertyChanged()` is executed and `IsDirtyIgnoredAttribute` is not defined on the property (or on notified properties via `PropertySourceAttribute`), it will set `IsDirty` to `true`. 
 
 For example:
 ```csharp
@@ -120,7 +120,7 @@ public bool TestProperty
 
 Now, when `TestProperty` changes, `IsDirty` will **not** be automatically set to true.
 
-Also, if the property implements `INotifyCollectionChanged` and no `IsDirtyIgnoredAttribute` exists, the `ViewModel` will set `IsDirty` when `INotifyCollectionChanged.CollectionChanged` is raised.
+Also, if the property implements `INotifyCollectionChanged` and no `IsDirtyIgnoredAttribute` exists, the `ViewModel` will set `IsDirty` when `INotifyCollectionChanged.CollectionChanged` is raised. When the collection property has a setter, please use `SetProperty()` to properly dettach and attach the event handler.
 
 ### Parent
 
