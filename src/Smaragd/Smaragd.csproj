@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net47;net471;net472</TargetFrameworks>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>4.1</Version>
+    <Version>4.1.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -17,15 +16,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>- New interface IViewModelCommand and add conformance to ViewModelCommand and AsyncViewModelCommand
-- New interface IBindableCommand and add conformance to IViewModelCommand
-- IRaiseCanExecuteChanged.RaiseCanExecuteChanged() of ViewModelCommand and AsyncViewModelCommand is now virtual
-- IRaiseCanExecuteChanged.ShouldRaiseCanExecuteChanged was removed, the commands will now attach themselves to Parent.PropertyChanged
-- IViewModelCommand.Parent can now be set, the TViewModel generic type is not marked as out anymore
-- ViewModel.IsReadOnly is now virtual
-- Fix potential bug in TreeViewModel.ReevaluateIsChecked() when the Children collection is empty
-- CanExecuteSourceAttribute, PropertySourceAttribute and IsDirtyIgnoredAttribute are now sealed
-- inheriting attributes like PropertySourceAttribute is now possible by adding the attribute with the InheritAttributes option set to true. Please read "Attributes when a property is overriden" in the readme for more info.</PackageReleaseNotes>
+    <PackageReleaseNotes>- ViewModel.IsDirty will now be set from RaisePropertyChanged() instead of SetProperty() to enable IsDirty support for properties without a backing field
+- ValidatingViewModel.IsValid is now virtual
+- ValidatingViewModel will now validate the properties in RaisePropertyChanged() instead of SetProperty
+- Added support for more .NET Framework versions</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <AssemblyVersion>4.1.0.0</AssemblyVersion>
     <FileVersion>4.1.0.0</FileVersion>
@@ -35,5 +29,4 @@
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\Release\netstandard2.0\NKristek.Smaragd.xml</DocumentationFile>
   </PropertyGroup>
-
 </Project>
