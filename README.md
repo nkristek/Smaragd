@@ -143,7 +143,7 @@ This will execute this validation everytime `SetProperty()` changes this propert
 
 Most of the time `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit from `Validation<T>`.
 
-If you want to perform batch operations and want to pause the validation, you can use `SuspendValidation()`. Don't forget to dispose the `IDisposable` after your work is done to continue validation.
+If you want to perform batch operations and want to pause the validation, you can use `IsValidationSuspended`.
 
 ### TreeViewModel
 
