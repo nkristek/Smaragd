@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Validation;
 
@@ -84,20 +83,14 @@ namespace NKristek.Smaragd.ViewModels
         private bool _validationSuspended;
 
         /// <inheritdoc />
-        public bool ValidationSuspended
+        public bool IsValidationSuspended
         {
             get => _validationSuspended;
-            internal set
+            set
             {
                 if (SetProperty(ref _validationSuspended, value, out _) && !_validationSuspended)
                     ValidateAll();
             }
-        }
-
-        /// <inheritdoc />
-        public IDisposable SuspendValidation()
-        {
-            return new SuspendValidationDisposable(this);
         }
 
         /// <inheritdoc />
@@ -116,7 +109,7 @@ namespace NKristek.Smaragd.ViewModels
                 _validations.Add(propertyName, existingValidations);
             }
 
-            if (!ValidationSuspended)
+            if (!IsValidationSuspended)
                 Validate(propertyName, initialValue, existingValidations.OfType<Validation<T>>());
         }
 
@@ -168,7 +161,7 @@ namespace NKristek.Smaragd.ViewModels
             var additionalPropertyNamesList = additionalPropertyNames.ToList();
             base.RaisePropertyChanged(propertyName, additionalPropertyNamesList);
 
-            if (ValidationSuspended)
+            if (IsValidationSuspended)
                 return;
 
             var type = GetType();

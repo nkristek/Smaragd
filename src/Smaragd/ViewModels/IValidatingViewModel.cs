@@ -21,14 +21,8 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// If validation is temporarily suspended.
         /// </summary>
-        bool ValidationSuspended { get; }
-
-        /// <summary>
-        /// Temporarily suspends validation. This could be used in a batch update to prevent validation overhead.
-        /// </summary>
-        /// <returns><see cref="IDisposable"/> which reactivates automatic validation when disposed.</returns>
-        IDisposable SuspendValidation();
-
+        bool IsValidationSuspended { get; set; }
+        
         /// <summary>
         /// Add a validation for the property returned by the lambda expression
         /// </summary>

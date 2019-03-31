@@ -295,15 +295,32 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.Empty(validatingViewModel.Validations().SelectMany(v => v.Value));
         }
 
+        [Fact]
+        public void IsValidationSuspended_initially_false()
+        {
+            var viewModel = new TestValidatingModel();
+            Assert.False(viewModel.IsValidationSuspended);
+        }
+
+        [Fact]
+        public void IsValidationSuspended_set()
+        {
+            var viewModel = new TestValidatingModel
+            {
+                IsValidationSuspended = true
+            };
+            Assert.True(viewModel.IsValidationSuspended);
+        }
+
         [Theory]
         [InlineData(false, 1)]
         [InlineData(true, 0)]
-        public void SuspendValidation(bool validationsSuspended, int expectedExecutedValidation)
+        public void IsValidationSuspended_suspends_validation(bool validationsSuspended, int expectedExecutedValidation)
         {
             var validationsExecuted = 0;
             var validatingModel = new TestAddRemoveValidationsViewModel
             {
-                ValidationSuspended = validationsSuspended
+                IsValidationSuspended = validationsSuspended
             };
             var validation = new PredicateValidation<int>(value =>
             {
@@ -317,14 +334,14 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Fact]
         public void SuspendValidation_invalid_to_valid()
         {
-            var validatingModel = new TestValidatingModel();
-
-            using (validatingModel.SuspendValidation())
+            var validatingModel = new TestValidatingModel
             {
-                validatingModel.TestProperty = 5;
-                Assert.False(validatingModel.IsValid);
-            }
+                IsValidationSuspended = true,
+                TestProperty = 5
+            };
+            Assert.False(validatingModel.IsValid);
 
+            validatingModel.IsValidationSuspended = false;
             Assert.True(validatingModel.IsValid);
         }
 
@@ -333,15 +350,13 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
             var validatingModel = new TestValidatingModel
             {
-                TestProperty = 5
+                TestProperty = 5,
+                IsValidationSuspended = true
             };
+            validatingModel.TestProperty = 4;
+            Assert.True(validatingModel.IsValid);
 
-            using (validatingModel.SuspendValidation())
-            {
-                validatingModel.TestProperty = 4;
-                Assert.True(validatingModel.IsValid);
-            }
-
+            validatingModel.IsValidationSuspended = false;
             Assert.False(validatingModel.IsValid);
         }
 
@@ -349,18 +364,19 @@ namespace NKristek.Smaragd.Tests.ViewModels
         public void ValidateAll_property_does_not_exist()
         {
             var validationsExecuted = 0;
-            var validatingModel = new TestAddRemoveValidationsViewModel();
-            using (validatingModel.SuspendValidation())
+            var validatingModel = new TestAddRemoveValidationsViewModel
             {
-                var validation = new PredicateValidation<int>(value =>
-                {
-                    validationsExecuted++;
-                    return value >= 5;
-                }, "Value has to be at least 5.");
-                var notExistingPropertyOfViewModel = 0;
-                validatingModel.AddValidation(() => notExistingPropertyOfViewModel, validation);
-            }
+                IsValidationSuspended = true
+            };
+            var validation = new PredicateValidation<int>(value =>
+            {
+                validationsExecuted++;
+                return value >= 5;
+            }, "Value has to be at least 5.");
+            var notExistingPropertyOfViewModel = 0;
+            validatingModel.AddValidation(() => notExistingPropertyOfViewModel, validation);
 
+            validatingModel.IsValidationSuspended = false;
             Assert.Equal(0, validationsExecuted);
         }
     }
