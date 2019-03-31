@@ -367,5 +367,17 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.True(viewModel.RemoveCommand(command));
             Assert.False(viewModel.Commands.ContainsKey(command.Name));
         }
+
+        [Fact]
+        public void IsDirty_can_be_set_when_IsReadOnly()
+        {
+            var viewModel = new TestViewModel
+            {
+                TestProperty = true,
+                IsReadOnly = true,
+                IsDirty = false
+            };
+            Assert.False(viewModel.IsDirty);
+        }
     }
 }

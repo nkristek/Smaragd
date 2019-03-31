@@ -86,7 +86,7 @@ namespace NKristek.Smaragd.ViewModels
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
             oldValue = storage;
-            if (IsReadOnly && propertyName != nameof(IsReadOnly))
+            if (IsReadOnly && propertyName != nameof(IsReadOnly) && propertyName != nameof(IsDirty))
                 return false;
 
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
