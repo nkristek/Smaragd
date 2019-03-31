@@ -62,8 +62,18 @@ namespace NKristek.Smaragd.ViewModels
             set => SetProperty(ref _isReadOnly, value, out _);
         }
 
-        private readonly IDictionary<string, ICommand> _commands = new Dictionary<string, ICommand>();
+        private bool _isUpdating;
 
+        /// <inheritdoc />
+        [IsDirtyIgnored]
+        public bool IsUpdating
+        {
+            get => _isUpdating;
+            set => SetProperty(ref _isUpdating, value, out _);
+        }
+
+        private readonly IDictionary<string, ICommand> _commands = new Dictionary<string, ICommand>();
+        
         /// <inheritdoc />
         public IReadOnlyDictionary<string, ICommand> Commands => new ReadOnlyDictionary<string, ICommand>(_commands);
 

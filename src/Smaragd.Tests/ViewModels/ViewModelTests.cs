@@ -379,5 +379,22 @@ namespace NKristek.Smaragd.Tests.ViewModels
             };
             Assert.False(viewModel.IsDirty);
         }
+
+        [Fact]
+        public void IsUpdating_initially_false()
+        {
+            var viewModel = new TestViewModel();
+            Assert.False(viewModel.IsUpdating);
+        }
+
+        [Fact]
+        public void IsUpdating_set()
+        {
+            var viewModel = new TestViewModel
+            {
+                IsUpdating = true
+            };
+            Assert.True(viewModel.IsUpdating);
+        }
     }
 }

@@ -28,6 +28,11 @@ namespace NKristek.Smaragd.ViewModels
         bool IsReadOnly { get; set; }
 
         /// <summary>
+        /// Indicates if this <see cref="IViewModel"/> instance is currently being updated.
+        /// </summary>
+        bool IsUpdating { get; set; }
+
+        /// <summary>
         /// Commands of this <see cref="IViewModel"/>.
         /// </summary>
         IReadOnlyDictionary<string, ICommand> Commands { get; }
