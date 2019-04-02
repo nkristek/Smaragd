@@ -74,6 +74,9 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public void Execute(object parameter)
         {
+            if (!CanExecute(Parent, parameter))
+                return;
+
             Execute(Parent, parameter);
         }
 

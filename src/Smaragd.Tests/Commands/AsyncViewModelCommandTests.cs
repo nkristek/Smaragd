@@ -359,5 +359,14 @@ namespace NKristek.Smaragd.Tests.Commands
             command.Parent = null;
             Assert.Null(command.Parent);
         }
+
+        [Fact]
+        public async Task ExecuteAsync_when_CanExecute_false()
+        {
+            var didExecute = false;
+            var command = new AsyncRelayViewModelCommand(async (viewModel, parameter) => didExecute = true, (viewModel, parameter) => false);
+            await command.ExecuteAsync(null);
+            Assert.False(didExecute);
+        }
     }
 }

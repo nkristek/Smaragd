@@ -97,6 +97,9 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public async Task ExecuteAsync(object parameter)
         {
+            if (!CanExecute(Parent, parameter))
+                return;
+
             try
             {
                 IsWorking = true;

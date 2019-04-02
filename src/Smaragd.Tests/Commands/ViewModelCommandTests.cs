@@ -278,5 +278,14 @@ namespace NKristek.Smaragd.Tests.Commands
             command.Parent = null;
             Assert.Null(command.Parent);
         }
+
+        [Fact]
+        public void Execute_when_CanExecute_false()
+        {
+            var didExecute = false;
+            var command = new RelayViewModelCommand((viewModel, parameter) => didExecute = true, (viewModel, parameter) => false);
+            command.Execute(null);
+            Assert.False(didExecute);
+        }
     }
 }
