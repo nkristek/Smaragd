@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NKristek.Smaragd.Attributes;
@@ -81,11 +82,14 @@ namespace NKristek.Smaragd.Commands
                     RaiseCanExecuteChanged();
             }
         }
+        
+        /// <inheritdoc />
+        public virtual bool AllowsConcurrentExecution => false;
 
         /// <inheritdoc />
         public bool CanExecute(object parameter)
         {
-            return !IsWorking && CanExecute(Parent, parameter);
+            return CanExecute(Parent, parameter);
         }
 
         /// <inheritdoc />
@@ -93,6 +97,10 @@ namespace NKristek.Smaragd.Commands
         {
             await ExecuteAsync(parameter);
         }
+
+        private int _isWorkingCount;
+
+        private readonly object _isWorkingLock = new object();
 
         /// <inheritdoc />
         public async Task ExecuteAsync(object parameter)
@@ -102,19 +110,28 @@ namespace NKristek.Smaragd.Commands
 
             try
             {
-                IsWorking = true;
+                lock (_isWorkingLock)
+                {
+                    _isWorkingCount++;
+                    IsWorking = true;
+                }
+
                 await ExecuteAsync(Parent, parameter);
             }
             finally
             {
-                IsWorking = false;
+                lock (_isWorkingLock)
+                {
+                    _isWorkingCount--;
+                    IsWorking = _isWorkingCount > 0;
+                }
             }
         }
 
         /// <inheritdoc cref="ICommand.CanExecute" />
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
-            return true;
+            return !IsWorking || AllowsConcurrentExecution;
         }
 
         /// <inheritdoc cref="IAsyncCommand.ExecuteAsync" />

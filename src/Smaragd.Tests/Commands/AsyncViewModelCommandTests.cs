@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NKristek.Smaragd.Attributes;
@@ -39,6 +41,34 @@ namespace NKristek.Smaragd.Tests.Commands
             private readonly Func<TestViewModel, object, bool> _canExecute;
 
             public AsyncRelayViewModelCommand(Func<TestViewModel, object, Task> execute,
+                Func<TestViewModel, object, bool> canExecute = null)
+            {
+                _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+                _canExecute = canExecute;
+            }
+
+            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            {
+                return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
+            }
+
+            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            {
+                await _execute.Invoke(viewModel, parameter);
+            }
+        }
+
+        private class AsyncConcurrentRelayViewModelCommand
+            : AsyncViewModelCommand<TestViewModel>
+        {
+            private readonly Func<TestViewModel, object, Task> _execute;
+
+            private readonly Func<TestViewModel, object, bool> _canExecute;
+
+            /// <inheritdoc />
+            public override bool AllowsConcurrentExecution => true;
+
+            public AsyncConcurrentRelayViewModelCommand(Func<TestViewModel, object, Task> execute,
                 Func<TestViewModel, object, bool> canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -209,13 +239,30 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void ICommandExecute_executes_ExecuteAsync()
+        public async Task ICommandExecute_executes_ExecuteAsync()
         {
             var executeWasExecuted = false;
-            var command = new AsyncRelayViewModelCommand(async (vm, para) => await Task.Run(() => executeWasExecuted = true));
+            var task = new Task(() => executeWasExecuted = true);
+            var command = new AsyncRelayViewModelCommand(async (vm, para) =>
+            {
+                task.Start();
+                await task;
+            });
             ((ICommand) command).Execute(null);
-            while (command.IsWorking) ;
+            
+            if (await Task.WhenAny(task, Task.Delay(1000)) == task)
+            {
+                // task completed within timeout, await task because it may have faulted
+                await task;
+            }
+            else
+            {
+                // timeout logic
+                throw new Exception("Timeout");
+            }
+
             Assert.True(executeWasExecuted);
+            Assert.False(command.IsWorking);
         }
 
         [Fact]
@@ -358,6 +405,45 @@ namespace NKristek.Smaragd.Tests.Commands
 
             command.Parent = null;
             Assert.Null(command.Parent);
+        }
+
+        [Fact]
+        public async Task AllowsConcurrentExecution_true()
+        {
+            var actualExecutionCount = 0;
+
+            var command = new AsyncConcurrentRelayViewModelCommand(async (vm, para) =>
+            {
+                Interlocked.Increment(ref actualExecutionCount);
+            });
+            await Task.WhenAll(command.ExecuteAsync(null), command.ExecuteAsync(null));
+            Assert.Equal(2, actualExecutionCount);
+        }
+
+        [Fact]
+        public async Task AllowsConcurrentExecution_false()
+        {
+            var mainSemaphore = new SemaphoreSlim(0);
+            var commandSemaphore = new SemaphoreSlim(0);
+            var actualExecutionCount = 0;
+
+            var command = new AsyncRelayViewModelCommand(async (vm, para) =>
+            {
+                Interlocked.Increment(ref actualExecutionCount);
+                mainSemaphore.Release();
+                await commandSemaphore.WaitAsync();
+            });
+            // start executing the first command
+            var firstTask = command.ExecuteAsync(null);
+            // wait until the first command is really executing
+            await mainSemaphore.WaitAsync(); 
+            // start executing the second command
+            var secondTask = command.ExecuteAsync(null);
+            // release 2 times to firstly unlock the first command. The second release should not be necessary if the second command didn't execute (as expected), but to avoid deadlocks it should be done.
+            commandSemaphore.Release(2);
+            await Task.WhenAll(firstTask, secondTask);
+            Assert.Equal(1, actualExecutionCount);
+
         }
 
         [Fact]
