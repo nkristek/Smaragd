@@ -3,7 +3,7 @@
     <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net47;net471;net472</TargetFrameworks>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>4.2</Version>
+    <Version>4.2.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -16,13 +16,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags></PackageTags>
-    <PackageReleaseNotes>- allow setting IsDirty when IsReadOnly is set to true
-- add IsUpdating property to IViewModel
-- rename IValidatingViewModel.ValidationSuspended to IsValidationSuspended and add a public setter
-- remove IValidatingViewModel.SuspendValidation()</PackageReleaseNotes>
+    <PackageReleaseNotes>- Check that a command can be executed before executing
+- Add AllowsConcurrentExecution property to IAsyncCommand</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>4.2.0.0</AssemblyVersion>
-    <FileVersion>4.2.0.0</FileVersion>
+    <AssemblyVersion>4.2.1.0</AssemblyVersion>
+    <FileVersion>4.2.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
