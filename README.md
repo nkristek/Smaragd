@@ -24,11 +24,10 @@ public class MyViewModel : ViewModel
 {
     public MyViewModel()
     {
-        var testCommand = new TestCommand
+        AddCommand(new TestCommand
         {
             Parent = this
-        };
-        AddCommand(testCommand);
+        });
     }
 
     private int _firstProperty;
@@ -58,8 +57,6 @@ public class MyViewModel : ViewModel
 public class TestCommand
     : ViewModelCommand<MyViewModel>
 {
-    public TestCommand(MyViewModel parent) : base(parent) { }
-
     [CanExecuteSource(nameof(MyViewModel.ThirdProperty))]
     protected override bool CanExecute(MyViewModel viewModel, object parameter)
     {
