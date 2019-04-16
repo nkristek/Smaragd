@@ -89,7 +89,7 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public bool CanExecute(object parameter)
         {
-            return CanExecute(Parent, parameter);
+            return (!IsWorking || AllowsConcurrentExecution) && CanExecute(Parent, parameter);
         }
 
         /// <inheritdoc />
@@ -105,7 +105,7 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public async Task ExecuteAsync(object parameter)
         {
-            if (!CanExecute(Parent, parameter))
+            if (!CanExecute(parameter))
                 return;
 
             try
@@ -131,7 +131,7 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc cref="ICommand.CanExecute" />
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
-            return !IsWorking || AllowsConcurrentExecution;
+            return true;
         }
 
         /// <inheritdoc cref="IAsyncCommand.ExecuteAsync" />
