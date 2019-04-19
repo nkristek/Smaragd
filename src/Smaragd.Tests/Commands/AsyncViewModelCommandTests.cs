@@ -113,12 +113,11 @@ namespace NKristek.Smaragd.Tests.Commands
             {
                 return viewModel.TestProperty;
             }
-
-#pragma warning disable 1998
+            
             protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
             {
+                await Task.Yield();
             }
-#pragma warning restore 1998
         }
         
         [Fact]
@@ -411,10 +410,11 @@ namespace NKristek.Smaragd.Tests.Commands
         public async Task AllowsConcurrentExecution_true()
         {
             var actualExecutionCount = 0;
-
+            
             var command = new AsyncConcurrentRelayViewModelCommand(async (vm, para) =>
             {
                 Interlocked.Increment(ref actualExecutionCount);
+                await Task.Yield();
             });
             await Task.WhenAll(command.ExecuteAsync(null), command.ExecuteAsync(null));
             Assert.Equal(2, actualExecutionCount);
@@ -450,7 +450,11 @@ namespace NKristek.Smaragd.Tests.Commands
         public async Task ExecuteAsync_when_CanExecute_false()
         {
             var didExecute = false;
-            var command = new AsyncRelayViewModelCommand(async (viewModel, parameter) => didExecute = true, (viewModel, parameter) => false);
+            var command = new AsyncRelayViewModelCommand(async (viewModel, parameter) =>
+            {
+                didExecute = true;
+                await Task.Yield();
+            }, (viewModel, parameter) => false);
             await command.ExecuteAsync(null);
             Assert.False(didExecute);
         }
