@@ -261,7 +261,6 @@ namespace NKristek.Smaragd.Tests.Commands
             }
 
             Assert.True(executeWasExecuted);
-            Assert.False(command.IsWorking);
         }
 
         [Fact]
@@ -443,7 +442,6 @@ namespace NKristek.Smaragd.Tests.Commands
             commandSemaphore.Release(2);
             await Task.WhenAll(firstTask, secondTask);
             Assert.Equal(1, actualExecutionCount);
-
         }
 
         [Fact]
