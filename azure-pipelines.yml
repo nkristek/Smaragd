@@ -37,3 +37,5 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    codeCoverageEnabled: True
+    runSettingsFile: '$(Build.SourcesDirectory)\test\test.runsettings'

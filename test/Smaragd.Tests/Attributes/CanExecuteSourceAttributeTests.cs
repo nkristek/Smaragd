@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using NKristek.Smaragd.Attributes;
 using Xunit;
 
 namespace NKristek.Smaragd.Tests.Attributes
 {
+    [ExcludeFromCodeCoverage]
     public class CanExecuteSourceAttributeTests
     {
         private string[] PropertySources { get; }
