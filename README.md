@@ -1,6 +1,7 @@
 # Smaragd
 
 [![Build Status](https://dev.azure.com/nkristek/Smaragd/_apis/build/status/nkristek.Smaragd?branchName=master)](https://dev.azure.com/nkristek/Smaragd/_build/latest?definitionId=2&branchName=master)
+[![Code coverage](https://img.shields.io/azure-devops/coverage/nkristek/Smaragd/2.svg)](https://dev.azure.com/nkristek/Smaragd/_build/latest?definitionId=2&branchName=master)
 [![NuGet version](https://img.shields.io/nuget/v/NKristek.Smaragd.svg)](https://www.nuget.org/packages/NKristek.Smaragd/)
 [![NuGet downloads](https://img.shields.io/nuget/dt/NKristek.Smaragd.svg)](https://www.nuget.org/packages/NKristek.Smaragd/)
 ![.NET Standard version: >= 2.0](https://img.shields.io/badge/.NET%20Standard-%3E%3D%202.0-green.svg)
