@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smaragd", "Smaragd\Smaragd.csproj", "{D9B7D527-BB7A-4D08-A76D-D4C24E017E84}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smaragd", "src\Smaragd\Smaragd.csproj", "{D9B7D527-BB7A-4D08-A76D-D4C24E017E84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smaragd.Tests", "Smaragd.Tests\Smaragd.Tests.csproj", "{3AA7BF6F-4608-40A8-8B47-D39A5CE25419}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smaragd.Tests", "test\Smaragd.Tests\Smaragd.Tests.csproj", "{3AA7BF6F-4608-40A8-8B47-D39A5CE25419}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8FD4AF6C-0C80-4D32-8581-9134304709F1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4E6BAF10-D89A-4554-909F-A3F1A0E60E76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +28,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D9B7D527-BB7A-4D08-A76D-D4C24E017E84} = {8FD4AF6C-0C80-4D32-8581-9134304709F1}
+		{3AA7BF6F-4608-40A8-8B47-D39A5CE25419} = {4E6BAF10-D89A-4554-909F-A3F1A0E60E76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A56C1170-F4D5-4D1A-91A7-AC235817B862}

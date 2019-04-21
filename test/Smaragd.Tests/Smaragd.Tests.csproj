@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Smaragd\Smaragd.csproj" />
+    <ProjectReference Include="..\..\src\Smaragd\Smaragd.csproj" />
   </ItemGroup>
 
 </Project>
