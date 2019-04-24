@@ -264,9 +264,10 @@ Classes:
 
 Interfaces:
 - `IValidation`
+- `IValidation<T>: IValidation`
 
 Classes:
-- `Validation<T>: IValidation`
+- `Validation<T>: IValidation<T>`
 - `PredicateValidation<T>: Validation<T>`
 
 ## Contribution

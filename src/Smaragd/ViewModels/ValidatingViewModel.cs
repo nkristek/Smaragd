@@ -86,7 +86,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <inheritdoc />
-        public void AddValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
+        public void AddValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation)
         {
             var propertyName = GetPropertyName(propertySelector);
             var initialValue = propertySelector.Compile()();
@@ -102,11 +102,11 @@ namespace NKristek.Smaragd.ViewModels
             }
 
             if (!IsValidationSuspended)
-                Validate(propertyName, initialValue, existingValidations.OfType<Validation<T>>());
+                Validate(propertyName, initialValue, existingValidations.OfType<IValidation<T>>());
         }
 
         /// <inheritdoc />
-        public bool RemoveValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation)
+        public bool RemoveValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation)
         {
             var propertyName = GetPropertyName(propertySelector);
             if (!_validations.TryGetValue(propertyName, out var validationsOfProperty))
@@ -132,7 +132,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <inheritdoc />
-        public IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector)
+        public IEnumerable<IValidation<T>> Validations<T>(Expression<Func<T>> propertySelector)
         {
             var propertyName = GetPropertyName(propertySelector);
             return _validations.TryGetValue(propertyName, out var validationsOfProperty)
@@ -192,7 +192,7 @@ namespace NKristek.Smaragd.ViewModels
             SetValidationErrors(propertyName, errors);
         }
 
-        private void Validate<T>(string propertyName, T value, IEnumerable<Validation<T>> validations)
+        private void Validate<T>(string propertyName, T value, IEnumerable<IValidation<T>> validations)
         {
             var errors = new List<string>();
             foreach (var validation in validations)

@@ -22,14 +22,14 @@ namespace NKristek.Smaragd.ViewModels
         /// If validation is temporarily suspended.
         /// </summary>
         bool IsValidationSuspended { get; set; }
-        
+
         /// <summary>
         /// Add a validation for the property returned by the lambda expression
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Type of the property to validate.</typeparam>
         /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
         /// <param name="validation">Validation to add</param>
-        void AddValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation);
+        void AddValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation);
 
         /// <summary>
         /// Removes a specific validation for the property returned by the expression
@@ -38,7 +38,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
         /// <param name="validation">Validation to remove</param>
         /// <returns>If the validation was found and successfully removed</returns>
-        bool RemoveValidation<T>(Expression<Func<T>> propertySelector, Validation<T> validation);
+        bool RemoveValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation);
 
         /// <summary>
         /// Removes all validations for the property returned by the expression
@@ -60,6 +60,6 @@ namespace NKristek.Smaragd.ViewModels
         /// <typeparam name="T">Type of the validating property</typeparam>
         /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
         /// <returns>All validations for the property</returns>
-        IEnumerable<Validation<T>> Validations<T>(Expression<Func<T>> propertySelector);
+        IEnumerable<IValidation<T>> Validations<T>(Expression<Func<T>> propertySelector);
     }
 }

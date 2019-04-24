@@ -13,4 +13,12 @@
         /// <returns>If the given <paramref name="value"/> is valid.</returns>
         bool IsValid(object value, out string errorMessage);
     }
+
+    /// <inheritdoc />
+    public interface IValidation<in T>
+        : IValidation
+    {
+        /// <inheritdoc cref="IsValid"/>
+        bool IsValid(T value, out string errorMessage);
+    }
 }
