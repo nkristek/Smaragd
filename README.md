@@ -13,6 +13,18 @@ For an example project, please visit my other project [Stein](https://github.com
 
 The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases/latest) or compile it yourself.
 
+Currently supported frameworks:
+- .NET Standard 2.0
+- .NET Framework 4.5
+- .NET Framework 4.5.1
+- .NET Framework 4.5.2
+- .NET Framework 4.6
+- .NET Framework 4.6.1
+- .NET Framework 4.6.2
+- .NET Framework 4.7
+- .NET Framework 4.7.1
+- .NET Framework 4.7.2
+
 ## Getting started
 
 To get started, create a subclass of `ViewModel` and optionally a command subclassing `ViewModelCommand<>`:
@@ -240,7 +252,7 @@ Classes:
 
 Classes:
 - `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
-- `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<T>`.
+- `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<TViewModel>`.
 - `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
 
 ### Commands
@@ -253,8 +265,8 @@ Interfaces:
 - `IViewModelCommand: INamedCommand, IRaiseCanExecuteChanged, IBindableCommand`
 
 Classes:
-- `ViewModelCommand: Bindable, IViewModelCommand`
-- `AsyncViewModelCommand: Bindable, IViewModelCommand, IAsyncCommand`
+- `ViewModelCommand<TViewModel>: Bindable, IViewModelCommand`
+- `AsyncViewModelCommand<TViewModel>: Bindable, IViewModelCommand, IAsyncCommand`
 
 ### Validation
 
