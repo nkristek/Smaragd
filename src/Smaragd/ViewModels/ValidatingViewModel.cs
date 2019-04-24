@@ -75,6 +75,7 @@ namespace NKristek.Smaragd.ViewModels
         private bool _validationSuspended;
 
         /// <inheritdoc />
+        [IsDirtyIgnored]
         public bool IsValidationSuspended
         {
             get => _validationSuspended;
