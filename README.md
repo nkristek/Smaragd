@@ -15,15 +15,7 @@ The recommended way to use this library is via [Nuget](https://www.nuget.org/pac
 
 Currently supported frameworks:
 - .NET Standard 2.0
-- .NET Framework 4.5
-- .NET Framework 4.5.1
-- .NET Framework 4.5.2
-- .NET Framework 4.6
-- .NET Framework 4.6.1
-- .NET Framework 4.6.2
-- .NET Framework 4.7
-- .NET Framework 4.7.1
-- .NET Framework 4.7.2
+- .NET Framework 4.5 or newer
 
 ## Getting started
 
