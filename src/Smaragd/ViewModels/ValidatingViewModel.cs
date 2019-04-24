@@ -24,21 +24,13 @@ namespace NKristek.Smaragd.ViewModels
         {
             get
             {
-                if (String.IsNullOrEmpty(propertyName))
-                    return Error;
-                return _validationErrors.TryGetValue(propertyName, out var errors) ? String.Join(Environment.NewLine, errors) : null;
+                var errors = GetErrors(propertyName).OfType<string>().ToList();
+                return errors.Any() ? String.Join(Environment.NewLine, errors) : null;
             }
         }
 
         /// <inheritdoc />
-        public string Error
-        {
-            get
-            {
-                var errors = GetAllErrors().ToList();
-                return errors.Any() ? String.Join(Environment.NewLine, errors) : null;
-            }
-        }
+        public string Error => this[null];
 
         #endregion
 
@@ -52,7 +44,7 @@ namespace NKristek.Smaragd.ViewModels
         public IEnumerable GetErrors(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
-                return GetAllErrors();
+                return _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
             return _validationErrors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<string>();
         }
 
@@ -149,11 +141,6 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         #endregion
-
-        private IEnumerable<string> GetAllErrors()
-        {
-            return _validationErrors.SelectMany(kvp => kvp.Value).Where(e => !String.IsNullOrEmpty(e));
-        }
         
         /// <inheritdoc />
         protected override void RaisePropertyChanged(string propertyName, IEnumerable<string> additionalPropertyNames)
