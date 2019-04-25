@@ -129,6 +129,8 @@ The `Parent` property on `ViewModel` internally uses a `WeakReference`.
 
 The `IsReadOnly` property does what it implies, if set to true, `SetProperty()` will now longer set any property or raise events on `INotifyPropertyChanged.PropertyChanged` except for the `IsReadOnly` property itself.
 
+Similar to the `IsDirtyIgnoredAttribute` there is a `IsReadOnlyIgnoredAttribute`. If present on a property the property can still be set when `IsReadOnly` is set to `true`.
+
 ### ValidatingViewModel
 
 Your viewmodel may also inherit from `ValidatingViewModel` which implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
@@ -246,6 +248,7 @@ Classes:
 - `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
 - `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<TViewModel>`.
 - `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
+- `IsReadOnlyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
 
 ### Commands
 

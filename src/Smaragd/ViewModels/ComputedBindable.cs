@@ -20,6 +20,8 @@ namespace NKristek.Smaragd.ViewModels
 
         internal HashSet<string> IsDirtyIgnoredProperties = new HashSet<string>();
 
+        internal HashSet<string> IsReadOnlyIgnoredProperties = new HashSet<string>();
+
         /// <inheritdoc />
         protected ComputedBindable()
         {
@@ -29,7 +31,8 @@ namespace NKristek.Smaragd.ViewModels
         private void InitAttributes()
         {
             var inheritPropertySource = new Dictionary<string, bool>();
-            var inheritIsDirty = new Dictionary<string, bool>();
+            var inheritIsDirtyIgnored = new Dictionary<string, bool>();
+            var inheritIsReadOnlyIgnored = new Dictionary<string, bool>();
 
             var currentType = GetType();
             while (currentType != null)
@@ -38,6 +41,8 @@ namespace NKristek.Smaragd.ViewModels
                 foreach (var property in properties)
                 {
                     var attributes = property.GetCustomAttributes(false);
+
+                    // PropertySourceAttribute
 
                     if (!inheritPropertySource.ContainsKey(property.Name) || inheritPropertySource[property.Name])
                     {
@@ -55,19 +60,39 @@ namespace NKristek.Smaragd.ViewModels
                         }
                     }
 
-                    if (!inheritIsDirty.ContainsKey(property.Name) || inheritIsDirty[property.Name])
+                    // IsDirtyIgnoredAttribute
+
+                    if (!inheritIsDirtyIgnored.ContainsKey(property.Name) || inheritIsDirtyIgnored[property.Name])
                     {
                         var isDirtyIgnoredAttribute = attributes.OfType<IsDirtyIgnoredAttribute>().SingleOrDefault();
                         if (isDirtyIgnoredAttribute != null)
                         {
                             if (isDirtyIgnoredAttribute.InheritAttributes)
-                                inheritIsDirty[property.Name] = true;
+                                inheritIsDirtyIgnored[property.Name] = true;
                             else
                                 IsDirtyIgnoredProperties.Add(property.Name);
                         }
                         else
                         {
-                            inheritIsDirty[property.Name] = false;
+                            inheritIsDirtyIgnored[property.Name] = false;
+                        }
+                    }
+
+                    // IsReadOnlyIgnoredAttribute
+
+                    if (!inheritIsReadOnlyIgnored.ContainsKey(property.Name) || inheritIsReadOnlyIgnored[property.Name])
+                    {
+                        var isReadOnlyIgnoredAttribute = attributes.OfType<IsReadOnlyIgnoredAttribute>().SingleOrDefault();
+                        if (isReadOnlyIgnoredAttribute != null)
+                        {
+                            if (isReadOnlyIgnoredAttribute.InheritAttributes)
+                                inheritIsReadOnlyIgnored[property.Name] = true;
+                            else
+                                IsReadOnlyIgnoredProperties.Add(property.Name);
+                        }
+                        else
+                        {
+                            inheritIsReadOnlyIgnored[property.Name] = false;
                         }
                     }
                 }

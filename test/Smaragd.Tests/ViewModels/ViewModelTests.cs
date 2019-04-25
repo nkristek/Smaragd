@@ -301,6 +301,62 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.Equal(0, propertyChangedInvocations);
         }
 
+        private class InheritIsReadOnlyIgnoredParent
+            : ViewModel
+        {
+            private bool _testProperty;
+
+            public virtual bool TestProperty
+            {
+                get => _testProperty;
+                set => SetProperty(ref _testProperty, value, out _);
+            }
+
+            private bool _isReadOnlyIgnoredProperty;
+
+            [IsReadOnlyIgnored]
+            public virtual bool IsReadOnlyIgnoredProperty
+            {
+                get => _isReadOnlyIgnoredProperty;
+                set => SetProperty(ref _isReadOnlyIgnoredProperty, value, out _);
+            }
+        }
+
+        private class InheritIsReadOnlyIgnoredChild
+            : InheritIsReadOnlyIgnoredParent
+        {
+            private bool _testProperty;
+
+            [IsReadOnlyIgnored(InheritAttributes = true)]
+            public override bool TestProperty
+            {
+                get => _testProperty;
+                set => SetProperty(ref _testProperty, value, out _);
+            }
+
+            private bool _isReadOnlyIgnoredProperty;
+
+            [IsReadOnlyIgnored(InheritAttributes = true)]
+            public override bool IsReadOnlyIgnoredProperty
+            {
+                get => _isReadOnlyIgnoredProperty;
+                set => SetProperty(ref _isReadOnlyIgnoredProperty, value, out _);
+            }
+        }
+
+        [Fact]
+        public void SetProperty_IsReadOnly_IsReadOnlyIgnoredAttribute_InheritAttributes()
+        {
+            var viewModel = new InheritIsReadOnlyIgnoredChild
+            {
+                IsReadOnly = true,
+                TestProperty = true,
+                IsReadOnlyIgnoredProperty = true
+            };
+            Assert.False(viewModel.TestProperty);
+            Assert.True(viewModel.IsReadOnlyIgnoredProperty);
+        }
+
         [Theory]
         [InlineData(false, true)]
         [InlineData(true, false)]
@@ -378,6 +434,40 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 IsDirty = false
             };
             Assert.False(viewModel.IsDirty);
+        }
+
+        [Fact]
+        public void Parent_can_be_set_when_IsReadOnly()
+        {
+            var parent = new TestViewModel();
+            var viewModel = new TestViewModel
+            {
+                IsReadOnly = true,
+                Parent = parent
+            };
+            Assert.NotNull(viewModel.Parent);
+        }
+
+        [Fact]
+        public void IsReadOnly_can_be_set_when_IsReadOnly()
+        {
+            var viewModel = new TestViewModel
+            {
+                IsReadOnly = true
+            };
+            viewModel.IsReadOnly = false;
+            Assert.False(viewModel.IsReadOnly);
+        }
+
+        [Fact]
+        public void IsUpdating_can_be_set_when_IsReadOnly()
+        {
+            var viewModel = new TestViewModel
+            {
+                IsReadOnly = true,
+                IsUpdating = true
+            };
+            Assert.True(viewModel.IsUpdating);
         }
 
         [Fact]

@@ -31,6 +31,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public bool IsDirty
         {
             get => _isDirty;
@@ -41,6 +42,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public IViewModel Parent
         {
             get => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
@@ -56,6 +58,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public virtual bool IsReadOnly
         {
             get => _isReadOnly;
@@ -66,6 +69,7 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public bool IsUpdating
         {
             get => _isUpdating;
@@ -73,8 +77,10 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         private readonly IDictionary<string, ICommand> _commands = new Dictionary<string, ICommand>();
-        
+
         /// <inheritdoc />
+        [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public IReadOnlyDictionary<string, ICommand> Commands => new ReadOnlyDictionary<string, ICommand>(_commands);
 
         /// <inheritdoc />
@@ -96,7 +102,7 @@ namespace NKristek.Smaragd.ViewModels
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
         {
             oldValue = storage;
-            if (IsReadOnly && propertyName != nameof(IsReadOnly) && propertyName != nameof(IsDirty))
+            if (IsReadOnly && !IsReadOnlyIgnoredProperties.Contains(propertyName))
                 return false;
 
             var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, propertyName);
