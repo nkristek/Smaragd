@@ -49,13 +49,6 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.Equal(expectedResult, validatingModel[input]);
         }
 
-        [Fact]
-        public void Subscript_with_invalid_data_and_not_existing_propertyName()
-        {
-            var validatingModel = new TestValidatingModel();
-            Assert.Null(validatingModel["NotExistingProperty"]);
-        }
-
         [Theory]
         [InlineData(null)]
         [InlineData("")]
