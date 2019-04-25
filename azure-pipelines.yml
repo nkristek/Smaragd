@@ -17,7 +17,7 @@ steps:
   inputs:
     version: '2.1.300'
     
-- task: NuGetToolInstaller@0
+- task: NuGetToolInstaller@1
   displayName: 'Install NuGet'
 
 - task: NuGetCommand@2
@@ -31,11 +31,12 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    clean: true
 
 - task: VSTest@2
   displayName: 'Test'
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    codeCoverageEnabled: True
+    codeCoverageEnabled: true
     runSettingsFile: '$(Build.SourcesDirectory)\test\test.runsettings'
