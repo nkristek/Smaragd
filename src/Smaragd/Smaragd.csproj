@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
-    <PackageTags></PackageTags>
+    <PackageTags>MVVM ViewModel INotifyPropertyChanged</PackageTags>
     <PackageReleaseNotes>- Added IsReadOnlyIgnoredAttribute</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
