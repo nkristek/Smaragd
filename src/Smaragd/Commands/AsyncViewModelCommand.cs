@@ -26,15 +26,17 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         protected AsyncViewModelCommand()
         {
-            _cachedCanExecuteSourceNames = GetCanExecuteSourceNames();
+            _cachedCanExecuteSourceNames = GetCanExecuteSourceNames().ToList();
         }
 
-        private IList<string> GetCanExecuteSourceNames()
+        private IEnumerable<string> GetCanExecuteSourceNames()
         {
-            var canExecuteMethods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                .Where(m => m.Name == nameof(CanExecute));
-            var canExecuteSourceAttributes = canExecuteMethods.SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>());
-            return canExecuteSourceAttributes.SelectMany(a => a.PropertySources).Distinct().ToList();
+            return GetType()
+                .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                .Where(m => m.Name == nameof(CanExecute))
+                .SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>())
+                .SelectMany(a => a.PropertySources)
+                .Distinct();
         }
 
         /// <inheritdoc />
