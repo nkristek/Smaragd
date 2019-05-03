@@ -2,7 +2,7 @@
 {
     /// <inheritdoc />
     /// <summary>
-    /// Defines a <see cref="T:NKristek.Smaragd.ViewModels.IViewModel" /> to use in a dialog.
+    /// Defines a <see cref="IViewModel" /> to use in a dialog.
     /// </summary>
     public interface IDialogModel
         : IViewModel

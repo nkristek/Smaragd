@@ -13,7 +13,7 @@ namespace NKristek.Smaragd.ViewModels
         : IRaisePropertyChanging, IRaisePropertyChanged
     {
         /// <summary>
-        /// Indicates if a property changed and is not persisted.
+        /// Indicates if a property changed and the change is not persisted.
         /// </summary>
         bool IsDirty { get; set; }
 

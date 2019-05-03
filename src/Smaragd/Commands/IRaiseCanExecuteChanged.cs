@@ -4,7 +4,7 @@ namespace NKristek.Smaragd.Commands
 {
     /// <inheritdoc />
     /// <summary>
-    /// Provides methods for raising events on the <see cref="E:System.Windows.Input.ICommand.CanExecuteChanged" /> event handler.
+    /// Provides methods for raising events on the <see cref="ICommand.CanExecuteChanged" /> event handler.
     /// </summary>
     public interface IRaiseCanExecuteChanged
         : ICommand

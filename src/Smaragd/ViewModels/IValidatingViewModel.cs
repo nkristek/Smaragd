@@ -24,42 +24,42 @@ namespace NKristek.Smaragd.ViewModels
         bool IsValidationSuspended { get; set; }
 
         /// <summary>
-        /// Add a validation for the property returned by the lambda expression
+        /// Add a validation for the property returned by the lambda expression.
         /// </summary>
-        /// <typeparam name="T">Type of the property to validate.</typeparam>
-        /// <param name="propertySelector">Lambda expression to select the property. eg.: () => MyProperty</param>
-        /// <param name="validation">Validation to add</param>
+        /// <typeparam name="T">The type of the property to validate.</typeparam>
+        /// <param name="propertySelector">An expression to select the property. eg.: () => MyProperty</param>
+        /// <param name="validation">The validation to add.</param>
         void AddValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation);
 
         /// <summary>
-        /// Removes a specific validation for the property returned by the expression
+        /// Removes a specific validation of the property returned by the expression.
         /// </summary>
-        /// <typeparam name="T">Type of the property to validate</typeparam>
-        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
-        /// <param name="validation">Validation to remove</param>
+        /// <typeparam name="T">The type of the property to validate.</typeparam>
+        /// <param name="propertySelector">An expression to select the property. eg.: () => MyProperty</param>
+        /// <param name="validation">The validation to remove.</param>
         /// <returns>If the validation was found and successfully removed</returns>
         bool RemoveValidation<T>(Expression<Func<T>> propertySelector, IValidation<T> validation);
 
         /// <summary>
-        /// Removes all validations for the property returned by the expression
+        /// Removes all validations of the property returned by the expression.
         /// </summary>
-        /// <typeparam name="T">Type of the validating property</typeparam>
-        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
-        /// <returns>If the validation was found and successfully removed</returns>
+        /// <typeparam name="T">The type of the validating property.</typeparam>
+        /// <param name="propertySelector">An expression to select the property. eg.: () => MyProperty</param>
+        /// <returns>If the validation was found and successfully removed.</returns>
         bool RemoveValidations<T>(Expression<Func<T>> propertySelector);
 
         /// <summary>
-        /// Get all validations. Key is the name of the property, value are all validations for the property.
+        /// Get all validations.
         /// </summary>
         /// <returns>All validations. Key is the name of the property, value are all validations for the property.</returns>
         IEnumerable<KeyValuePair<string, IList<IValidation>>> Validations();
 
         /// <summary>
-        /// Get all validations for the property returned by the expression
+        /// Get all validations of the property returned by the expression.
         /// </summary>
-        /// <typeparam name="T">Type of the validating property</typeparam>
-        /// <param name="propertySelector">Expression to select the property. eg.: () => MyProperty</param>
-        /// <returns>All validations for the property</returns>
+        /// <typeparam name="T">The type of the validating property.</typeparam>
+        /// <param name="propertySelector">An expression to select the property. eg.: () => MyProperty</param>
+        /// <returns>All validations of the property.</returns>
         IEnumerable<IValidation<T>> Validations<T>(Expression<Func<T>> propertySelector);
     }
 }

@@ -11,7 +11,7 @@ namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc />
     /// <remarks>
-    /// This class adds support for using the <see cref="PropertySourceAttribute" /> above properties.
+    /// This class adds support for using the <see cref="PropertySourceAttribute" /> on properties.
     /// </remarks>
     public abstract class ComputedBindable
         : Bindable

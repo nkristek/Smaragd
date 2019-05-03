@@ -97,9 +97,9 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         /// <remarks>
-        /// Set the property value only if <see cref="IsReadOnly" /> is <c>false</c>.
+        /// Set the property value only if <see cref="IsReadOnly" /> is <see langword="false"/>.
         /// </remarks>
-        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
+        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = null)
         {
             oldValue = storage;
             if (IsReadOnly && !IsReadOnlyIgnoredProperties.Contains(propertyName))

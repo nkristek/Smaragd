@@ -13,7 +13,7 @@ namespace NKristek.Smaragd.Commands
 {
     /// <inheritdoc cref="IViewModelCommand{TViewModel}" />
     /// <remarks>
-    /// This defines an asynchronous command.
+    /// This defines an asynchronous viewmodel command.
     /// </remarks>
     public abstract class AsyncViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel>, IAsyncCommand where TViewModel : class, IViewModel

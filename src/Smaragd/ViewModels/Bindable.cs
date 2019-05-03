@@ -50,20 +50,19 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <summary>
         /// <para>
-        /// Set the property value.
+        /// Set <paramref name="storage"/> to the given <paramref name="value"/>.
         /// </para>
         /// <para>
-        /// If the given value is different than the current value raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage changed.
+        /// If the given <paramref name="value"/> is different than the current value raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage changed.
         /// </para>
         /// </summary>
-        /// <typeparam name="T">Type of the property to set.</typeparam>
+        /// <typeparam name="T">The type of the property to set.</typeparam>
         /// <param name="storage">Reference to the storage variable.</param>
         /// <param name="value">New value to set.</param>
         /// <param name="propertyName">Name of the property.</param>
-        /// <param name="oldValue">The old value of the property.</param>
-        /// <returns><c>True</c> if the value was different from the storage variable and the PropertyChanged event was raised</returns>
-        /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null or whitespace.</exception>
-        protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = "")
+        /// <param name="oldValue">The old value of <paramref name="storage"/>.</param>
+        /// <returns><see langword="true"/> if the value was different from the <paramref name="storage"/> variable and events on <see cref="PropertyChanging"/> and <see cref="PropertyChanged"/> were raised; otherwise, <see langword="false"/>.</returns>
+        protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = null)
         {
             if (String.IsNullOrWhiteSpace(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));

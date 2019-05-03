@@ -6,7 +6,7 @@ namespace NKristek.Smaragd.Validation
     /// <remarks>
     /// Validates a given value with a generic type <typeparamref name="T"/>.
     /// </remarks>
-    /// <typeparam name="T">Type of the value to validate.</typeparam>
+    /// <typeparam name="T">The type of the value to validate.</typeparam>
     public abstract class Validation<T>
         : IValidation<T>
     {
@@ -14,7 +14,7 @@ namespace NKristek.Smaragd.Validation
         public abstract bool IsValid(T value, out string errorMessage);
 
         /// <inheritdoc />
-        /// <exception cref="ArgumentException">If the given object has not the correct type expected by this <see cref="Validation{T}"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="value"/> has not the correct type expected by this <see cref="Validation{T}"/>.</exception>
         bool IValidation.IsValid(object value, out string errorMessage)
         {
             if (typeof(T).IsValueType)

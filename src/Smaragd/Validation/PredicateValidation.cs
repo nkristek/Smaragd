@@ -4,7 +4,7 @@ namespace NKristek.Smaragd.Validation
 {
     /// <inheritdoc />
     /// <remarks>
-    /// Validates a given value using a predicate.
+    /// Validates a given value using a <see cref="Predicate{T}"/>.
     /// </remarks>
     public class PredicateValidation<T>
         : Validation<T>
@@ -15,11 +15,11 @@ namespace NKristek.Smaragd.Validation
 
         /// <inheritdoc />
         /// <summary>
-        /// Initializes a new instance of the <see cref="PredicateValidation{T}"/> class with the <paramref name="predicate"/> which is used to validate the value and the <paramref name="errorMessage"/> which will be returned when the <paramref name="predicate"/> returns <c>false</c> for a given value.
+        /// Initializes a new instance of the <see cref="PredicateValidation{T}"/> class with the <paramref name="predicate"/> which is used to validate the value and the <paramref name="errorMessage"/> which will be returned when the <paramref name="predicate"/> returns <see langword="false"/> for a given value.
         /// </summary>
         /// <param name="predicate">A <see cref="Predicate{T}"/> which is used to validate the value.</param>
-        /// <param name="errorMessage">The error message which will be returned when the <paramref name="predicate"/> returns <c>false</c> for a given value.</param>
-        /// <exception cref="ArgumentNullException">If either <paramref name="predicate"/> or <paramref name="errorMessage"/> is null.</exception>
+        /// <param name="errorMessage">The error message which will be returned when the <paramref name="predicate"/> returns <see langword="false"/> for a given value.</param>
+        /// <exception cref="ArgumentNullException">Either <paramref name="predicate"/> or <paramref name="errorMessage"/> is <see langword="null"/>.</exception>
         public PredicateValidation(Predicate<T> predicate, string errorMessage)
         {
             _predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
