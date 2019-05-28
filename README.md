@@ -11,7 +11,7 @@ For an example project, please visit my other project [Stein](https://github.com
 
 ## Installation
 
-The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/), but you also can either download the DLL from the latest [release](https://github.com/nkristek/Smaragd/releases/latest) or compile it yourself.
+The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/).
 
 Currently supported frameworks:
 - .NET Standard 2.0
