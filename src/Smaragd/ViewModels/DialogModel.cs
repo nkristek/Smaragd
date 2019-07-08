@@ -10,7 +10,7 @@
         public virtual string Title
         {
             get => _title;
-            set => SetProperty(ref _title, value, out _);
+            set => SetProperty(ref _title, value);
         }
     }
 }
