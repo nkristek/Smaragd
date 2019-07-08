@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
 using NKristek.Smaragd.Commands;
 
 namespace NKristek.Smaragd.ViewModels
 {
-    /// <inheritdoc cref="INotifyPropertyChanged" />
+    /// <inheritdoc />
     /// <summary>
     /// Defines properties which are useful for a ViewModel implementation.
     /// </summary>
     public interface IViewModel
-        : IRaisePropertyChanging, IRaisePropertyChanged
+        : IBindable
     {
         /// <summary>
         /// Indicates if a property changed and the change is not persisted.

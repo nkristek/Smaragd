@@ -5,76 +5,133 @@ using System.Runtime.CompilerServices;
 
 namespace NKristek.Smaragd.ViewModels
 {
-    /// <inheritdoc cref="INotifyPropertyChanged" />
-    /// <summary>
-    /// This class provides an implementation of <see cref="INotifyPropertyChanging"/>, <see cref="IRaisePropertyChanging"/>, <see cref="INotifyPropertyChanged"/>, <see cref="IRaisePropertyChanged"/> and a method to set the value of a property and automatically raise an event on <see cref="PropertyChanged"/> if the value changed.
-    /// </summary>
+    /// <inheritdoc cref="IBindable" />
+    /// <remarks>
+    /// This class includes methods to set the value of a property and automatically raise events on the appropriate event handlers.
+    /// </remarks>
     public abstract class Bindable
-        : IRaisePropertyChanging, IRaisePropertyChanged
+        : IBindable
     {
-        #region IRaisePropertyChanging
-
         /// <inheritdoc />
-        public virtual event PropertyChangingEventHandler PropertyChanging;
+        public event PropertyChangingEventHandler PropertyChanging;
 
-        /// <inheritdoc />
-        /// <exception cref="ArgumentNullException">If <paramref name="propertyName" /> is null or whitespace.</exception>
-        public virtual void RaisePropertyChanging([CallerMemberName] string propertyName = null)
+        /// <summary>
+        /// Raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> to indicate that a property value is changing.
+        /// </summary>
+        /// <param name="propertyName">Name of the changing property value.</param>
+        protected virtual void NotifyPropertyChanging([CallerMemberName] string propertyName = null)
         {
-            if (String.IsNullOrWhiteSpace(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
-
-            var argument = new PropertyChangingEventArgs(propertyName);
-            PropertyChanging?.Invoke(this, argument);
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
-        #endregion
-
-        #region IRaisePropertyChanged
-
         /// <inheritdoc />
-        public virtual event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <inheritdoc />
-        /// <exception cref="ArgumentNullException">If <paramref name="propertyName" /> is null or whitespace.</exception>
-        public virtual void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        /// <summary>
+        /// Raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/> to indicate that a property value changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the changed property value.</param>
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (String.IsNullOrWhiteSpace(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
-
-            var argument = new PropertyChangedEventArgs(propertyName);
-            PropertyChanged?.Invoke(this, argument);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
+        /// <summary>
+        /// <para>
+        /// Set <paramref name="storage"/> to the given <paramref name="value"/>.
+        /// </para>
+        /// <para>
+        /// If the given <paramref name="value"/> is different than the current value,
+        /// it raises an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage was changed.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The type of the value to set.</typeparam>
+        /// <param name="storage">Reference to the storage field.</param>
+        /// <param name="value">New value to set.</param>
+        /// <param name="oldValue">The old value of <paramref name="storage"/>.</param>
+        /// <param name="comparer">An optional comparer to compare the value of <paramref name="storage"/> and <paramref name="value"/>. If the comparer is <see langword="null"/> the default comparer will be used.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns><see langword="true"/> if the value was different from the <paramref name="storage"/> variable and events on <see cref="PropertyChanging"/> and <see cref="PropertyChanged"/> were raised; otherwise, <see langword="false"/>.</returns>
+        protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
+        {
+            oldValue = storage;
+            if ((comparer ?? EqualityComparer<T>.Default).Equals(storage, value))
+                return false;
 
-        #endregion
+            NotifyPropertyChanging(propertyName);
+            storage = value;
+            NotifyPropertyChanged(propertyName);
+            return true;
+        }
 
         /// <summary>
         /// <para>
         /// Set <paramref name="storage"/> to the given <paramref name="value"/>.
         /// </para>
         /// <para>
-        /// If the given <paramref name="value"/> is different than the current value raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage changed.
+        /// If the given <paramref name="value"/> is different than the current value,
+        /// it raises an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage was changed.
         /// </para>
         /// </summary>
-        /// <typeparam name="T">The type of the property to set.</typeparam>
-        /// <param name="storage">Reference to the storage variable.</param>
+        /// <typeparam name="T">The type of the value to set.</typeparam>
+        /// <param name="storage">Reference to the storage field.</param>
         /// <param name="value">New value to set.</param>
+        /// <param name="comparer">An optional comparer to compare the value of <paramref name="storage"/> and <paramref name="value"/>. If the comparer is <see langword="null"/> the default comparer will be used.</param>
         /// <param name="propertyName">Name of the property.</param>
-        /// <param name="oldValue">The old value of <paramref name="storage"/>.</param>
         /// <returns><see langword="true"/> if the value was different from the <paramref name="storage"/> variable and events on <see cref="PropertyChanging"/> and <see cref="PropertyChanged"/> were raised; otherwise, <see langword="false"/>.</returns>
-        protected virtual bool SetProperty<T>(ref T storage, T value, out T oldValue, [CallerMemberName] string propertyName = null)
+        protected bool SetProperty<T>(ref T storage, T value, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
         {
-            if (String.IsNullOrWhiteSpace(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
+            return SetProperty(ref storage, value, out _, comparer, propertyName);
+        }
 
-            oldValue = storage;
-            if (EqualityComparer<T>.Default.Equals(storage, value))
+        /// <summary>
+        /// <para>
+        /// Set <paramref name="storage"/> to a <see cref="WeakReference{T}"/> referencing the given <paramref name="value"/>.
+        /// </para>
+        /// <para>
+        /// If the given <paramref name="value"/> is different than the current value,
+        /// it raises an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage was changed.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The type of the value to set.</typeparam>
+        /// <param name="storage">Reference to the storage field containing the <see cref="WeakReference{T}"/>.</param>
+        /// <param name="value">New value to set.</param>
+        /// <param name="oldValue">The old value of <paramref name="storage"/>.</param>
+        /// <param name="comparer">An optional comparer to compare the value of <paramref name="storage"/> and <paramref name="value"/>. If the comparer is <see langword="null"/> the default comparer will be used.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns><see langword="true"/> if the value was different from the <paramref name="storage"/> variable and events on <see cref="PropertyChanging"/> and <see cref="PropertyChanged"/> were raised; otherwise, <see langword="false"/>.</returns>
+        protected virtual bool SetProperty<T>(ref WeakReference<T> storage, T value, out T oldValue, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
+            where T: class
+        {
+            oldValue = storage?.TargetOrDefault();
+            if ((comparer ?? EqualityComparer<T>.Default).Equals(oldValue, value))
                 return false;
 
-            RaisePropertyChanging(propertyName);
-            storage = value;
-            RaisePropertyChanged(propertyName);
+            NotifyPropertyChanging(propertyName);
+            storage = value != null ? new WeakReference<T>(value) : null;
+            NotifyPropertyChanged(propertyName);
             return true;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Set <paramref name="storage"/> to a <see cref="WeakReference{T}"/> referencing the given <paramref name="value"/>.
+        /// </para>
+        /// <para>
+        /// If the given <paramref name="value"/> is different than the current value,
+        /// it raises an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> before the storage changes and <see cref="INotifyPropertyChanged.PropertyChanged"/> after the storage was changed.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="T">The type of the value to set.</typeparam>
+        /// <param name="storage">Reference to the storage field containing the <see cref="WeakReference{T}"/>.</param>
+        /// <param name="value">New value to set.</param>
+        /// <param name="comparer">An optional comparer to compare the value of <paramref name="storage"/> and <paramref name="value"/>. If the comparer is <see langword="null"/> the default comparer will be used.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns><see langword="true"/> if the value was different from the <paramref name="storage"/> variable and events on <see cref="PropertyChanging"/> and <see cref="PropertyChanged"/> were raised; otherwise, <see langword="false"/>.</returns>
+        protected bool SetProperty<T>(ref WeakReference<T> storage, T value, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
+            where T : class
+        {
+            return SetProperty(ref storage, value, out _, comparer, propertyName);
         }
     }
 }
