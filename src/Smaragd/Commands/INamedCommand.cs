@@ -10,7 +10,7 @@ namespace NKristek.Smaragd.Commands
         : ICommand
     {
         /// <summary>
-        /// A Name which uniquely identifies this <see cref="ICommand"/>.
+        /// A name which uniquely identifies this <see cref="ICommand"/>.
         /// </summary>
         string Name { get; }
     }

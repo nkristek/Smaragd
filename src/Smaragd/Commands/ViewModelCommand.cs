@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Input;
-using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
@@ -13,27 +9,6 @@ namespace NKristek.Smaragd.Commands
     public abstract class ViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel> where TViewModel : class, IViewModel
     {
-        private readonly IList<string> _cachedCanExecuteSourceNames;
-
-        /// <inheritdoc />
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelCommand{TViewModel}" /> class.
-        /// </summary>
-        protected ViewModelCommand()
-        {
-            _cachedCanExecuteSourceNames = GetCanExecuteSourceNames().ToList();
-        }
-
-        private IEnumerable<string> GetCanExecuteSourceNames()
-        {
-            return GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                .Where(m => m.Name == nameof(CanExecute))
-                .SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>())
-                .SelectMany(a => a.PropertySources)
-                .Distinct();
-        }
-
         /// <inheritdoc />
         /// <remarks>
         /// This defaults to the name of the type, including its namespace but not its assembly.
@@ -45,26 +20,42 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public TViewModel Parent
         {
-            get => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
+            get => _parent?.TargetOrDefault();
             set
             {
-                if (value == Parent) return;
-                var oldValue = Parent;
-                if (oldValue != null)
-                    oldValue.PropertyChanged -= ParentOnPropertyChanged;
+                if (!SetProperty(ref _parent, value, out var oldValue))
+                    return;
 
-                _parent = value != null ? new WeakReference<TViewModel>(value) : null;
-                RaisePropertyChanged();
+                if (oldValue != null)
+                {
+                    oldValue.PropertyChanging -= OnParentPropertyChanging;
+                    oldValue.PropertyChanged -= OnParentPropertyChanged;
+                }
 
                 if (value != null)
-                    value.PropertyChanged += ParentOnPropertyChanged;
+                {
+                    value.PropertyChanging += OnParentPropertyChanging;
+                    value.PropertyChanged += OnParentPropertyChanged;
+                }
             }
         }
 
-        private void ParentOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        /// <summary>
+        /// Gets called when a property value of the <see cref="Parent"/> is changing.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">Arguments of the event.</param>
+        protected virtual void OnParentPropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-            if (_cachedCanExecuteSourceNames.Contains(e.PropertyName))
-                RaiseCanExecuteChanged();
+        }
+
+        /// <summary>
+        /// Gets called when a property value of the <see cref="Parent"/> changed.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">Arguments of the event.</param>
+        protected virtual void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
         }
 
         /// <inheritdoc />
@@ -82,20 +73,31 @@ namespace NKristek.Smaragd.Commands
             Execute(Parent, parameter);
         }
 
-        /// <inheritdoc cref="ICommand.CanExecute" />
+        /// <summary>
+        /// Determines whether the command can execute based on its current state and the given <paramref name="viewModel"/>.
+        /// </summary>
+        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
+        /// <returns>Whether the command can execute based on its current state and the given <paramref name="viewModel"/>.</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
         }
 
-        /// <inheritdoc cref="ICommand.Execute" />
+        /// <summary>
+        /// Invoke the execution of this command.
+        /// </summary>
+        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
         protected abstract void Execute(TViewModel viewModel, object parameter);
 
         /// <inheritdoc />
-        public virtual event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged;
 
-        /// <inheritdoc />
-        public virtual void RaiseCanExecuteChanged()
+        /// <summary>
+        /// Raise an event on <see cref="ICommand.CanExecuteChanged"/> to indicate that <see cref="ICommand.CanExecute(object)"/> should be reevaluated.
+        /// </summary>
+        protected virtual void NotifyCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,14 +17,6 @@ namespace NKristek.Smaragd.Tests.Commands
         private class TestViewModel
             : ViewModel
         {
-            public TestViewModel()
-            {
-                var testCommand = new DefaultAsyncViewModelCommand
-                {
-                    Parent = this
-                };
-                AddCommand(testCommand);
-            }
             private bool _testProperty;
 
             public bool TestProperty
@@ -103,17 +96,28 @@ namespace NKristek.Smaragd.Tests.Commands
                         throw new Exception("invalid parameter");
                 });
             }
+
+            public void NotifyCanExecuteChangedExternal()
+            {
+                NotifyCanExecuteChanged();
+            }
         }
 
         private class CanExecuteSourceAsyncViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
                 return viewModel.TestProperty;
             }
-            
+
+            /// <inheritdoc />
+            protected override void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(TestViewModel.TestProperty)))
+                    NotifyCanExecuteChanged();
+            }
+
             protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
             {
                 await Task.Yield();
@@ -291,6 +295,7 @@ namespace NKristek.Smaragd.Tests.Commands
             }
 
             await executeTask;
+            Assert.False(command.IsWorking);
         }
 
         [Fact]
@@ -331,13 +336,13 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void RaiseCanExecuteChanged_raises_event_on_CanExecuteChanged()
+        public void NotifyCanExecuteChanged_raises_event_on_CanExecuteChanged()
         {
             var invokedCanExecuteChangedEvents = 0;
             var command = new DefaultAsyncViewModelCommand();
-            command.RaiseCanExecuteChanged();
+            command.NotifyCanExecuteChangedExternal();
             command.CanExecuteChanged += (sender, args) => invokedCanExecuteChangedEvents++;
-            command.RaiseCanExecuteChanged();
+            command.NotifyCanExecuteChangedExternal();
             Assert.Equal(1, invokedCanExecuteChangedEvents);
         }
 
