@@ -4,7 +4,7 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>4.3</Version>
+    <Version>5.0</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -15,8 +15,45 @@
     <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>MVVM ViewModel INotifyPropertyChanged</PackageTags>
-    <PackageReleaseNotes>- Added IsReadOnlyIgnoredAttribute</PackageReleaseNotes>
+    <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging</PackageTags>
+    <PackageReleaseNotes>This release introduces a refactoring of many classes and interfaces included in this library. This reduces complexity, enables better testability and provides better performance.
+There are also new features, like the added support for WeakReference&lt;T&gt; storage fields, updated XML documentation and more unittests.
+
+A more detailed summary of the changes:
+
+# Bindable
+- remove IRaisePropertyChanging and IRaisePropertyChanged interfaces and change methods to protected visibility
+- rename RaisePropertyChanging method to NotifyPropertyChanging
+- rename RaisePropertyChanged method to NotifyPropertyChanged
+- remove virtual keyword from PropertyChanging and PropertyChanged eventhandlers
+- allow propertyName to be null in NotifyPropertyChanging, NotifyPropertyChanged and SetProperty methods
+- add overload for SetProperty method for setting WeakReference&lt;T&gt; storage fields
+- add overloads for SetProperty method without the oldValue out parameter
+- add comparer parameter to SetProperty methods
+
+# ComputedBindable and ViewModel
+- remove ComputedBindable class and move logic to ViewModel class
+- remove Commands dictionary from ViewModel class
+
+# ValidatingViewModel
+- remove IRaiseErrorsChanged interface and change method to protected visibility
+- rename RaiseErrorsChanged method to NotifyErrorsChanged
+- remove virtual keyword from ErrorsChanged eventhandler
+- set multiple validation errors per property by using SetErrors()
+- add overload to GetErrors method with generic return type IEnumerable&lt;string&gt;
+- remove support for IDataErrorInfo interface
+- change IValidation interface to generic in and out parameters
+- remove Validation&lt;T&gt; class
+- rename PredicateValidation class to FuncValidation and use Func instead of Predicate to implement the changed interface
+
+# ViewModelCommand and AsyncViewModelCommand
+- remove IRaiseCanExecuteChanged interface and change method to protected visibility
+- rename RaiseCanExecuteChanged method to NotifyCanExecuteChanged
+- remove virtual keyword from CanExecuteChanged eventhandler
+- remove CanExecuteSourceAttribute class, use OnParentPropertyChanged instead
+- implement and automatically attach OnParentPropertyChanging and OnParentPropertyChanged methods to Parent
+- properly raise events on PropertyChanging and PropertyChanged eventhandlers when IsWorking is about to change or has changed
+- check if the returned task from the ExecuteAsync method is null before awaiting it</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
