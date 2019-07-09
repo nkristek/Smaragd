@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.Helpers
 {
     /// <summary>
     /// Defines extension methods for <see cref="WeakReference{T}"/>.

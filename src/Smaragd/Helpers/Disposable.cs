@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NKristek.Smaragd
+namespace NKristek.Smaragd.Helpers
 {
     /// <inheritdoc />
     /// <summary>

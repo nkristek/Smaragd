@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
+using NKristek.Smaragd.Helpers;
 using Xunit;
 
 namespace NKristek.Smaragd.Tests.ViewModels

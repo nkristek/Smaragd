@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Input;
+using NKristek.Smaragd.Helpers;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using NKristek.Smaragd.Helpers;
 using System.Text;
 using Xunit;
 

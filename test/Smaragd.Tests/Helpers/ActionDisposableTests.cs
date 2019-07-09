@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using NKristek.Smaragd.Helpers;
+using Xunit;
 
 namespace NKristek.Smaragd.Tests.Helpers
 {

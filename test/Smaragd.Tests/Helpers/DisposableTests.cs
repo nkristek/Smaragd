@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NKristek.Smaragd.Helpers;
+using System;
 using System.Runtime.CompilerServices;
 using Xunit;
 
