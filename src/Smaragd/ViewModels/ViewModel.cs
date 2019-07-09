@@ -133,7 +133,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         [IsDirtyIgnored]
         [IsReadOnlyIgnored]
-        public bool IsDirty
+        public virtual bool IsDirty
         {
             get => _isDirty;
             set => SetProperty(ref _isDirty, value);
@@ -145,7 +145,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <remarks>Uses a <see cref="WeakReference{IViewModel}"/>.</remarks>
         [IsDirtyIgnored]
         [IsReadOnlyIgnored]
-        public IViewModel Parent
+        public virtual IViewModel Parent
         {
             get => _parent?.TargetOrDefault();
             set => SetProperty(ref _parent, value);
@@ -167,7 +167,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         [IsDirtyIgnored]
         [IsReadOnlyIgnored]
-        public bool IsUpdating
+        public virtual bool IsUpdating
         {
             get => _isUpdating;
             set => SetProperty(ref _isUpdating, value);
