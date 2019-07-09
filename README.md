@@ -19,6 +19,8 @@ This library contains base implementations of:
 
 Additionally, there are other base classes that provide additional features, for example `TreeViewModel` implements an `IsChecked` property that automatically updates its parent and children.
 
+For more information, please visit the [documentation](https://github.com/nkristek/Smaragd/wiki).
+
 ## Installation
 
 The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/).
