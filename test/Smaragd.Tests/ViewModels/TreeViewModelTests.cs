@@ -27,34 +27,17 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.False(treeViewModel.IsChecked);
         }
 
-        [Fact]
-        public void IsChecked_True()
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        [InlineData(null, false)]
+        public void IsChecked(bool? input, bool? expectedResult)
         {
             var treeViewModel = new FolderViewModel
             {
-                IsChecked = true
+                IsChecked = input
             };
-            Assert.True(treeViewModel.IsChecked);
-        }
-
-        [Fact]
-        public void IsChecked_False()
-        {
-            var treeViewModel = new FolderViewModel
-            {
-                IsChecked = false
-            };
-            Assert.False(treeViewModel.IsChecked);
-        }
-
-        [Fact]
-        public void IsChecked_Null()
-        {
-            var treeViewModel = new FolderViewModel
-            {
-                IsChecked = null
-            };
-            Assert.False(treeViewModel.IsChecked);
+            Assert.Equal(expectedResult, treeViewModel.IsChecked);
         }
 
         [Fact]
@@ -107,14 +90,16 @@ namespace NKristek.Smaragd.Tests.ViewModels
             Assert.False(treeViewModel.IsExpanded);
         }
 
-        [Fact]
-        public void SetIsExpanded()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void IsExpanded(bool value)
         {
             var treeViewModel = new FolderViewModel
             {
-                IsExpanded = true
+                IsExpanded = value
             };
-            Assert.True(treeViewModel.IsExpanded);
+            Assert.Equal(value, treeViewModel.IsExpanded);
         }
 
         [Fact]

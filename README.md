@@ -14,24 +14,16 @@ For an example project, please visit my other project [Stein](https://github.com
 The recommended way to use this library is via [Nuget](https://www.nuget.org/packages/NKristek.Smaragd/).
 
 Currently supported frameworks:
-- .NET Standard 2.0
-- .NET Framework 4.5 or newer
+- .NET Standard 2.0 or higher
+- .NET Framework 4.5 or higher
 
 ## Getting started
 
-To get started, create a subclass of `ViewModel` and optionally a command subclassing `ViewModelCommand<>`:
+To get started, create a subclass of `ViewModel`:
 
 ```csharp
 public class MyViewModel : ViewModel
 {
-    public MyViewModel()
-    {
-        AddCommand(new TestCommand
-        {
-            Parent = this
-        });
-    }
-
     private int _firstProperty;
 
     public int FirstProperty
@@ -39,71 +31,46 @@ public class MyViewModel : ViewModel
         get => _firstProperty;
         set
         {
-            if (SetProperty(ref _firstProperty, value, out _))
+            if (SetProperty(ref _firstProperty, value))
                 SecondProperty = FirstProperty + 1;
         }
     }
 
     private int _secondProperty;
 
+    [IsReadOnlyIgnored]
     public int SecondProperty
     {
         get => _secondProperty;
-        set => SetProperty(ref _secondProperty, value, out _);
+        set => SetProperty(ref _secondProperty, value);
     }
 
+    [IsDirtyIgnored]
     [PropertySource(nameof(FirstProperty), nameof(SecondProperty))]
     public int ThirdProperty => FirstProperty + SecondProperty;
-}
-
-public class TestCommand
-    : ViewModelCommand<MyViewModel>
-{
-    [CanExecuteSource(nameof(MyViewModel.ThirdProperty))]
-    protected override bool CanExecute(MyViewModel viewModel, object parameter)
-    {
-        return viewModel.ThirdProperty > 0;
-    }
-
-    protected override void Execute(MyViewModel viewModel, object parameter)
-    {
-        // execute...
-    }
 }
 ```
 
 ### SetProperty
 
-There are a few things to notice here. Firstly, using `SetProperty()` in setters of properties is **highly** recommended. It will check, if the new value is different from the existing value in the field. If the value is different, it sets it, raise events on `INotifyPropertyChanging.PropertyChanging` and `INotifyPropertyChanged.PropertyChanged` and returns true.
+There are a few things to notice here. Firstly, using `SetProperty()` in setters of properties is **highly** recommended. It will check, if the new value is different from the existing value in the field. If the value is different, it sets it, raises an event on `INotifyPropertyChanging.PropertyChanging` before the value will change and an event on `INotifyPropertyChanged.PropertyChanged` after the value will change and returns true.
 
-Depending on the type of the `ViewModel` additional logic will be executed, like validation (`ValidatingViewModel`).
+In this example, when `FirstProperty` is set to 1, and since it changed, `SecondProperty` will be set to 2. 
 
-In this example, when `FirstProperty` is set to 1, `SecondProperty` will be set to 2. 
+### NotifyPropertyChanged / NotifyPropertyChanging
 
-### RaisePropertyChanged
-
-If you want to manually raise an event on `INotifyPropertyChanged.PropertyChanged`, you should use `RaisePropertyChanged()` with the name of the property.
-
-Using `RaisePropertyChanged()` instead of directly raising events on `INotifyPropertyChanged.PropertyChanged` directly is **highly** recommended, otherwise `PropertySourceAttribute` and other functionality won't work correctly.
+If you want to manually raise an event on `INotifyPropertyChanged.PropertyChanged` or `INotifyPropertyChanging.PropertyChanging`, you should use `NotifyPropertyChanged()` or `NotifyPropertyChanging()` respectively with the name of the property. Using these methods is **highly** recommended, otherwise functionality like the `PropertySourceAttribute` might not work as expected.
 
 ### PropertySourceAttribute
 
 `ThirdProperty` uses `PropertySourceAttribute` with the names of both `FirstProperty` and `SecondProperty`. 
 
-The `ViewModel` will **automatically** raise an event on `INotifyPropertyChanged.PropertyChanged` for `ThirdProperty` when `INotifyPropertyChanged.PropertyChanged` is raised for one of the two properties (in this case `FirstProperty` and `SecondProperty`). 
-
-### CanExecuteSourceAttribute
-
-`TestCommand` uses the `CanExecuteSourceAttribute`, which indicates, that `CanExecute()` depends on the value of the named properties. 
-
-When `INotifyPropertyChanged.PropertyChanged` is raised for `ThirdProperty`, `CanExecuteChanged` will be raised also (when using custom command implementations implement the `IRaiseCanExecuteChanged` interface for this functionality to work).
-
-Setting the `Parent` property of the command attaches the command to `INotifyPropertyChanged.PropertyChanged` and raises the events on `CanExecuteChanged` accordingly. **Please note**, that the `ViewModel` now holds a strong reference. Set the `Parent` property to null to detach the command from `INotifyPropertyChanged.PropertyChanged`.
+`NotifyPropertyChanging` and `NotifyPropertyChanged` will **automatically** raise an event on `INotifyPropertyChanging.PropertyChanging` and `INotifyPropertyChanged.PropertyChanged` respectively for `ThirdProperty` when an event is raised for one of the two properties (in this case `FirstProperty` and `SecondProperty`). 
 
 ### IsDirty
 
 `ViewModel` implements an `IsDirty` property which is initially false.
-If `RaisePropertyChanged()` is executed and `IsDirtyIgnoredAttribute` is not defined on the property (or on notified properties via `PropertySourceAttribute`), it will set `IsDirty` to `true`. 
+If `INotifyPropertyChanged.PropertyChanged` is raised and the `IsDirtyIgnoredAttribute` is not defined on the property (or on notified properties via `PropertySourceAttribute`), `IsDirty` will be set to `true`. 
 
 For example:
 ```csharp
@@ -113,7 +80,7 @@ private bool _testProperty;
 public bool TestProperty
 {
     get => _testProperty;
-    set => SetProperty(ref _testProperty, value, out _);
+    set => SetProperty(ref _testProperty, value);
 }
 ```
 
@@ -127,24 +94,13 @@ The `Parent` property on `ViewModel` internally uses a `WeakReference`.
 
 ### IsReadOnly
 
-The `IsReadOnly` property does what it implies, if set to true, `SetProperty()` will now longer set any property or raise events on `INotifyPropertyChanged.PropertyChanged` except for the `IsReadOnly` property itself.
-
-Similar to the `IsDirtyIgnoredAttribute` there is a `IsReadOnlyIgnoredAttribute`. If present on a property the property can still be set when `IsReadOnly` is set to `true`.
+The `IsReadOnly` property does what it implies, if set to true, `SetProperty()` will now longer set any property or raise events on `INotifyPropertyChanged.PropertyChanged` except for the `IsReadOnly` property itself or any property with the `IsReadOnlyIgnoredAttribute`.
 
 ### ValidatingViewModel
 
-Your viewmodel may also inherit from `ValidatingViewModel` which implements `IDataErrorInfo` and `INotifyDataErrorInfo`. 
+Your viewmodel may also inherit from `ValidatingViewModel` which implements `INotifyDataErrorInfo`. 
 
-You may simply add Validations in the class constructor via 
-```csharp
-AddValidation(() => MyProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5"));
-```
-
-This will execute this validation everytime `SetProperty()` changes this property.
-
-Most of the time `PredicateValidation<T>` should suffice, but if you need something more advanced, you should inherit from `Validation<T>`.
-
-If you want to perform batch operations and want to pause the validation, you can use `IsValidationSuspended`.
+By using the `SetErrors()` method, the errors of the specified property can be set.
 
 ### TreeViewModel
 
@@ -170,9 +126,31 @@ There is also a `DialogModel` class, which inherits from `ValidatingViewModel` a
 
 ### Commands
 
-`ViewModelCommand` and `AsyncViewModelCommand` provide base implementations for `ICommand`, `IAsyncCommand` and `IRaiseCanExecuteChanged`.
+`ViewModelCommand<T>` and `AsyncViewModelCommand<T>` provide base implementations for `ICommand` and `IAsyncCommand`.
 
-`ViewModel` has a `Commands` property and it is recommended to add all available commands to that dictionary using `AddCommand()`.
+A basic example of a `ViewModelCommand<T>`
+
+```csharp
+public class TestCommand
+    : ViewModelCommand<MyViewModel>
+{
+    protected override bool CanExecute(MyViewModel viewModel, object parameter)
+    {
+        return viewModel.ThirdProperty > 0;
+    }
+
+    protected override void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(MyViewModel.ThirdProperty)))
+            NotifyCanExecuteChanged();
+    }
+
+    protected override void Execute(MyViewModel viewModel, object parameter)
+    {
+        // execute...
+    }
+}
+```
 
 ## Attributes when a property is overriden
 
@@ -180,18 +158,18 @@ When a property is overriden in a subclass, attributes are **not** inherited by 
 
 Example:
 ```csharp
-class Base
+public class Base
 {
     [IsDirtyIgnored]
-    bool TestProperty { get; }
+    public bool TestProperty { get; }
 
     [PropertySource(nameof(TestProperty))]
-    virtual bool AnotherTestProperty => TestProperty;
+    public virtual bool AnotherTestProperty => TestProperty;
 }
 
-class Derived : Base
+public class Derived : Base
 {
-    override bool AnotherTestProperty => true;
+    public override bool AnotherTestProperty => true;
 }
 ```
 
@@ -202,20 +180,20 @@ If you access the base implementation in the override, you should define a `Prop
 
 Example:
 ```csharp
-class Base
+public class Base
 {
-    bool TestProperty { get; }
+    public bool TestProperty { get; }
 
     [PropertySource(nameof(TestProperty))]
-    virtual bool AnotherTestProperty => TestProperty;
+    public virtual bool AnotherTestProperty => TestProperty;
 }
 
 class Derived : Base
 {
-    bool NewTestProperty { get; }
+    public bool NewTestProperty { get; }
 
     [PropertySource(nameof(NewTestProperty), InheritAttributes = true)]
-    override bool AnotherTestProperty => base.AnotherTestProperty && NewTestProperty;
+    public override bool AnotherTestProperty => base.AnotherTestProperty && NewTestProperty;
 }
 ```
 
@@ -226,38 +204,33 @@ This library provides the following classes/interfaces:
 ### ViewModels
 
 Interfaces:
-- `IRaisePropertyChanging: INotifyPropertyChanging`
-- `IRaisePropertyChanged: INotifyPropertyChanged`
-- `IViewModel: IRaisePropertyChanging, IRaisePropertyChanged`
-- `IRaiseErrorsChanged: INotifyDataErrorInfo`
-- `IValidatingViewModel: IViewModel, IDataErrorInfo, IRaiseErrorsChanged`
+- `IBindable: INotifyPropertyChanging, INotifyPropertyChanged`
+- `IViewModel: IBindable`
+- `IValidatingViewModel: IViewModel, INotifyDataErrorInfo`
 - `IDialogModel: IViewModel`
 - `ITreeViewModel: IViewModel`
 
 Classes:
-- `Bindable: IRaisePropertyChanging, IRaisePropertyChanged`
-- `ComputedBindable: Bindable`
-- `ViewModel: ComputedBindable, IViewModel`
+- `Bindable: IBindable`
+- `ViewModel: Bindable, IViewModel`
 - `ValidatingViewModel: ViewModel, IValidatingViewModel`
 - `DialogModel: ValidatingViewModel, IDialogModel`
 - `TreeViewModel: ViewModel, ITreeViewModel`
 
 ### Attributes:
 
-Classes:
-- `PropertySourceAttribute: Attribute`: usable on properties of classes inheriting from `ComputedBindable` (e.g. `ViewModel`).
-- `CommandCanExecuteSourceAttribute: Attribute`: usable on any method called "CanExecute" in a class inheriting from either `ViewModelCommand<TViewModel>` or `AsyncViewModelCommand<TViewModel>`.
-- `IsDirtyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
-- `IsReadOnlyIgnoredAttribute: Attribute`: usable on properties of classes inheriting from `ViewModel`.
+Attributes are usable on properties of classes inheriting from `ViewModel`:
+- `PropertySourceAttribute: Attribute` 
+- `IsDirtyIgnoredAttribute: Attribute`
+- `IsReadOnlyIgnoredAttribute: Attribute`
 
 ### Commands
 
 Interfaces:
-- `IRaiseCanExecuteChanged: ICommand`
 - `IAsyncCommand: ICommand`
 - `INamedCommand: ICommand`
-- `IBindableCommand: ICommand, IRaisePropertyChanging, IRaisePropertyChanged`
-- `IViewModelCommand: INamedCommand, IRaiseCanExecuteChanged, IBindableCommand`
+- `IBindableCommand: ICommand, IBindable`
+- `IViewModelCommand: INamedCommand, IBindableCommand`
 
 Classes:
 - `ViewModelCommand<TViewModel>: Bindable, IViewModelCommand`
@@ -266,12 +239,15 @@ Classes:
 ### Validation
 
 Interfaces:
-- `IValidation`
-- `IValidation<T>: IValidation`
+- `IValidation<TValue, TResult>`
 
 Classes:
-- `Validation<T>: IValidation<T>`
-- `PredicateValidation<T>: Validation<T>`
+- `FuncValidation<TValue, TResult>: IValidation<TValue, TResult>`
+
+### Helpers
+
+- `WeakReferenceExtensions`:
+    - `WeakReference<T>.TargetOrDefault<T>()`
 
 ## Contribution
 

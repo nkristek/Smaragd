@@ -12,10 +12,11 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
+        [IsReadOnlyIgnored]
         public bool IsExpanded
         {
             get => _isExpanded;
-            set => SetProperty(ref _isExpanded, value, out _);
+            set => SetProperty(ref _isExpanded, value);
         }
 
         /// <inheritdoc />
@@ -33,7 +34,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <inheritdoc />
         public void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
-            if (!SetProperty(ref _isChecked, value, out _, nameof(IsChecked)))
+            if (!SetProperty(ref _isChecked, value, null, nameof(IsChecked)))
                 return;
 
             if (updateChildren && IsChecked.HasValue && TreeChildren != null)

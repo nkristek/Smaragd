@@ -43,9 +43,9 @@ namespace NKristek.Smaragd.Tests.Helpers
         }
 
         [Fact]
-        public void GetPropertyNamesToNotify_PropertyNameNull_ThrowsArgumentNullException()
+        public void GetPropertyNamesToNotify_propertyName_null_returns_empty_collection()
         {
-            Assert.Throws<ArgumentNullException>(() => NotificationCache.GetPropertyNamesToNotify(null));
+            Assert.Empty(NotificationCache.GetPropertyNamesToNotify(null));
         }
 
         [Fact]

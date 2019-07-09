@@ -10,21 +10,18 @@ namespace NKristek.Smaragd.Tests.ViewModels
         {
         }
 
-        private string Title { get; }
-
-        public DialogModelTests()
+        [Theory]
+        [InlineData(null, "1")]
+        [InlineData("1", "2")]
+        public void Title_set(string initialValue, string valueToSet)
         {
-            Title = "Test";
-        }
-
-        [Fact]
-        public void TitleProperty()
-        {
-            var dialogModel = new TestDialogModel
+            var viewModel = new TestDialogModel
             {
-                Title = Title
+                Title = initialValue
             };
-            Assert.Equal(Title, dialogModel.Title);
+            Assert.Equal(initialValue, viewModel.Title);
+            viewModel.Title = valueToSet;
+            Assert.Equal(valueToSet, viewModel.Title);
         }
     }
 }

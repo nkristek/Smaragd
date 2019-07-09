@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using NKristek.Smaragd.Validation;
+using System.Runtime.CompilerServices;
 using NKristek.Smaragd.ViewModels;
 using Xunit;
 
@@ -9,368 +10,272 @@ namespace NKristek.Smaragd.Tests.ViewModels
 {
     public class ValidatingViewModelTests
     {
-        private class TestValidatingModel
+        private class TestViewModel
             : ValidatingViewModel
         {
-            public TestValidatingModel()
+            private int _property;
+
+            public int Property
             {
-                AddValidation(() => TestProperty, new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5."));
+                get => _property;
+                set => SetProperty(ref _property, value);
             }
 
-            private int _testProperty;
+            private int _anotherProperty;
 
-            public int TestProperty
+            public int AnotherProperty
             {
-                get => _testProperty;
-                set => SetProperty(ref _testProperty, value, out _);
+                get => _anotherProperty;
+                set => SetProperty(ref _anotherProperty, value);
+            }
+
+            public void NotifyPropertyChangingExternal(string propertyName)
+            {
+                NotifyPropertyChanging(propertyName);
+            }
+
+            public void NotifyPropertyChangedExternal(string propertyName)
+            {
+                NotifyPropertyChanged(propertyName);
+            }
+
+            public bool HasNotifiedErrorsChanged;
+
+            protected override void NotifyErrorsChanged([CallerMemberName] string propertyName = null)
+            {
+                base.NotifyErrorsChanged(propertyName);
+                HasNotifiedErrorsChanged = true;
+            }
+
+            public void NotifyErrorsChangedExternal(string propertyName)
+            {
+                NotifyErrorsChanged(propertyName);
             }
         }
 
-        private class TestAddRemoveValidationsViewModel
-            : ValidatingViewModel
-        {
-            private int _testProperty;
+        #region IsValid
 
-            public int TestProperty
-            {
-                get => _testProperty;
-                set => SetProperty(ref _testProperty, value, out _);
-            }
-        }
-
-        [Theory]
-        [InlineData(null, "Value has to be at least 5.")]
-        [InlineData("", "Value has to be at least 5.")]
-        [InlineData(nameof(TestValidatingModel.TestProperty), "Value has to be at least 5.")]
-        [InlineData("NotExistingProperty", null)]
-        public void Subscript_with_invalid_data(string input, string expectedResult)
+        [Fact]
+        public void IsValid_is_false_when_validation_errors_exist()
         {
-            var validatingModel = new TestValidatingModel();
-            Assert.Equal(expectedResult, validatingModel[input]);
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        [InlineData(nameof(TestValidatingModel.TestProperty))]
-        [InlineData("NotExistingProperty")]
-        public void Subscript_with_valid_data(string input)
-        {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5
-            };
-            Assert.Null(validatingModel[input]);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            Assert.False(viewModel.IsValid);
         }
 
         [Fact]
-        public void Error_with_invalid_data()
+        public void IsValid_is_true_when_no_validation_errors_exist()
         {
-            var validatingModel = new TestValidatingModel();
-            Assert.Equal("Value has to be at least 5.", validatingModel.Error);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            viewModel.SetErrors(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.True(viewModel.IsValid);
         }
 
         [Fact]
-        public void Error_with_valid_data()
+        public void IsValid_does_not_set_IsDirty()
         {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5
-            };
-            Assert.Null(validatingModel.Error);
+            var viewModel = new TestViewModel();
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.IsValid));
+            Assert.False(viewModel.IsDirty);
         }
 
         [Fact]
-        public void HasErrors_with_invalid_data()
+        public void IsValid_gets_notified_by_HasErrors()
         {
-            var validatingModel = new TestValidatingModel();
-            Assert.True(validatingModel.HasErrors);
+            var invokedPropertyChangingEvents = new List<string>();
+            var invokedPropertyChangedEvents = new List<string>();
+            var viewModel = new TestViewModel();
+            viewModel.PropertyChanging += (sender, args) => invokedPropertyChangingEvents.Add(args.PropertyName);
+            viewModel.PropertyChanged += (sender, args) => invokedPropertyChangedEvents.Add(args.PropertyName);
+
+            viewModel.NotifyPropertyChangingExternal(nameof(viewModel.HasErrors));
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.HasErrors));
+
+            Assert.Contains(nameof(viewModel.IsValid), invokedPropertyChangingEvents);
+            Assert.Contains(nameof(viewModel.IsValid), invokedPropertyChangedEvents);
+        }
+
+        #endregion
+
+        #region SetErrors
+
+        [Fact]
+        public void SetErrors_throws_ArgumentNullException_when_propertyName_is_null()
+        {
+            var viewModel = new TestViewModel();
+            Assert.Throws<ArgumentNullException>(() => viewModel.SetErrors(Enumerable.Empty<string>(), null));
         }
 
         [Fact]
-        public void HasErrors_with_valid_data()
+        public void SetErrors_propertyName_is_set_by_CallerMemberName()
         {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5
-            };
-            Assert.False(validatingModel.HasErrors);
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(nameof(TestValidatingModel.TestProperty))]
-        public void GetErrors_with_invalid_data(string input)
-        {
-            var validatingModel = new TestValidatingModel();
-            Assert.Contains("Value has to be at least 5.", validatingModel.GetErrors(input).OfType<string>());
+            var invokedErrorChangedEvents = new List<string>();
+            var viewModel = new TestViewModel();
+            viewModel.ErrorsChanged += (sender, args) => invokedErrorChangedEvents.Add(args.PropertyName);
+            viewModel.SetErrors(Enumerable.Repeat("error", 1));
+            Assert.Contains(nameof(SetErrors_propertyName_is_set_by_CallerMemberName), invokedErrorChangedEvents);
         }
 
         [Fact]
-        public void GetErrors_with_invalid_data_and_not_existing_propertyName()
+        public void SetErrors_sets_errors_of_property()
         {
-            var validatingModel = new TestValidatingModel();
-            Assert.Empty(validatingModel.GetErrors("NotExistingProperty"));
-        }
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(nameof(TestValidatingModel.TestProperty))]
-        public void GetErrors_with_valid_data(string input)
-        {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5
-            };
-            Assert.Empty(validatingModel.GetErrors(input));
+            var errors = Enumerable.Repeat("error", 1);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(errors, nameof(viewModel.Property));
+            Assert.Equal(errors, viewModel.GetErrors(nameof(viewModel.Property)));
         }
 
         [Fact]
-        public void ErrorsChanged()
+        public void SetErrors_null_removes_errors_of_property()
         {
-            var errorsChangedInvoked = 0;
-            var validatingViewModel = new TestValidatingModel();
-            validatingViewModel.ErrorsChanged += (sender, v) => errorsChangedInvoked++;
-            validatingViewModel.TestProperty = 5;
-            validatingViewModel.TestProperty = 5;
-            Assert.Equal(1, errorsChangedInvoked);
+            var errors = Enumerable.Repeat("error", 1);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(errors, nameof(viewModel.Property));
+            viewModel.SetErrors(null, nameof(viewModel.Property));
+            Assert.Empty(viewModel.GetErrors(nameof(viewModel.Property)));
         }
 
         [Fact]
-        public void IsValid_with_invalid_data()
+        public void SetErrors_empty_collection_removes_errors_of_property()
         {
-            var validatingModel = new TestValidatingModel();
-            Assert.False(validatingModel.IsValid);
+            var errors = Enumerable.Repeat("error", 1);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(errors, nameof(viewModel.Property));
+            viewModel.SetErrors(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.Empty(viewModel.GetErrors(nameof(viewModel.Property)));
         }
 
         [Fact]
-        public void IsValid_with_valid_data()
+        public void SetErrors_notifies_when_errors_changed()
         {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5
-            };
-            Assert.True(validatingModel.IsValid);
+            var viewModel = new TestViewModel();
+            Assert.False(viewModel.HasNotifiedErrorsChanged);
+            viewModel.SetErrors(Enumerable.Repeat("error", 1));
+            Assert.True(viewModel.HasNotifiedErrorsChanged);
+        }
+
+        #endregion
+
+        #region HasErrors
+
+        [Fact]
+        public void HasErrors_is_true_when_validation_errors_exist()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            Assert.True(viewModel.HasErrors);
         }
 
         [Fact]
-        public void IsValid_PropertyChanged()
+        public void HasErrors_is_false_when_no_validation_errors_exist()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            viewModel.SetErrors(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.False(viewModel.HasErrors);
+        }
+
+        [Fact]
+        public void HasErrors_does_not_set_IsDirty()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.HasErrors));
+            Assert.False(viewModel.IsDirty);
+        }
+
+        [Fact]
+        public void HasErrors_gets_notified_before_errors_change()
+        {
+            var invokedPropertyChangingEvents = new List<string>();
+            var viewModel = new TestViewModel();
+            viewModel.PropertyChanging += (sender, args) => invokedPropertyChangingEvents.Add(args.PropertyName);
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            Assert.Contains(nameof(viewModel.HasErrors), invokedPropertyChangingEvents);
+        }
+
+        [Fact]
+        public void HasErrors_gets_notified_after_errors_change()
         {
             var invokedPropertyChangedEvents = new List<string>();
-
-            var viewModel = new TestValidatingModel();
-            viewModel.PropertyChanged += (sender, e) => { invokedPropertyChangedEvents.Add(e.PropertyName); };
-            viewModel.TestProperty = 5;
-
-            var expectedPropertyChangedEvents = new List<string>
-            {
-                nameof(TestValidatingModel.TestProperty),
-                nameof(TestValidatingModel.IsDirty),
-                nameof(TestValidatingModel.HasErrors),
-                nameof(TestValidatingModel.IsValid)
-            };
-            Assert.Equal(expectedPropertyChangedEvents.OrderBy(n => n), invokedPropertyChangedEvents.OrderBy(n => n));
+            var viewModel = new TestViewModel();
+            viewModel.PropertyChanged += (sender, args) => invokedPropertyChangedEvents.Add(args.PropertyName);
+            viewModel.SetErrors(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            Assert.Contains(nameof(viewModel.HasErrors), invokedPropertyChangedEvents);
         }
 
-        [Fact]
-        public void Validations_empty()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validations = validatingViewModel.Validations().ToList();
-            Assert.Empty(validations);
-            Assert.Empty(validations.SelectMany(v => v.Value));
-        }
+        #endregion
 
-        [Fact]
-        public void Validations_of_property_empty()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validations = validatingViewModel.Validations(() => validatingViewModel.TestProperty);
-            Assert.Empty(validations);
-        }
+        #region GetErrors
 
-        [Fact]
-        public void Validations_not_empty()
+        [Theory]
+        [InlineData(null, 2)]
+        [InlineData("", 2)]
+        [InlineData(nameof(TestViewModel.Property), 1)]
+        [InlineData("NotExistingProperty", 0)]
+        public void GetErrors_with_error(string propertyName, int expectedErrorCount)
         {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, validation);
-            var viewModelValidations = validatingViewModel.Validations().ToList();
-            Assert.NotEmpty(viewModelValidations);
-            Assert.NotEmpty(viewModelValidations.SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void Validations_of_property_not_empty()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, validation);
-            var validationsOfTestProperty = validatingViewModel.Validations(() => validatingViewModel.TestProperty);
-            Assert.NotEmpty(validationsOfTestProperty);
-        }
-
-        [Fact]
-        public void Validations_of_property_invalid_expression_throws_ArgumentException()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            Assert.Throws<ArgumentException>(() => validatingViewModel.Validations(() => new object()));
-        }
-
-        [Fact]
-        public void AddValidation()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, validation);
-            Assert.Equal(Enumerable.Repeat(validation, 1), validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void AddValidation_changing_IsValid()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            Assert.True(validatingViewModel.IsValid);
-            var validation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, validation);
-            Assert.False(validatingViewModel.IsValid);
-            Assert.Equal(Enumerable.Repeat(validation, 1), validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void RemoveValidation_remove_not_all_validations()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var firstValidation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            var secondValidation = new PredicateValidation<int>(value => value <= 10, "Value has to be at most 10.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, firstValidation);
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, secondValidation);
-            validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, firstValidation);
-            Assert.DoesNotContain(firstValidation, validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void RemoveValidation_remove_all_validations()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var firstValidation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            var secondValidation = new PredicateValidation<int>(value => value <= 10, "Value has to be at most 10.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, firstValidation);
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, secondValidation);
-            validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, firstValidation);
-            validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, secondValidation);
-            Assert.Empty(validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void RemoveValidation_validation_already_removed()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var validation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, validation);
-            validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, validation);
-            validatingViewModel.RemoveValidation(() => validatingViewModel.TestProperty, validation);
-            Assert.Empty(validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void RemoveValidations()
-        {
-            var validatingViewModel = new TestAddRemoveValidationsViewModel();
-            var firstValidation = new PredicateValidation<int>(value => value >= 5, "Value has to be at least 5.");
-            var secondValidation = new PredicateValidation<int>(value => value <= 10, "Value has to be at most 10.");
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, firstValidation);
-            validatingViewModel.AddValidation(() => validatingViewModel.TestProperty, secondValidation);
-            validatingViewModel.RemoveValidations(() => validatingViewModel.TestProperty);
-            Assert.Empty(validatingViewModel.Validations().SelectMany(v => v.Value));
-        }
-
-        [Fact]
-        public void IsValidationSuspended_initially_false()
-        {
-            var viewModel = new TestValidatingModel();
-            Assert.False(viewModel.IsValidationSuspended);
-        }
-
-        [Fact]
-        public void IsValidationSuspended_set()
-        {
-            var viewModel = new TestValidatingModel
-            {
-                IsValidationSuspended = true
-            };
-            Assert.True(viewModel.IsValidationSuspended);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.Property));
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.AnotherProperty));
+            Assert.Equal(Enumerable.Repeat("Value has to be at least 5.", expectedErrorCount), viewModel.GetErrors(propertyName));
         }
 
         [Theory]
-        [InlineData(false, 1)]
-        [InlineData(true, 0)]
-        public void IsValidationSuspended_suspends_validation(bool validationsSuspended, int expectedExecutedValidation)
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(nameof(TestViewModel.Property))]
+        [InlineData("NotExistingProperty")]
+        public void GetErrors_without_error(string propertyName)
         {
-            var validationsExecuted = 0;
-            var validatingModel = new TestAddRemoveValidationsViewModel
-            {
-                IsValidationSuspended = validationsSuspended
-            };
-            var validation = new PredicateValidation<int>(value =>
-            {
-                validationsExecuted++;
-                return value >= 5;
-            }, "Value has to be at least 5.");
-            validatingModel.AddValidation(() => validatingModel.TestProperty, validation);
-            Assert.Equal(expectedExecutedValidation, validationsExecuted);
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.Property));
+            viewModel.SetErrors(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.Empty(viewModel.GetErrors(propertyName));
         }
+
+        [Theory]
+        [InlineData(null, 2)]
+        [InlineData("", 2)]
+        [InlineData(nameof(TestViewModel.Property), 1)]
+        [InlineData("NotExistingProperty", 0)]
+        public void INotifyDataErrorInfoGetErrors_with_error(string propertyName, int expectedErrorCount)
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.Property));
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.AnotherProperty));
+            Assert.Equal(Enumerable.Repeat("Value has to be at least 5.", expectedErrorCount), ((INotifyDataErrorInfo)viewModel).GetErrors(propertyName));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(nameof(TestViewModel.Property))]
+        [InlineData("NotExistingProperty")]
+        public void INotifyDataErrorInfoGetErrors_without_error(string propertyName)
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrors(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestViewModel.Property));
+            viewModel.SetErrors(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.Empty(((INotifyDataErrorInfo)viewModel).GetErrors(propertyName));
+        }
+
+        #endregion
+
+        #region NotifyErrorsChanged
 
         [Fact]
-        public void SuspendValidation_invalid_to_valid()
+        public void NotifyErrorsChanged_raises_event_on_ErrorsChanged()
         {
-            var validatingModel = new TestValidatingModel
-            {
-                IsValidationSuspended = true,
-                TestProperty = 5
-            };
-            Assert.False(validatingModel.IsValid);
+            var invokedErrorChangedEvents = new List<string>();
+            var viewModel = new TestViewModel();
+            viewModel.ErrorsChanged += (sender, args) => invokedErrorChangedEvents.Add(args.PropertyName);
 
-            validatingModel.IsValidationSuspended = false;
-            Assert.True(validatingModel.IsValid);
+            viewModel.NotifyErrorsChangedExternal(nameof(viewModel.Property));
+
+            Assert.Equal(Enumerable.Repeat(nameof(viewModel.Property), 1), invokedErrorChangedEvents);
         }
 
-        [Fact]
-        public void SuspendValidation_valid_to_invalid()
-        {
-            var validatingModel = new TestValidatingModel
-            {
-                TestProperty = 5,
-                IsValidationSuspended = true
-            };
-            validatingModel.TestProperty = 4;
-            Assert.True(validatingModel.IsValid);
-
-            validatingModel.IsValidationSuspended = false;
-            Assert.False(validatingModel.IsValid);
-        }
-
-        [Fact]
-        public void ValidateAll_property_does_not_exist()
-        {
-            var validationsExecuted = 0;
-            var validatingModel = new TestAddRemoveValidationsViewModel
-            {
-                IsValidationSuspended = true
-            };
-            var validation = new PredicateValidation<int>(value =>
-            {
-                validationsExecuted++;
-                return value >= 5;
-            }, "Value has to be at least 5.");
-            var notExistingPropertyOfViewModel = 0;
-            validatingModel.AddValidation(() => notExistingPropertyOfViewModel, validation);
-
-            validatingModel.IsValidationSuspended = false;
-            Assert.Equal(0, validationsExecuted);
-        }
+        #endregion
     }
 }

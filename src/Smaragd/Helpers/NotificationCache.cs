@@ -41,11 +41,10 @@ namespace NKristek.Smaragd.Helpers
         }
 
         /// <inheritdoc />
-        /// <exception cref="ArgumentNullException">If <paramref name="propertyName"/> is null.</exception>
         public IEnumerable<string> GetPropertyNamesToNotify(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
-                throw new ArgumentNullException(nameof(propertyName));
+                return Enumerable.Empty<string>();
 
             if (_cachedPropertyNamesToNotify.TryGetValue(propertyName, out var cachedPropertyNamesToNotify))
                 return cachedPropertyNamesToNotify.ToList();

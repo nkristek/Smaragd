@@ -9,7 +9,7 @@ namespace NKristek.Smaragd.Commands
     /// Defines a command with <see cref="INotifyPropertyChanging" /> and <see cref="INotifyPropertyChanged" /> support.
     /// </summary>
     public interface IBindableCommand
-        : ICommand, IRaisePropertyChanging, IRaisePropertyChanged
+        : ICommand, IBindable
     {
     }
 }

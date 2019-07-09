@@ -3,22 +3,15 @@
     /// <summary>
     /// Validates a given value.
     /// </summary>
-    public interface IValidation
+    /// <typeparam name="TValue">The type of the value to validate.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    public interface IValidation<in TValue, out TResult>
     {
         /// <summary>
         /// Validates the given <paramref name="value"/>.
         /// </summary>
-        /// <param name="value">Value to validate.</param>
-        /// <param name="errorMessage">Error message when the value is not valid.</param>
-        /// <returns>If the given <paramref name="value"/> is valid.</returns>
-        bool IsValid(object value, out string errorMessage);
-    }
-
-    /// <inheritdoc />
-    public interface IValidation<in T>
-        : IValidation
-    {
-        /// <inheritdoc cref="IsValid"/>
-        bool IsValid(T value, out string errorMessage);
+        /// <param name="value">The value to validate.</param>
+        /// <returns>The result of the validation.</returns>
+        TResult Validate(TValue value);
     }
 }

@@ -16,7 +16,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// If this <see cref="ITreeViewModel"/> is expanded.
         /// </summary>
-        bool IsExpanded { get; }
+        bool IsExpanded { get; set; }
 
         /// <summary>
         /// Children in the Tree. It is used to update the state of <see cref="IsChecked"/>.
@@ -31,7 +31,7 @@ namespace NKristek.Smaragd.ViewModels
         /// Since this is, most of the time, not the desired behaviour, setting this property directly to <see langword="null"/> will result in it being <see langword="false"/>.
         /// If you want to set <see langword="null"/>, use <see cref="SetIsChecked"/> instead.
         /// </remarks>
-        bool? IsChecked { get; }
+        bool? IsChecked { get; set; }
 
         /// <summary>
         /// Set the <see cref="IsChecked"/> property and optionally update <see cref="TreeChildren"/> and <see cref="IViewModel.Parent"/>. 

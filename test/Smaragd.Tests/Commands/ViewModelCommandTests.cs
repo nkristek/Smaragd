@@ -1,6 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.Commands;
 using NKristek.Smaragd.ViewModels;
 using Xunit;
@@ -60,15 +60,26 @@ namespace NKristek.Smaragd.Tests.Commands
                 if (viewModel != parameter)
                     throw new Exception("invalid parameter");
             }
+
+            public void NotifyCanExecuteChangedExternal()
+            {
+                NotifyCanExecuteChanged();
+            }
         }
 
         private class CanExecuteSourceViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            [CanExecuteSource(nameof(TestViewModel.TestProperty))]
             protected override bool CanExecute(TestViewModel viewModel, object parameter)
             {
                 return viewModel.TestProperty;
+            }
+
+            /// <inheritdoc />
+            protected override void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(TestViewModel.TestProperty)))
+                    NotifyCanExecuteChanged();
             }
 
             protected override void Execute(TestViewModel viewModel, object parameter)
@@ -205,13 +216,13 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void RaiseCanExecuteChanged_raises_event_on_CanExecuteChanged()
+        public void NotifyCanExecuteChanged_raises_event_on_CanExecuteChanged()
         {
             var invokedCanExecuteChangedEvents = 0;
             var command = new DefaultViewModelCommand();
-            command.RaiseCanExecuteChanged();
+            command.NotifyCanExecuteChangedExternal();
             command.CanExecuteChanged += (sender, args) => invokedCanExecuteChangedEvents++;
-            command.RaiseCanExecuteChanged();
+            command.NotifyCanExecuteChangedExternal();
             Assert.Equal(1, invokedCanExecuteChangedEvents);
         }
 

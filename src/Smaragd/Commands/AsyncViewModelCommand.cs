@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using NKristek.Smaragd.Attributes;
+using NKristek.Smaragd.Helpers;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
@@ -18,27 +14,6 @@ namespace NKristek.Smaragd.Commands
     public abstract class AsyncViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel>, IAsyncCommand where TViewModel : class, IViewModel
     {
-        private readonly IList<string> _cachedCanExecuteSourceNames;
-
-        /// <inheritdoc />
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncViewModelCommand{TViewModel}" /> class.
-        /// </summary>
-        protected AsyncViewModelCommand()
-        {
-            _cachedCanExecuteSourceNames = GetCanExecuteSourceNames().ToList();
-        }
-
-        private IEnumerable<string> GetCanExecuteSourceNames()
-        {
-            return GetType()
-                .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                .Where(m => m.Name == nameof(CanExecute))
-                .SelectMany(m => m.GetCustomAttributes<CanExecuteSourceAttribute>())
-                .SelectMany(a => a.PropertySources)
-                .Distinct();
-        }
-
         /// <inheritdoc />
         /// <remarks>
         /// This defaults to the name of the type, including its namespace but not its assembly.
@@ -50,41 +25,44 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public TViewModel Parent
         {
-            get => _parent != null && _parent.TryGetTarget(out var parent) ? parent : null;
+            get => _parent?.TargetOrDefault();
             set
             {
-                if (value == Parent) return;
-                var oldValue = Parent;
-                if (oldValue != null)
-                    oldValue.PropertyChanged -= ParentOnPropertyChanged;
+                if (!SetProperty(ref _parent, value, out var oldValue))
+                    return;
 
-                _parent = value != null ? new WeakReference<TViewModel>(value) : null;
-                RaisePropertyChanged();
+                if (oldValue != null)
+                {
+                    oldValue.PropertyChanging -= OnParentPropertyChanging;
+                    oldValue.PropertyChanged -= OnParentPropertyChanged;
+                }
 
                 if (value != null)
-                    value.PropertyChanged += ParentOnPropertyChanged;
+                {
+                    value.PropertyChanging += OnParentPropertyChanging;
+                    value.PropertyChanged += OnParentPropertyChanged;
+                }
             }
         }
 
-        private void ParentOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        /// <summary>
+        /// Gets called when a property value of the <see cref="Parent"/> is changing.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">Arguments of the event.</param>
+        protected virtual void OnParentPropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-            if (_cachedCanExecuteSourceNames.Contains(e.PropertyName))
-                RaiseCanExecuteChanged();
         }
 
-        private bool _isWorking;
-
-        /// <inheritdoc />
-        public bool IsWorking
+        /// <summary>
+        /// Gets called when a property value of the <see cref="Parent"/> changed.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">Arguments of the event.</param>
+        protected virtual void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            get => _isWorking;
-            private set
-            {
-                if (SetProperty(ref _isWorking, value, out _))
-                    RaiseCanExecuteChanged();
-            }
         }
-        
+
         /// <inheritdoc />
         public virtual bool AllowsConcurrentExecution => false;
 
@@ -100,50 +78,87 @@ namespace NKristek.Smaragd.Commands
             await ExecuteAsync(parameter);
         }
 
-        private int _isWorkingCount;
+        private int _executionCount;
+        
+        private readonly object _executionCountLock = new object();
 
-        private readonly object _isWorkingLock = new object();
+        private delegate void ReferenceAction<T>(ref T value);
 
+        private void ModifyExecutionCount(ReferenceAction<int> modification)
+        {
+            if (modification == null)
+                throw new ArgumentNullException(nameof(modification));
+
+            NotifyPropertyChanging(nameof(IsWorking));
+            lock (_executionCountLock)
+                modification(ref _executionCount);
+            NotifyPropertyChanged(nameof(IsWorking));
+
+            if (!AllowsConcurrentExecution)
+                NotifyCanExecuteChanged();
+        }
+
+        /// <inheritdoc />
+        public bool IsWorking
+        {
+            get
+            {
+                lock (_executionCountLock)
+                    return _executionCount > 0;
+            }
+        }
+        
+        private IDisposable BeginExecute()
+        {
+            ModifyExecutionCount((ref int executionCount) => executionCount++);
+            return new ActionDisposable(EndExecute);
+        }
+
+        private void EndExecute()
+        {
+            ModifyExecutionCount((ref int executionCount) => executionCount--);
+        }
+        
         /// <inheritdoc />
         public async Task ExecuteAsync(object parameter)
         {
             if (!CanExecute(parameter))
                 return;
 
-            try
+            using (BeginExecute())
             {
-                lock (_isWorkingLock)
-                {
-                    _isWorkingCount++;
-                    IsWorking = true;
-                }
-
-                await ExecuteAsync(Parent, parameter);
-            }
-            finally
-            {
-                lock (_isWorkingLock)
-                {
-                    _isWorkingCount--;
-                    IsWorking = _isWorkingCount > 0;
-                }
+                var task = ExecuteAsync(Parent, parameter);
+                if (task != null)
+                    await task;
             }
         }
 
-        /// <inheritdoc cref="ICommand.CanExecute" />
+        /// <summary>
+        /// Determines whether the command can execute based on its current state and the given <paramref name="viewModel"/>.
+        /// </summary>
+        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
+        /// <returns>Whether the command can execute based on its current state and the given <paramref name="viewModel"/>.</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
         }
 
-        /// <inheritdoc cref="IAsyncCommand.ExecuteAsync" />
+        /// <summary>
+        /// Invoke the asynchronous execution of this command.
+        /// </summary>
+        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
+        /// <returns>The <see cref="Task"/> of the execution.</returns>
         protected abstract Task ExecuteAsync(TViewModel viewModel, object parameter);
 
         /// <inheritdoc />
-        public virtual event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged;
 
-        /// <inheritdoc />
-        public virtual void RaiseCanExecuteChanged()
+        /// <summary>
+        /// Raise an event on <see cref="ICommand.CanExecuteChanged"/> to indicate that <see cref="ICommand.CanExecute(object)"/> should be reevaluated.
+        /// </summary>
+        protected virtual void NotifyCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }

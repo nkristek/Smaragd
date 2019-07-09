@@ -7,7 +7,7 @@ namespace NKristek.Smaragd.Attributes
 {
     /// <inheritdoc />
     /// <summary>
-    /// This <see cref="Attribute"/> can be used on properties in a class inheriting from <see cref="ComputedBindable" />.
+    /// This <see cref="Attribute"/> can be used on properties in a class inheriting from <see cref="ViewModel" />.
     /// It indicates, that the property depends on one or multiple properties.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]

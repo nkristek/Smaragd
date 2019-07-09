@@ -1,16 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Input;
-using NKristek.Smaragd.Commands;
-
-namespace NKristek.Smaragd.ViewModels
+﻿namespace NKristek.Smaragd.ViewModels
 {
-    /// <inheritdoc cref="INotifyPropertyChanged" />
+    /// <inheritdoc />
     /// <summary>
-    /// Defines properties which are useful for a ViewModel implementation.
+    /// Defines properties which are useful for a viewmodel implementation.
     /// </summary>
     public interface IViewModel
-        : IRaisePropertyChanging, IRaisePropertyChanged
+        : IBindable
     {
         /// <summary>
         /// Indicates if a property changed and the change is not persisted.
@@ -31,23 +26,5 @@ namespace NKristek.Smaragd.ViewModels
         /// Indicates if this <see cref="IViewModel"/> instance is currently being updated.
         /// </summary>
         bool IsUpdating { get; set; }
-
-        /// <summary>
-        /// Commands of this <see cref="IViewModel"/>.
-        /// </summary>
-        IReadOnlyDictionary<string, ICommand> Commands { get; }
-
-        /// <summary>
-        /// Adds the <paramref name="command"/> to the <see cref="Commands"/> dictionary.
-        /// </summary>
-        /// <param name="command">The command to add.</param>
-        void AddCommand(INamedCommand command);
-
-        /// <summary>
-        /// Removes the <paramref name="command"/> from the <see cref="Commands"/> dictionary.
-        /// </summary>
-        /// <param name="command">The command to remove.</param>
-        /// <returns>If the command was removed.</returns>
-        bool RemoveCommand(INamedCommand command);
     }
 }
