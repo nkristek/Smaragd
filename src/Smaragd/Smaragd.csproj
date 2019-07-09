@@ -34,6 +34,7 @@ A more detailed summary of the changes:
 # ComputedBindable and ViewModel
 - remove ComputedBindable class and move logic to ViewModel class
 - remove Commands dictionary from ViewModel class
+- add virtual keyword to IsDirty, Parent and IsUpdating properties
 
 # ValidatingViewModel
 - remove IRaiseErrorsChanged interface and change method to protected visibility
