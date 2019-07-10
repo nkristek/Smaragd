@@ -142,7 +142,6 @@ namespace NKristek.Smaragd.ViewModels
         private WeakReference<IViewModel> _parent;
 
         /// <inheritdoc />
-        /// <remarks>Uses a <see cref="WeakReference{IViewModel}"/>.</remarks>
         [IsDirtyIgnored]
         [IsReadOnlyIgnored]
         public virtual IViewModel Parent
