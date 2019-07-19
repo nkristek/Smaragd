@@ -7,8 +7,12 @@ namespace NKristek.Smaragd.Attributes
 {
     /// <inheritdoc />
     /// <summary>
+    /// <para>
     /// This <see cref="Attribute"/> can be used on properties in a class inheriting from <see cref="ViewModel" />.
+    /// </para>
+    /// <para>
     /// It indicates, that the property depends on one or multiple properties.
+    /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertySourceAttribute
@@ -20,7 +24,7 @@ namespace NKristek.Smaragd.Attributes
         public IEnumerable<string> PropertySources { get; set; }
 
         /// <summary>
-        /// Indicates if the attributes from the base class should be considered.
+        /// Indicates if the attributes from the property of the base class should be considered.
         /// </summary>
         public bool InheritAttributes { get; set; }
 

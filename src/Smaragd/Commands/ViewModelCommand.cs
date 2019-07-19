@@ -11,9 +11,6 @@ namespace NKristek.Smaragd.Commands
         : Bindable, IViewModelCommand<TViewModel> where TViewModel : class, IViewModel
     {
         /// <inheritdoc />
-        /// <remarks>
-        /// This defaults to the name of the type, including its namespace but not its assembly.
-        /// </remarks>
         public virtual string Name => GetType().FullName;
 
         private WeakReference<TViewModel> _parent;

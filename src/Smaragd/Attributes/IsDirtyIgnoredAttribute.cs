@@ -9,7 +9,7 @@ namespace NKristek.Smaragd.Attributes
     /// This <see cref="Attribute"/> can be used on properties in classes inheriting from <see cref="ViewModel" />.
     /// </para>
     /// <para>
-    /// It indicates, that a property should not set <see cref="ViewModel.IsDirty" /> to <see langword="true"/> when the property changes.
+    /// It indicates, that <see cref="ViewModel.IsDirty" /> should not be set to <see langword="true"/> when the property value changes.
     /// </para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
@@ -17,7 +17,7 @@ namespace NKristek.Smaragd.Attributes
         : Attribute
     {
         /// <summary>
-        /// Indicates if the attributes from the base class should be considered.
+        /// Indicates if the attributes from the property of the base class should be considered.
         /// </summary>
         public bool InheritAttributes { get; set; }
     }

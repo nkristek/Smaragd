@@ -16,7 +16,7 @@ namespace NKristek.Smaragd.Commands
         bool IsWorking { get; }
 
         /// <summary>
-        /// If the execute method can be called concurrently.
+        /// Indicates if the execute method can be called concurrently.
         /// </summary>
         bool AllowsConcurrentExecution { get; }
 

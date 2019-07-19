@@ -17,7 +17,7 @@ namespace NKristek.Smaragd.Attributes
         : Attribute
     {
         /// <summary>
-        /// Indicates if the attributes from the base class should be considered.
+        /// Indicates if the attributes from the property of the base class should be considered.
         /// </summary>
         public bool InheritAttributes { get; set; }
     }

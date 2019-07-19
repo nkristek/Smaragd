@@ -6,7 +6,7 @@ namespace NKristek.Smaragd.Commands
 {
     /// <inheritdoc cref="ICommand" />
     /// <summary>
-    /// Defines a command with <see cref="INotifyPropertyChanging" /> and <see cref="INotifyPropertyChanged" /> support.
+    /// Defines a command that notifies clients that a property value is changing or has changed.
     /// </summary>
     public interface IBindableCommand
         : ICommand, IBindable
