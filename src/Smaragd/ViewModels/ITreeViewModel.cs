@@ -6,10 +6,6 @@ namespace NKristek.Smaragd.ViewModels
     /// <summary>
     /// Defines a <see cref="IViewModel" /> to use in a tree view.
     /// </summary>
-    /// <remarks>
-    /// It will update its parent <see cref="ITreeViewModel" /> and children <see cref="ITreeViewModel" /> with appropriate states for <see cref="IsChecked" />.
-    /// To propagate changes to children, it is necessary that the <see cref="TreeChildren"/> property is overriden to return the appropriate collection.
-    /// </remarks>
     public interface ITreeViewModel
         : IViewModel
     {
@@ -19,7 +15,7 @@ namespace NKristek.Smaragd.ViewModels
         bool IsExpanded { get; set; }
 
         /// <summary>
-        /// Children in the Tree. It is used to update the state of <see cref="IsChecked"/>.
+        /// The children in the tree. It is also used to update the state of <see cref="IsChecked"/>.
         /// </summary>
         IEnumerable<ITreeViewModel> TreeChildren { get; }
 

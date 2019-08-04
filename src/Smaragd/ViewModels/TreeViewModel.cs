@@ -5,6 +5,10 @@ using NKristek.Smaragd.Attributes;
 namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc cref="ITreeViewModel" />
+    /// <remarks>
+    /// It will update its parent <see cref="ITreeViewModel" /> and children <see cref="ITreeViewModel" /> with appropriate states for <see cref="IsChecked" />.
+    /// To propagate changes to children, it is necessary that the <see cref="TreeChildren"/> property is overriden to return the appropriate collection.
+    /// </remarks>
     public abstract class TreeViewModel
         : ViewModel, ITreeViewModel
     {

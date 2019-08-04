@@ -25,6 +25,7 @@ namespace NKristek.Smaragd.Helpers
         {
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
@@ -36,14 +37,10 @@ namespace NKristek.Smaragd.Helpers
             Dispose(false);
         }
 
-        /// <summary>
-        /// Disposes native resources and optionally managed resources
-        /// </summary>
-        /// <param name="managed">True to dispose managed resources</param>
-        private void Dispose(bool managed)
+        private void Dispose(bool disposeManagedResources)
         {
             DisposeNativeResources();
-            if (managed)
+            if (disposeManagedResources)
                 DisposeManagedResources();
         }
     }

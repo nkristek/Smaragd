@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -9,7 +9,7 @@ namespace NKristek.Smaragd.Commands
 {
     /// <inheritdoc cref="IViewModelCommand{TViewModel}" />
     /// <remarks>
-    /// This defines an asynchronous viewmodel command.
+    /// This defines an asynchronous <see cref="IViewModelCommand{TViewModel}"/>.
     /// </remarks>
     public abstract class AsyncViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel>, IAsyncCommand where TViewModel : class, IViewModel
@@ -131,11 +131,11 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <summary>
-        /// Determines whether the command can execute based on its current state and the given <paramref name="viewModel"/>.
+        /// Determines whether the command can execute based on its current state, the given <paramref name="viewModel"/> and <paramref name="parameter"/>.
         /// </summary>
-        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
-        /// <returns>Whether the command can execute based on its current state and the given <paramref name="viewModel"/>.</returns>
+        /// <returns>Whether the command can execute based on its current state, the given <paramref name="viewModel"/> and <paramref name="parameter"/>.</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
@@ -144,7 +144,7 @@ namespace NKristek.Smaragd.Commands
         /// <summary>
         /// Invoke the asynchronous execution of this command.
         /// </summary>
-        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
         /// <returns>The <see cref="Task"/> of the execution.</returns>
         protected abstract Task ExecuteAsync(TViewModel viewModel, object parameter);

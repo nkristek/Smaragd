@@ -8,11 +8,11 @@ namespace NKristek.Smaragd.Helpers
     public static class WeakReferenceExtensions
     {
         /// <summary>
-        /// Try to retrieve the target of the given <paramref name="weakReference"/> or get the default value for <typeparamref name="T"/> instead.
+        /// Try to retrieve the target of the given <paramref name="weakReference"/> or get the <see langword="default"/> value of <typeparamref name="T"/> instead.
         /// </summary>
         /// <typeparam name="T">The generic type of the <see cref="WeakReference{T}"/>.</typeparam>
         /// <param name="weakReference">The <see cref="WeakReference{T}"/> of which the target should be retrieved.</param>
-        /// <returns>The target of the given <paramref name="weakReference"/> or the default value for <typeparamref name="T"/>.</returns>
+        /// <returns>The target of the given <paramref name="weakReference"/> or the <see langword="default"/> value of <typeparamref name="T"/>.</returns>
         public static T TargetOrDefault<T>(this WeakReference<T> weakReference)
             where T : class
         {

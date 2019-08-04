@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Windows.Input;
 using NKristek.Smaragd.Helpers;
@@ -72,11 +72,11 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <summary>
-        /// Determines whether the command can execute based on its current state and the given <paramref name="viewModel"/>.
+        /// Determines whether the command can execute based on its current state, the given <paramref name="viewModel"/> and <paramref name="parameter"/>.
         /// </summary>
-        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
-        /// <returns>Whether the command can execute based on its current state and the given <paramref name="viewModel"/>.</returns>
+        /// <returns>Whether the command can execute based on its current state, the given <paramref name="viewModel"/> and <paramref name="parameter"/>.</returns>
         protected virtual bool CanExecute(TViewModel viewModel, object parameter)
         {
             return true;
@@ -85,7 +85,7 @@ namespace NKristek.Smaragd.Commands
         /// <summary>
         /// Invoke the execution of this command.
         /// </summary>
-        /// <param name="viewModel">The context viewmodel.</param>
+        /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
         protected abstract void Execute(TViewModel viewModel, object parameter);
 

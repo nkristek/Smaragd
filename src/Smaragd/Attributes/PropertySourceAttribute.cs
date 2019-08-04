@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Attributes
 {
     /// <inheritdoc />
     /// <summary>
-    /// <para>
-    /// This <see cref="Attribute"/> can be used on properties in a class inheriting from <see cref="ViewModel" />.
-    /// </para>
-    /// <para>
-    /// It indicates, that the property depends on one or multiple properties.
-    /// </para>
+    /// This <see cref="Attribute"/> is used to indicate, that the property depends on one or multiple properties.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertySourceAttribute
         : Attribute
     {
         /// <summary>
-        /// Property names which should raise <see cref="INotifyPropertyChanged.PropertyChanged"/>.
+        /// Property names which should raise <see cref="INotifyPropertyChanging.PropertyChanging"/> and <see cref="INotifyPropertyChanged.PropertyChanged"/>.
         /// </summary>
         public IEnumerable<string> PropertySources { get; set; }
 
         /// <summary>
-        /// Indicates if the attributes from the property of the base class should be considered.
+        /// Indicates if attributes of the property from the base class should be considered.
         /// </summary>
         public bool InheritAttributes { get; set; }
 
