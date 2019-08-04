@@ -27,15 +27,14 @@ namespace NKristek.Smaragd.ViewModels
 
             PropertyChanged += OnPropertyChanged;
 
-            var collectionProperties = GetType()
+            var collections = GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => !_isDirtyIgnoredProperties.Contains(p.Name))
-                .Where(p => typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType));
-            foreach (var collectionProperty in collectionProperties)
-            {
-                if (collectionProperty.GetValue(this, null) is INotifyCollectionChanged collection)
-                    collection.CollectionChanged += OnChildCollectionChanged;
-            }
+                .Where(p => typeof(INotifyCollectionChanged).IsAssignableFrom(p.PropertyType))
+                .Select(p => p.GetValue(this, null))
+                .OfType<INotifyCollectionChanged>();
+            foreach (var collection in collections)
+                collection.CollectionChanged += OnChildCollectionChanged;
         }
 
         private void InitAttributes()
