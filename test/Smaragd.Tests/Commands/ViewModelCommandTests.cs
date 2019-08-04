@@ -76,7 +76,7 @@ namespace NKristek.Smaragd.Tests.Commands
             }
 
             /// <inheritdoc />
-            protected override void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+            protected override void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
                 if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(TestViewModel.TestProperty)))
                     NotifyCanExecuteChanged();
@@ -128,20 +128,20 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void Parent_disposed_is_null()
+        public void Context_disposed_is_null()
         {
-            var command = CreateTestCommandWithDisposedParent();
+            var command = CreateTestCommandWithDisposedContext();
             GCHelper.TriggerGC();
-            Assert.Null(command.Parent);
+            Assert.Null(command.Context);
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
-        private static DefaultViewModelCommand CreateTestCommandWithDisposedParent()
+        private static DefaultViewModelCommand CreateTestCommandWithDisposedContext()
         {
             var viewModel = new TestViewModel();
             return new DefaultViewModelCommand
             {
-                Parent = viewModel
+                Context = viewModel
             };
         }
 
@@ -169,7 +169,7 @@ namespace NKristek.Smaragd.Tests.Commands
                 return true;
             })
             {
-                Parent = viewModel
+                Context = viewModel
             };
             command.CanExecute(null);
             Assert.True(canExecuteWasExecuted);
@@ -196,7 +196,7 @@ namespace NKristek.Smaragd.Tests.Commands
                     throw new ArgumentException(nameof(vm));
             })
             {
-                Parent = viewModel
+                Context = viewModel
             };
             command.Execute(null);
         }
@@ -227,12 +227,12 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void ParentPropertyChanged_raises_event_on_CanExecuteChanged()
+        public void ContextPropertyChanged_raises_event_on_CanExecuteChanged()
         {
             var viewModel = new TestViewModel();
             var command = new CanExecuteSourceViewModelCommand
             {
-                Parent = viewModel
+                Context = viewModel
             };
 
             var invokedCanExecuteChangedEvents = 0;
@@ -242,52 +242,52 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void Parent_set()
+        public void Context_set()
         {
             var viewModel = new TestViewModel();
             var command = new DefaultViewModelCommand
             {
-                Parent = viewModel
+                Context = viewModel
             };
-            Assert.Equal(viewModel, command.Parent);
+            Assert.Equal(viewModel, command.Context);
         }
 
         [Fact]
-        public void Parent_set_twice()
+        public void Context_set_twice()
         {
             var viewModel = new TestViewModel();
             var command = new DefaultViewModelCommand
             {
-                Parent = viewModel
+                Context = viewModel
             };
-            command.Parent = viewModel;
-            Assert.Equal(viewModel, command.Parent);
+            command.Context = viewModel;
+            Assert.Equal(viewModel, command.Context);
         }
 
         [Fact]
-        public void Parent_set_after_set()
+        public void Context_set_after_set()
         {
             var firstViewModel = new TestViewModel();
             var secondViewModel = new TestViewModel();
             var command = new DefaultViewModelCommand
             {
-                Parent = firstViewModel
+                Context = firstViewModel
             };
-            command.Parent = secondViewModel;
-            Assert.Equal(secondViewModel, command.Parent);
+            command.Context = secondViewModel;
+            Assert.Equal(secondViewModel, command.Context);
         }
 
         [Fact]
-        public void Parent_set_to_null()
+        public void Context_set_to_null()
         {
             var viewModel = new TestViewModel();
             var command = new DefaultViewModelCommand
             {
-                Parent = viewModel
+                Context = viewModel
             };
 
-            command.Parent = null;
-            Assert.Null(command.Parent);
+            command.Context = null;
+            Assert.Null(command.Context);
         }
 
         [Fact]

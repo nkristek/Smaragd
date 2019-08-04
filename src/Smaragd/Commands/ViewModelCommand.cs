@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows.Input;
 using NKristek.Smaragd.Helpers;
@@ -13,62 +13,62 @@ namespace NKristek.Smaragd.Commands
         /// <inheritdoc />
         public virtual string Name => GetType().FullName;
 
-        private WeakReference<TViewModel> _parent;
+        private WeakReference<TViewModel> _context;
 
         /// <inheritdoc />
-        public TViewModel Parent
+        public TViewModel Context
         {
-            get => _parent?.TargetOrDefault();
+            get => _context?.TargetOrDefault();
             set
             {
-                if (!SetProperty(ref _parent, value, out var oldValue))
+                if (!SetProperty(ref _context, value, out var oldValue))
                     return;
 
                 if (oldValue != null)
                 {
-                    oldValue.PropertyChanging -= OnParentPropertyChanging;
-                    oldValue.PropertyChanged -= OnParentPropertyChanged;
+                    oldValue.PropertyChanging -= OnContextPropertyChanging;
+                    oldValue.PropertyChanged -= OnContextPropertyChanged;
                 }
 
                 if (value != null)
                 {
-                    value.PropertyChanging += OnParentPropertyChanging;
-                    value.PropertyChanged += OnParentPropertyChanged;
+                    value.PropertyChanging += OnContextPropertyChanging;
+                    value.PropertyChanged += OnContextPropertyChanged;
                 }
             }
         }
 
         /// <summary>
-        /// Gets called when a property value of the <see cref="Parent"/> is changing.
+        /// Gets called when a property value of the <see cref="Context"/> is changing.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">Arguments of the event.</param>
-        protected virtual void OnParentPropertyChanging(object sender, PropertyChangingEventArgs e)
+        protected virtual void OnContextPropertyChanging(object sender, PropertyChangingEventArgs e)
         {
         }
 
         /// <summary>
-        /// Gets called when a property value of the <see cref="Parent"/> changed.
+        /// Gets called when a property value of the <see cref="Context"/> changed.
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">Arguments of the event.</param>
-        protected virtual void OnParentPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
         }
 
         /// <inheritdoc />
         public bool CanExecute(object parameter)
         {
-            return CanExecute(Parent, parameter);
+            return CanExecute(Context, parameter);
         }
 
         /// <inheritdoc />
         public void Execute(object parameter)
         {
-            if (!CanExecute(Parent, parameter))
+            if (!CanExecute(parameter))
                 return;
 
-            Execute(Parent, parameter);
+            Execute(Context, parameter);
         }
 
         /// <summary>

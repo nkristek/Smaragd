@@ -1,4 +1,4 @@
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using NKristek.Smaragd.ViewModels;
 
 namespace NKristek.Smaragd.Commands
@@ -12,8 +12,8 @@ namespace NKristek.Smaragd.Commands
         : INamedCommand, IBindableCommand where TViewModel : class, IViewModel
     {
         /// <summary>
-        /// Parent of this <see cref="IViewModelCommand{TViewModel}"/>.
+        /// Context of this <see cref="IViewModelCommand{TViewModel}"/>.
         /// </summary>
-        TViewModel Parent { get; set; }
+        TViewModel Context { get; set; }
     }
 }
