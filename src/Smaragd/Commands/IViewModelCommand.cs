@@ -9,7 +9,7 @@ namespace NKristek.Smaragd.Commands
     /// </summary>
     /// <typeparam name="TViewModel">The type of the context <see cref="IViewModel"/>.</typeparam>
     public interface IViewModelCommand<TViewModel>
-        : INamedCommand, IBindableCommand where TViewModel : class, IViewModel
+        : IBindableCommand where TViewModel : class, IViewModel
     {
         /// <summary>
         /// Context of this <see cref="IViewModelCommand{TViewModel}"/>.

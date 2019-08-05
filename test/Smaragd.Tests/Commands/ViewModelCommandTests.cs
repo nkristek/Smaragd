@@ -88,39 +88,6 @@ namespace NKristek.Smaragd.Tests.Commands
         }
 
         [Fact]
-        public void Name_NotNullOrWhitespace()
-        {
-            var command = new DefaultViewModelCommand();
-            Assert.False(String.IsNullOrWhiteSpace(command.Name));
-        }
-
-        [Fact]
-        public void Name_is_the_same_for_the_same_commandType()
-        {
-            var firstCommand = new DefaultViewModelCommand();
-            var secondCommand = new DefaultViewModelCommand();
-            Assert.Equal(firstCommand.Name, secondCommand.Name);
-        }
-
-        [Fact]
-        public void Name_is_different_for_different_commandTypes()
-        {
-            var firstCommand = new DefaultViewModelCommand();
-            var secondCommand = new RelayViewModelCommand((vm, para) =>
-            {
-                if (vm == null)
-                    throw new ArgumentNullException(nameof(vm));
-
-                if (para == null)
-                    throw new ArgumentNullException(nameof(para));
-
-                if (vm != para)
-                    throw new Exception("invalid parameter");
-            });
-            Assert.NotEqual(firstCommand.Name, secondCommand.Name);
-        }
-
-        [Fact]
         public void CanExecute_returns_true_by_default()
         {
             var command = new DefaultViewModelCommand();

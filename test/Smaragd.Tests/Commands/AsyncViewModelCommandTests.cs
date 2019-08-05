@@ -123,39 +123,6 @@ namespace NKristek.Smaragd.Tests.Commands
                 await Task.Yield();
             }
         }
-        
-        [Fact]
-        public void Name_NotNullOrWhitespace()
-        {
-            var command = new DefaultAsyncViewModelCommand();
-            Assert.False(String.IsNullOrWhiteSpace(command.Name));
-        }
-
-        [Fact]
-        public void Name_is_the_same_for_the_same_commandType()
-        {
-            var firstCommand = new DefaultAsyncViewModelCommand();
-            var secondCommand = new DefaultAsyncViewModelCommand();
-            Assert.Equal(firstCommand.Name, secondCommand.Name);
-        }
-
-        [Fact]
-        public void Name_is_different_for_different_commandTypes()
-        {
-            var firstCommand = new DefaultAsyncViewModelCommand();
-            var secondCommand = new AsyncRelayViewModelCommand((vm, para) => Task.Run(() =>
-            {
-                if (vm == null)
-                    throw new ArgumentNullException(nameof(vm));
-
-                if (para == null)
-                    throw new ArgumentNullException(nameof(para));
-
-                if (vm != para)
-                    throw new Exception("invalid parameter");
-            }));
-            Assert.NotEqual(firstCommand.Name, secondCommand.Name);
-        }
 
         [Fact]
         public void IsWorking_is_initially_false()

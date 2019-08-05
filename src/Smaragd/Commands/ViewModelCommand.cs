@@ -10,9 +10,6 @@ namespace NKristek.Smaragd.Commands
     public abstract class ViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel> where TViewModel : class, IViewModel
     {
-        /// <inheritdoc />
-        public virtual string Name => GetType().FullName;
-
         private WeakReference<TViewModel> _context;
 
         /// <inheritdoc />

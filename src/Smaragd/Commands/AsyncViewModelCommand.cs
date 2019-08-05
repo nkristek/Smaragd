@@ -14,9 +14,6 @@ namespace NKristek.Smaragd.Commands
     public abstract class AsyncViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel>, IAsyncCommand where TViewModel : class, IViewModel
     {
-        /// <inheritdoc />
-        public virtual string Name => GetType().FullName;
-
         private WeakReference<TViewModel> _context;
 
         /// <inheritdoc />
