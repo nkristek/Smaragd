@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using NKristek.Smaragd.Attributes;
 
@@ -41,8 +41,8 @@ namespace NKristek.Smaragd.ViewModels
             if (!SetProperty(ref _isChecked, value, null, nameof(IsChecked)))
                 return;
 
-            if (updateChildren && IsChecked.HasValue && TreeChildren != null)
-                foreach (var child in TreeChildren)
+            if (updateChildren && IsChecked.HasValue && (TreeChildren is IEnumerable<ITreeViewModel> treeChildren))
+                foreach (var child in treeChildren)
                     child.SetIsChecked(IsChecked, true, false);
 
             if (updateParent)
@@ -54,12 +54,12 @@ namespace NKristek.Smaragd.ViewModels
         /// </summary>
         protected void ReevaluateIsChecked()
         {
-            if (TreeChildren == null || !TreeChildren.Any())
+            if (!(TreeChildren is IEnumerable<ITreeViewModel> treeChildren) || !treeChildren.Any())
                 return;
 
-            if (TreeChildren.All(c => c.IsChecked == true))
+            if (treeChildren.All(c => c.IsChecked == true))
                 SetIsChecked(true, false, true);
-            else if (TreeChildren.All(c => c.IsChecked == false))
+            else if (treeChildren.All(c => c.IsChecked == false))
                 SetIsChecked(false, false, true);
             else
                 SetIsChecked(null, false, true);
