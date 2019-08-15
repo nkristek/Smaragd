@@ -1,4 +1,4 @@
-# Smaragd
+# ![Icon](./resources/icon-32x32.png) Smaragd
 
 [![Build Status](https://dev.azure.com/nkristek/Smaragd/_apis/build/status/nkristek.Smaragd?branchName=master)](https://dev.azure.com/nkristek/Smaragd/_build/latest?definitionId=2&branchName=master)
 [![Code coverage](https://img.shields.io/azure-devops/coverage/nkristek/Smaragd/2.svg)](https://dev.azure.com/nkristek/Smaragd/_build/latest?definitionId=2&branchName=master)
