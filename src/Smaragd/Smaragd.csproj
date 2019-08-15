@@ -45,8 +45,8 @@ A more detailed summary of the changes:
 - add overload to GetErrors method with generic return type IEnumerable&lt;string&gt;
 - remove support for IDataErrorInfo interface
 - change IValidation interface to generic in and out parameters
-- remove Validation&lt;T&gt; class
-- rename PredicateValidation class to FuncValidation and use Func instead of Predicate to implement the changed interface
+- remove Validation&lt;T&gt; base class
+- add FuncValidation class
 
 # ViewModelCommand and AsyncViewModelCommand
 - remove IRaiseCanExecuteChanged interface and change method to protected visibility
