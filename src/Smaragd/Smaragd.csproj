@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net47;net471;net472</TargetFrameworks>
     <LangVersion>latest</LangVersion>
@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging</PackageTags>
+    <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
     <PackageReleaseNotes>This release introduces a refactoring of many classes and interfaces included in this library. This reduces complexity, enables better testability and provides better performance.
 There are also new features, like the added support for WeakReference&lt;T&gt; storage fields, updated XML documentation and more unittests.
 
