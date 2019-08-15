@@ -50,9 +50,9 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <summary>
-        /// This reevaluates the <see cref="IsChecked"/> property based on the <see cref="TreeChildren"/> collection.
+        /// Reevaluate the <see cref="IsChecked"/> property based on the <see cref="TreeChildren"/> collection.
         /// </summary>
-        protected void ReevaluateIsChecked()
+        protected internal void ReevaluateIsChecked()
         {
             if (!(TreeChildren is IEnumerable<ITreeViewModel> treeChildren) || !treeChildren.Any())
                 return;
