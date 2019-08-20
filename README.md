@@ -29,6 +29,12 @@ Currently supported frameworks:
 - .NET Standard 2.0 or higher
 - .NET Framework 4.5 or higher
 
+## Why another MVVM library?
+
+This library originated in my other project [Stein](https://github.com/nkristek/Stein) and was subsequently moved to its own repository and nuget package. The goal is to provide a great yet minimal foundation which also promotes a good code style. Nearly everything is marked virtual ([except events](https://msdn.microsoft.com/en-us/library/hy3sefw3.aspx)) so you can customize it to fit your needs.
+
+And of course, this library is [🚀blazing fast🚀](https://twitter.com/acdlite/status/974390255393505280).
+
 ## Contribution
 
 If you find a bug feel free to open an issue. Contributions are also appreciated.
