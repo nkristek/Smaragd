@@ -6,6 +6,8 @@ using NKristek.Smaragd.Attributes;
 using NKristek.Smaragd.ViewModels;
 using NKristek.Smaragd.Helpers;
 using Xunit;
+using System.Linq;
+using System.Collections;
 
 namespace NKristek.Smaragd.Tests.ViewModels
 {
@@ -99,7 +101,79 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 get => _isDirtyIgnoredWeakValues?.TargetOrDefault();
                 set => SetProperty(ref _isDirtyIgnoredWeakValues, value);
             }
+
+            public void NotifyPropertyChangingExternal(string propertyName)
+            {
+                NotifyPropertyChanging(propertyName);
+            }
+
+            public void NotifyPropertyChangedExternal(string propertyName)
+            {
+                NotifyPropertyChanged(propertyName);
+            }
+
+            public void SetErrorsExternal(IEnumerable errors, string propertyName)
+            {
+                SetErrors(errors, propertyName);
+            }
         }
+
+        #region IsValid
+
+        [Fact]
+        public void IsValid_is_false_when_validation_errors_exist()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrorsExternal(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            Assert.False(viewModel.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_is_true_when_no_validation_errors_exist()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.SetErrorsExternal(Enumerable.Repeat("error", 1), nameof(viewModel.Property));
+            viewModel.SetErrorsExternal(Enumerable.Empty<string>(), nameof(viewModel.Property));
+            Assert.True(viewModel.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_does_not_set_IsDirty()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.IsValid));
+            Assert.False(viewModel.IsDirty);
+        }
+
+        [Fact]
+        public void IsValid_gets_notified_by_HasErrors()
+        {
+            var invokedPropertyChangingEvents = new List<string>();
+            var invokedPropertyChangedEvents = new List<string>();
+            var viewModel = new TestViewModel();
+            viewModel.PropertyChanging += (sender, args) => invokedPropertyChangingEvents.Add(args.PropertyName);
+            viewModel.PropertyChanged += (sender, args) => invokedPropertyChangedEvents.Add(args.PropertyName);
+
+            viewModel.NotifyPropertyChangingExternal(nameof(viewModel.HasErrors));
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.HasErrors));
+
+            Assert.Contains(nameof(viewModel.IsValid), invokedPropertyChangingEvents);
+            Assert.Contains(nameof(viewModel.IsValid), invokedPropertyChangedEvents);
+        }
+
+        #endregion
+
+        #region HasErrors
+
+        [Fact]
+        public void HasErrors_does_not_set_IsDirty()
+        {
+            var viewModel = new TestViewModel();
+            viewModel.NotifyPropertyChangedExternal(nameof(viewModel.HasErrors));
+            Assert.False(viewModel.IsDirty);
+        }
+
+        #endregion
 
         #region IsDirty
 

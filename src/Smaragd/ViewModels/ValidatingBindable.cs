@@ -4,26 +4,33 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using NKristek.Smaragd.Attributes;
 
 namespace NKristek.Smaragd.ViewModels
 {
-    /// <inheritdoc cref="IValidatingViewModel" />
-    public abstract class ValidatingViewModel
-        : ViewModel, IValidatingViewModel
+    /// <inheritdoc cref="IValidatingBindable" />
+    public abstract class ValidatingBindable
+        : Bindable, IValidatingBindable
     {
         private readonly Dictionary<string, IReadOnlyCollection<object>> _errors = new Dictionary<string, IReadOnlyCollection<object>>();
 
-        #region IValidatingViewModel
+        /// <inheritdoc />
+        public virtual bool HasErrors => _errors.Count > 0;
 
         /// <inheritdoc />
-        [IsDirtyIgnored]
-        [PropertySource(nameof(HasErrors))]
-        public virtual bool IsValid => !HasErrors;
+        public virtual IEnumerable GetErrors(string propertyName)
+        {
+            if (String.IsNullOrEmpty(propertyName))
+                return _errors.SelectMany(kvp => kvp.Value);
+            return _errors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<object>();
+        }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Set validation errors of a property.
+        /// </summary>
+        /// <param name="errors">The errors of the property.</param>
+        /// <param name="propertyName">The name of the property.</param>
         /// <exception cref="ArgumentNullException"><paramref name="propertyName"/> is <see langword="null"/> or empty.</exception>
-        public virtual void SetErrors(IEnumerable errors, [CallerMemberName] string propertyName = null)
+        protected virtual void SetErrors(IEnumerable errors, [CallerMemberName] string propertyName = null)
         {
             if (String.IsNullOrEmpty(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
@@ -44,25 +51,9 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
-        #endregion
-
-        #region INotifyDataErrorInfo
-
-        /// <inheritdoc />
-        [IsDirtyIgnored]
-        public virtual bool HasErrors => _errors.Count > 0;
-
-        /// <inheritdoc />
-        public virtual IEnumerable GetErrors(string propertyName)
-        {
-            if (String.IsNullOrEmpty(propertyName))
-                return _errors.SelectMany(kvp => kvp.Value);
-            return _errors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<object>();
-        }
-
         /// <inheritdoc />
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-        
+
         /// <summary>
         /// Raises an event on <see cref="INotifyDataErrorInfo.ErrorsChanged"/> to indicate that the validation errors have changed.
         /// </summary>
@@ -71,7 +62,5 @@ namespace NKristek.Smaragd.ViewModels
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
-
-        #endregion
     }
 }

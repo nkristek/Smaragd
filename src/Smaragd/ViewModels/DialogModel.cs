@@ -2,7 +2,7 @@
 {
     /// <inheritdoc cref="IDialogModel" />
     public abstract class DialogModel
-        : ValidatingViewModel, IDialogModel
+        : ViewModel, IDialogModel
     {
         private string _title;
 

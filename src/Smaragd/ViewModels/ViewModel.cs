@@ -12,7 +12,7 @@ namespace NKristek.Smaragd.ViewModels
 {
     /// <inheritdoc cref="IViewModel" />
     public abstract class ViewModel
-        : Bindable, IViewModel
+        : ValidatingBindable, IViewModel
     {
         private readonly INotificationCache _notificationCache = new NotificationCache();
 
@@ -126,6 +126,15 @@ namespace NKristek.Smaragd.ViewModels
         {
             IsDirty = true;
         }
+
+        /// <inheritdoc />
+        [IsDirtyIgnored]
+        public override bool HasErrors => base.HasErrors;
+
+        /// <inheritdoc />
+        [IsDirtyIgnored]
+        [PropertySource(nameof(HasErrors))]
+        public virtual bool IsValid => !HasErrors;
 
         private bool _isDirty;
 

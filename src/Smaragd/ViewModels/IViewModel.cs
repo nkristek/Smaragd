@@ -5,7 +5,7 @@
     /// Defines properties which are useful for a viewmodel implementation.
     /// </summary>
     public interface IViewModel
-        : IBindable
+        : IValidatingBindable
     {
         /// <summary>
         /// Indicates if a property changed and the change is not persisted.
@@ -26,5 +26,10 @@
         /// Indicates if this <see cref="IViewModel"/> instance is currently being updated.
         /// </summary>
         bool IsUpdating { get; set; }
+        
+        /// <summary>
+        /// If data is valid.
+        /// </summary>
+        bool IsValid { get; }
     }
 }
