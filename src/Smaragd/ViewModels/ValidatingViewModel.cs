@@ -12,9 +12,9 @@ namespace NKristek.Smaragd.ViewModels
     public abstract class ValidatingViewModel
         : ViewModel, IValidatingViewModel
     {
-        #region IValidatingViewModel
+        private readonly Dictionary<string, IEnumerable> _errors = new Dictionary<string, IEnumerable>();
 
-        private readonly Dictionary<string, IList<string>> _validationErrors = new Dictionary<string, IList<string>>();
+        #region IValidatingViewModel
 
         /// <inheritdoc />
         [IsDirtyIgnored]
@@ -23,23 +23,22 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         /// <exception cref="ArgumentNullException"><paramref name="propertyName"/> is <see langword="null"/> or empty.</exception>
-        public virtual void SetErrors(IEnumerable<string> errors, [CallerMemberName] string propertyName = null)
+        public virtual void SetErrors(IEnumerable errors, [CallerMemberName] string propertyName = null)
         {
             if (String.IsNullOrEmpty(propertyName))
                 throw new ArgumentNullException(nameof(propertyName));
 
-            var errorList = (errors ?? Enumerable.Empty<string>()).ToList();
-            if (errorList.Any())
+            if (errors != null && errors.Cast<object>().Any())
             {
                 NotifyPropertyChanging(nameof(HasErrors));
-                _validationErrors[propertyName] = errorList;
+                _errors[propertyName] = errors;
                 NotifyErrorsChanged(propertyName);
                 NotifyPropertyChanged(nameof(HasErrors));
             }
-            else if (_validationErrors.ContainsKey(propertyName))
+            else if (_errors.ContainsKey(propertyName))
             {
                 NotifyPropertyChanging(nameof(HasErrors));
-                _validationErrors.Remove(propertyName);
+                _errors.Remove(propertyName);
                 NotifyErrorsChanged(propertyName);
                 NotifyPropertyChanged(nameof(HasErrors));
             }
@@ -51,19 +50,14 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
-        public virtual bool HasErrors => _validationErrors.Any();
+        public virtual bool HasErrors => _errors.Any();
 
-        /// <inheritdoc cref="INotifyDataErrorInfo.GetErrors" />
-        public virtual IEnumerable<string> GetErrors(string propertyName)
+        /// <inheritdoc />
+        public virtual IEnumerable GetErrors(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
-                return _validationErrors.SelectMany(kvp => kvp.Value);
-            return _validationErrors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<string>();
-        }
-
-        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
-        {
-            return GetErrors(propertyName);
+                return _errors.SelectMany(kvp => kvp.Value.Cast<object>());
+            return _errors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<object>();
         }
 
         /// <inheritdoc />
