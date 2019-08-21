@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -51,13 +50,13 @@ namespace NKristek.Smaragd.ViewModels
 
         /// <inheritdoc />
         [IsDirtyIgnored]
-        public virtual bool HasErrors => _errors.Any();
+        public virtual bool HasErrors => _errors.Count > 0;
 
         /// <inheritdoc />
         public virtual IEnumerable GetErrors(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
-                return _errors.SelectMany(kvp => kvp.Value.Cast<object>());
+                return _errors.SelectMany(kvp => kvp.Value);
             return _errors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<object>();
         }
 
