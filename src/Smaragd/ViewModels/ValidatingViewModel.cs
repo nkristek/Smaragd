@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -12,7 +13,7 @@ namespace NKristek.Smaragd.ViewModels
     public abstract class ValidatingViewModel
         : ViewModel, IValidatingViewModel
     {
-        private readonly Dictionary<string, IEnumerable> _errors = new Dictionary<string, IEnumerable>();
+        private readonly Dictionary<string, IReadOnlyCollection<object>> _errors = new Dictionary<string, IReadOnlyCollection<object>>();
 
         #region IValidatingViewModel
 
@@ -31,7 +32,7 @@ namespace NKristek.Smaragd.ViewModels
             if (errors != null && errors.Cast<object>().Any())
             {
                 NotifyPropertyChanging(nameof(HasErrors));
-                _errors[propertyName] = errors;
+                _errors[propertyName] = errors.Cast<object>().ToList().AsReadOnly();
                 NotifyErrorsChanged(propertyName);
                 NotifyPropertyChanged(nameof(HasErrors));
             }
