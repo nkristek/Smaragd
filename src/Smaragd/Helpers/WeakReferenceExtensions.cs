@@ -13,10 +13,12 @@ namespace NKristek.Smaragd.Helpers
         /// <typeparam name="T">The generic type of the <see cref="WeakReference{T}"/>.</typeparam>
         /// <param name="weakReference">The <see cref="WeakReference{T}"/> of which the target should be retrieved.</param>
         /// <returns>The target of the given <paramref name="weakReference"/> or the <see langword="default"/> value of <typeparamref name="T"/>.</returns>
-        public static T TargetOrDefault<T>(this WeakReference<T> weakReference)
+        public static T? TargetOrDefault<T>(this WeakReference<T> weakReference)
             where T : class
         {
-            return weakReference != null && weakReference.TryGetTarget(out var target) ? target : default;
+            if (weakReference == null)
+                throw new ArgumentNullException(nameof(weakReference));
+            return weakReference.TryGetTarget(out var target) ? target : default;
         }
     }
 }
