@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net47;net471;net472</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
     <Version>5.1</Version>
