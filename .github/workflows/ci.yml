@@ -4,17 +4,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        dotnet: [ '2.2.401', '3.0.100-preview8-013656' ]
-        
+    runs-on: windows-latest  
     steps:
     - uses: actions/checkout@v1
     - name: Install .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: '2.1.801'
     - name: Build
       run: dotnet build --configuration Release
     - name: Test
