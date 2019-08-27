@@ -10,6 +10,6 @@
         /// <summary>
         /// The title of the dialog.
         /// </summary>
-        string Title { get; }
+        string? Title { get; }
     }
 }

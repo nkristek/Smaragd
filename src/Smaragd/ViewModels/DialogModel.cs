@@ -4,10 +4,10 @@
     public abstract class DialogModel
         : ViewModel, IDialogModel
     {
-        private string _title;
+        private string? _title;
 
         /// <inheritdoc />
-        public virtual string Title
+        public virtual string? Title
         {
             get => _title;
             set => SetProperty(ref _title, value);
