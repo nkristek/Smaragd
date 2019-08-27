@@ -22,6 +22,6 @@ namespace NKristek.Smaragd.Commands
 
         /// <inheritdoc cref="ICommand.Execute" />
         /// <returns>The <see cref="Task"/> of the asynchronous execution.</returns>
-        Task ExecuteAsync(object parameter);
+        Task ExecuteAsync(object? parameter = null);
     }
 }
