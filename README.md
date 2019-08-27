@@ -1,6 +1,6 @@
 # ![Icon](./resources/icon-32x32.png) Smaragd
 
-[![CI Status](https://github.com/nkristek/Smaragd/workflows/ci/badge.svg)](https://github.com/nkristek/Smaragd/actions)
+[![CI Status](https://github.com/nkristek/Smaragd/workflows/CI/badge.svg)](https://github.com/nkristek/Smaragd/actions)
 [![NuGet version](https://img.shields.io/nuget/v/NKristek.Smaragd.svg)](https://www.nuget.org/packages/NKristek.Smaragd/)
 [![GitHub license](https://img.shields.io/github/license/nkristek/Smaragd.svg)](https://github.com/nkristek/Smaragd/blob/master/LICENSE)
 
