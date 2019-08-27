@@ -9,9 +9,9 @@ namespace NKristek.Smaragd.Helpers
     internal sealed class ActionDisposable
         : Disposable
     {
-        private readonly Action _disposeManagedResourcesAction;
+        private readonly Action? _disposeManagedResourcesAction;
 
-        private readonly Action _disposeNativeResourcesAction;
+        private readonly Action? _disposeNativeResourcesAction;
 
         /// <inheritdoc />
         /// <summary>
@@ -19,7 +19,7 @@ namespace NKristek.Smaragd.Helpers
         /// </summary>
         /// <param name="disposeManagedResourcesAction">Action to dispose managed resources. A managed resource is another managed type, which implements <see cref="IDisposable"/>.</param>
         /// <param name="disposeNativeResourcesAction">Action to dispose native resources. Native resources are anything outside the managed world such as native Windows handles etc.</param>
-        public ActionDisposable(Action disposeManagedResourcesAction, Action disposeNativeResourcesAction = null)
+        public ActionDisposable(Action? disposeManagedResourcesAction, Action? disposeNativeResourcesAction = null)
         {
             _disposeManagedResourcesAction = disposeManagedResourcesAction;
             _disposeNativeResourcesAction = disposeNativeResourcesAction;
