@@ -24,7 +24,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<ITreeViewModel> TreeChildren { get; } = null;
+        public virtual IEnumerable<ITreeViewModel>? TreeChildren { get; } = null;
 
         private bool? _isChecked = false;
 
@@ -41,12 +41,12 @@ namespace NKristek.Smaragd.ViewModels
             if (!SetProperty(ref _isChecked, value, null, nameof(IsChecked)))
                 return;
 
-            if (updateChildren && IsChecked.HasValue && (TreeChildren is IEnumerable<ITreeViewModel> treeChildren))
+            if (updateChildren && IsChecked.HasValue && TreeChildren is IEnumerable<ITreeViewModel> treeChildren)
                 foreach (var child in treeChildren)
                     child.SetIsChecked(IsChecked, true, false);
 
-            if (updateParent)
-                (Parent as TreeViewModel)?.ReevaluateIsChecked();
+            if (updateParent && Parent is TreeViewModel parentTreeViewModel)
+                parentTreeViewModel.ReevaluateIsChecked();
         }
 
         /// <summary>

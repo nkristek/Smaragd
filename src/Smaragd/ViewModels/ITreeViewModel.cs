@@ -17,7 +17,7 @@ namespace NKristek.Smaragd.ViewModels
         /// <summary>
         /// The children in the tree. It is also used to update the state of <see cref="IsChecked"/>.
         /// </summary>
-        IEnumerable<ITreeViewModel> TreeChildren { get; }
+        IEnumerable<ITreeViewModel>? TreeChildren { get; }
 
         /// <summary>
         /// If this <see cref="ITreeViewModel"/> is checked. This property will get updated by its children and updates the children when set.
