@@ -18,7 +18,7 @@ namespace NKristek.Smaragd.Helpers
         }
 
         /// <inheritdoc />
-        /// <exception cref="ArgumentNullException">If either <paramref name="propertyNameOfNotifyingProperty"/> or <paramref name="propertyNameToNotify"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">If either <paramref name="propertyNameOfNotifyingProperty"/> or <paramref name="propertyNameToNotify"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">If <paramref name="propertyNameOfNotifyingProperty"/> and <paramref name="propertyNameToNotify"/> are equal (a property should not notify itself).</exception>
         public void AddPropertyNameToNotify(string propertyNameOfNotifyingProperty, string propertyNameToNotify)
         {
