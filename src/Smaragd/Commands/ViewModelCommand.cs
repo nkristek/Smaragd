@@ -10,10 +10,10 @@ namespace NKristek.Smaragd.Commands
     public abstract class ViewModelCommand<TViewModel>
         : Bindable, IViewModelCommand<TViewModel> where TViewModel : class, IViewModel
     {
-        private WeakReference<TViewModel> _context;
+        private WeakReference<TViewModel>? _context;
 
         /// <inheritdoc />
-        public TViewModel Context
+        public TViewModel? Context
         {
             get => _context?.TargetOrDefault();
             set
@@ -21,16 +21,16 @@ namespace NKristek.Smaragd.Commands
                 if (!SetProperty(ref _context, value, out var oldValue))
                     return;
 
-                if (oldValue != null)
+                if (oldValue is TViewModel oldViewModel)
                 {
-                    oldValue.PropertyChanging -= OnContextPropertyChanging;
-                    oldValue.PropertyChanged -= OnContextPropertyChanged;
+                    oldViewModel.PropertyChanging -= OnContextPropertyChanging;
+                    oldViewModel.PropertyChanged -= OnContextPropertyChanged;
                 }
 
-                if (value != null)
+                if (value is TViewModel newViewModel)
                 {
-                    value.PropertyChanging += OnContextPropertyChanging;
-                    value.PropertyChanged += OnContextPropertyChanged;
+                    newViewModel.PropertyChanging += OnContextPropertyChanging;
+                    newViewModel.PropertyChanged += OnContextPropertyChanged;
                 }
             }
         }
@@ -54,13 +54,13 @@ namespace NKristek.Smaragd.Commands
         }
 
         /// <inheritdoc />
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             return CanExecute(Context, parameter);
         }
 
         /// <inheritdoc />
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
             if (!CanExecute(parameter))
                 return;
@@ -74,7 +74,7 @@ namespace NKristek.Smaragd.Commands
         /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
         /// <returns>Whether the command can execute based on its current state, the given <paramref name="viewModel"/> and <paramref name="parameter"/>.</returns>
-        protected virtual bool CanExecute(TViewModel viewModel, object parameter)
+        protected virtual bool CanExecute(TViewModel? viewModel, object? parameter = null)
         {
             return true;
         }
@@ -84,7 +84,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="viewModel">The context <typeparamref name="TViewModel"/>.</param>
         /// <param name="parameter">Additional data used by the command. If the command does not require additional data to be passed, this parameter can be set to <see langword="null"/>.</param>
-        protected abstract void Execute(TViewModel viewModel, object parameter);
+        protected abstract void Execute(TViewModel? viewModel, object? parameter = null);
 
         /// <inheritdoc />
         public event EventHandler CanExecuteChanged;

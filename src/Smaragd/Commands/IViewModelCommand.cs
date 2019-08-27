@@ -14,6 +14,6 @@ namespace NKristek.Smaragd.Commands
         /// <summary>
         /// Context of this <see cref="IViewModelCommand{TViewModel}"/>.
         /// </summary>
-        TViewModel Context { get; set; }
+        TViewModel? Context { get; set; }
     }
 }
