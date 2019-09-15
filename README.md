@@ -30,7 +30,7 @@ Currently supported frameworks:
 
 ## Quick Start
 
-For most applications, it is recommended to use the [ViewModel](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/ViewModel.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/ViewModel)), but if you only need an implementation for `INotifyPropertyChanged` (or `INotifyPropertyChanging`) you may use the [Bindable](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/Bindable.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/Bindable)). 
+For most applications, it is recommended that viewmodels inherit from the [ViewModel](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/ViewModel.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/ViewModel)), but if you only need an implementation for `INotifyPropertyChanged` (or `INotifyPropertyChanging`) you may use the [Bindable](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/Bindable.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/Bindable)). 
 
 Commands should inherit from either [ViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/ViewModelCommand.cs) or [AsyncViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/AsyncViewModelCommand.cs) ([more info](https://github.com/nkristek/Smaragd/wiki/Commands)).
 
