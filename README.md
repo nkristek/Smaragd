@@ -28,6 +28,12 @@ Currently supported frameworks:
 - .NET Standard 2.0 or higher
 - .NET Framework 4.5 or higher
 
+## Quick Start
+
+For most applications, it is recommended that viewmodels inherit from the [ViewModel](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/ViewModel.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/ViewModel)), but if you only need an implementation for `INotifyPropertyChanged` (or `INotifyPropertyChanging`) you may use the [Bindable](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/ViewModels/Bindable.cs) base class ([more info](https://github.com/nkristek/Smaragd/wiki/Bindable)) instead. 
+
+Commands may inherit from either [ViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/ViewModelCommand.cs) or [AsyncViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/AsyncViewModelCommand.cs) ([more info](https://github.com/nkristek/Smaragd/wiki/Commands)).
+
 ## Why another MVVM library?
 
 This library originated in my other project [Stein](https://github.com/nkristek/Stein) and was subsequently moved to its own repository and nuget package. The goal is to provide a great yet minimal foundation which also promotes a good code style. Nearly everything is marked virtual ([except events](https://msdn.microsoft.com/en-us/library/hy3sefw3.aspx)) so you can customize it to fit your needs.
