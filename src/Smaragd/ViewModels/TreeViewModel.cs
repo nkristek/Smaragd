@@ -24,7 +24,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<ITreeViewModel>? TreeChildren { get; } = null;
+        public virtual IEnumerable<ITreeViewModel>? TreeChildren => null;
 
         private bool? _isChecked = false;
 
