@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -147,7 +147,7 @@ namespace NKristek.Smaragd.Commands
         protected abstract Task ExecuteAsync(TViewModel? viewModel, object? parameter = null);
 
         /// <inheritdoc />
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
 
         /// <summary>
         /// Raise an event on <see cref="ICommand.CanExecuteChanged"/> to indicate that <see cref="ICommand.CanExecute(object)"/> should be reevaluated.

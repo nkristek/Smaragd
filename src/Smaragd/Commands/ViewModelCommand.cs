@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Windows.Input;
 using NKristek.Smaragd.Helpers;
@@ -87,7 +87,7 @@ namespace NKristek.Smaragd.Commands
         protected abstract void Execute(TViewModel? viewModel, object? parameter = null);
 
         /// <inheritdoc />
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
 
         /// <summary>
         /// Raise an event on <see cref="ICommand.CanExecuteChanged"/> to indicate that <see cref="ICommand.CanExecute(object)"/> should be reevaluated.

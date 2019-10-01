@@ -1,4 +1,4 @@
-﻿using NKristek.Smaragd.Helpers;
+using NKristek.Smaragd.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +14,7 @@ namespace NKristek.Smaragd.ViewModels
         : IBindable
     {
         /// <inheritdoc />
-        public event PropertyChangingEventHandler PropertyChanging;
+        public event PropertyChangingEventHandler? PropertyChanging;
 
         /// <summary>
         /// Raise an event on <see cref="INotifyPropertyChanging.PropertyChanging"/> to indicate that a property value is changing.
@@ -26,7 +26,7 @@ namespace NKristek.Smaragd.ViewModels
         }
 
         /// <inheritdoc />
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Raise an event on <see cref="INotifyPropertyChanged.PropertyChanged"/> to indicate that a property value changed.
