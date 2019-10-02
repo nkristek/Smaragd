@@ -21,7 +21,7 @@ namespace NKristek.Smaragd.ViewModels
         {
             if (String.IsNullOrEmpty(propertyName))
                 return _errors.SelectMany(kvp => kvp.Value);
-            return _errors.TryGetValue(propertyName, out var errors) ? errors : Enumerable.Empty<object>();
+            return _errors.TryGetValue(propertyName!, out var errors) ? errors : Enumerable.Empty<object>();
         }
 
         /// <summary>
@@ -38,14 +38,14 @@ namespace NKristek.Smaragd.ViewModels
             if (errors is IEnumerable errorsEnumeration && errorsEnumeration.Cast<object>().Any())
             {
                 NotifyPropertyChanging(nameof(HasErrors));
-                _errors[propertyName] = errorsEnumeration.Cast<object>().ToList().AsReadOnly();
+                _errors[propertyName!] = errorsEnumeration.Cast<object>().ToList().AsReadOnly();
                 NotifyErrorsChanged(propertyName);
                 NotifyPropertyChanged(nameof(HasErrors));
             }
-            else if (_errors.ContainsKey(propertyName))
+            else if (_errors.ContainsKey(propertyName!))
             {
                 NotifyPropertyChanging(nameof(HasErrors));
-                _errors.Remove(propertyName);
+                _errors.Remove(propertyName!);
                 NotifyErrorsChanged(propertyName);
                 NotifyPropertyChanged(nameof(HasErrors));
             }

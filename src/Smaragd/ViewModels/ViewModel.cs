@@ -190,7 +190,7 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrEmpty(propertyName))
                 return;
 
-            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName))
+            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName!))
                 base.NotifyPropertyChanging(propertyNameToNotify);
         }
 
@@ -204,7 +204,7 @@ namespace NKristek.Smaragd.ViewModels
             if (String.IsNullOrEmpty(propertyName))
                 return;
 
-            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName))
+            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName!))
                 base.NotifyPropertyChanged(propertyNameToNotify);
         }
 
@@ -215,13 +215,13 @@ namespace NKristek.Smaragd.ViewModels
         protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T>? comparer = null, [CallerMemberName] string? propertyName = null)
         {
             oldValue = storage;
-            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName)))
+            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName!)))
                 return false;
 
             if (!base.SetProperty(ref storage, value, out oldValue, comparer, propertyName))
                 return false;
 
-            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName))
+            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName!))
                 return true;
 
             if (oldValue is INotifyCollectionChanged oldCollection)
@@ -241,13 +241,13 @@ namespace NKristek.Smaragd.ViewModels
             where T : class
         {
             oldValue = storage?.TargetOrDefault();
-            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName)))
+            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName!)))
                 return false;
 
             if (!base.SetProperty(ref storage, value, out oldValue, comparer, propertyName))
                 return false;
 
-            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName))
+            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName!))
                 return true;
 
             if (oldValue is INotifyCollectionChanged oldCollection)
