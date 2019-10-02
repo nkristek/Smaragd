@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace NKristek.Smaragd.Helpers
 {
@@ -9,39 +10,44 @@ namespace NKristek.Smaragd.Helpers
     internal abstract class Disposable
         : IDisposable
     {
-        /// <summary>
-        /// Override to dispose managed resources.
-        /// A managed resource is another managed type, which implements <see cref="IDisposable"/>.
-        /// </summary>
-        protected virtual void DisposeManagedResources()
-        {
-        }
+        private const int Undisposed = 0, Disposed = 1;
+
+        private volatile int _disposeState;
 
         /// <summary>
-        /// Override to dispose native resources.
-        /// Native resources are anything outside the managed world such as native Windows handles etc.
+        /// If this disposable instance is already disposed.
         /// </summary>
-        protected virtual void DisposeNativeResources()
-        {
-        }
+        protected bool IsDisposed => _disposeState != Undisposed;
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         ~Disposable()
         {
             Dispose(false);
         }
 
-        private void Dispose(bool disposeManagedResources)
+        /// <inheritdoc />
+        public void Dispose()
         {
-            DisposeNativeResources();
-            if (disposeManagedResources)
-                DisposeManagedResources();
+            if (Interlocked.Exchange(ref _disposeState, Disposed) != Undisposed)
+                return;
+
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes resources.
+        /// </summary>
+        /// <param name="managed">If managed resources should be disposed. A managed resource is another managed type, which implements <see cref="IDisposable"/>.</param>
+        protected abstract void Dispose(bool managed = true);
+
+        /// <summary>
+        /// Throw an <see cref="ObjectDisposedException"/> if this disposable instance is already disposed.
+        /// </summary>
+        protected void ThrowIfDisposed()
+        {
+            if (IsDisposed)
+                throw new ObjectDisposedException(GetType()?.Name ?? nameof(IDisposable));
         }
     }
 }

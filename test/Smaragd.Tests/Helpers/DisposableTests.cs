@@ -14,18 +14,11 @@ namespace NKristek.Smaragd.Tests.Helpers
 
             public Action OnDisposeNativeResources;
 
-            protected override void DisposeManagedResources()
+            protected override void Dispose(bool managed = true)
             {
-                base.DisposeManagedResources();
-
-                OnDisposeManagedResources?.Invoke();
-            }
-
-            protected override void DisposeNativeResources()
-            {
-                base.DisposeNativeResources();
-
                 OnDisposeNativeResources?.Invoke();
+                if (managed)
+                    OnDisposeManagedResources?.Invoke();
             }
         }
 
