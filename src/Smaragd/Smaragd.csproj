@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net47;net471;net472</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
     <Version>5.1</Version>
@@ -17,11 +18,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
-    <PackageReleaseNotes>- ValidatingViewModel was renamed to ValidatingBindable and now inherits from Bindable instead of ViewModel
-- ViewModel inherits from ValidatingBindable instead of Bindable
-- Dialog inherits from ViewModel instead of ValidatingViewModel
-- The IsValid property was moved to ViewModel
-- The type of errors of a property was changed to IEnumerable to enable non string errors</PackageReleaseNotes>
+    <PackageReleaseNotes>Enable nullable reference types</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>

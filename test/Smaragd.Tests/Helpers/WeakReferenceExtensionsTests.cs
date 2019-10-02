@@ -10,10 +10,10 @@ namespace NKristek.Smaragd.Tests.Helpers
     public class WeakReferenceExtensionsTests
     {
         [Fact]
-        public void TargetOrDefault_null_weakreference_returns_null()
+        public void TargetOrDefault_null_weakreference_throws_ArgumentNullException()
         {
             WeakReference<object> weakReference = null;
-            Assert.Null(weakReference.TargetOrDefault());
+            Assert.Throws<ArgumentNullException>(() => weakReference.TargetOrDefault());
         }
 
         [Fact]

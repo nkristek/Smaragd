@@ -114,7 +114,7 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs? e)
         {
             if (e == null
             ||  String.IsNullOrEmpty(e.PropertyName)
@@ -122,7 +122,7 @@ namespace NKristek.Smaragd.ViewModels
                 IsDirty = true;
         }
 
-        private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnChildCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
         {
             IsDirty = true;
         }
@@ -147,12 +147,12 @@ namespace NKristek.Smaragd.ViewModels
             set => SetProperty(ref _isDirty, value);
         }
 
-        private WeakReference<IViewModel> _parent;
+        private WeakReference<IViewModel>? _parent;
 
         /// <inheritdoc />
         [IsDirtyIgnored]
         [IsReadOnlyIgnored]
-        public virtual IViewModel Parent
+        public virtual IViewModel? Parent
         {
             get => _parent?.TargetOrDefault();
             set => SetProperty(ref _parent, value);
@@ -184,10 +184,13 @@ namespace NKristek.Smaragd.ViewModels
         /// <remarks>
         /// It also raises events for each property name which gets notified by the given <paramref name="propertyName"/>.
         /// </remarks>
-        protected override void NotifyPropertyChanging([CallerMemberName] string propertyName = null)
+        protected override void NotifyPropertyChanging([CallerMemberName] string? propertyName = null)
         {
             base.NotifyPropertyChanging(propertyName);
-            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName))
+            if (String.IsNullOrEmpty(propertyName))
+                return;
+
+            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName!))
                 base.NotifyPropertyChanging(propertyNameToNotify);
         }
 
@@ -195,10 +198,13 @@ namespace NKristek.Smaragd.ViewModels
         /// <remarks>
         /// It also raises events for each property name which gets notified by the given <paramref name="propertyName"/>.
         /// </remarks>
-        protected override void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+        protected override void NotifyPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             base.NotifyPropertyChanged(propertyName);
-            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName))
+            if (String.IsNullOrEmpty(propertyName))
+                return;
+
+            foreach (var propertyNameToNotify in _notificationCache.GetPropertyNamesToNotify(propertyName!))
                 base.NotifyPropertyChanged(propertyNameToNotify);
         }
 
@@ -206,17 +212,16 @@ namespace NKristek.Smaragd.ViewModels
         /// <remarks>
         /// Set the property value only if <see cref="IsReadOnly" /> is <see langword="false"/>.
         /// </remarks>
-        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
+        protected override bool SetProperty<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T>? comparer = null, [CallerMemberName] string? propertyName = null)
         {
             oldValue = storage;
-            if (IsReadOnly && !_isReadOnlyIgnoredProperties.Contains(propertyName))
+            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName!)))
                 return false;
 
-            var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, comparer, propertyName);
-            if (!propertyWasChanged)
+            if (!base.SetProperty(ref storage, value, out oldValue, comparer, propertyName))
                 return false;
 
-            if (_isDirtyIgnoredProperties.Contains(propertyName))
+            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName!))
                 return true;
 
             if (oldValue is INotifyCollectionChanged oldCollection)
@@ -232,17 +237,17 @@ namespace NKristek.Smaragd.ViewModels
         /// <remarks>
         /// Set the property value only if <see cref="IsReadOnly" /> is <see langword="false"/>.
         /// </remarks>
-        protected override bool SetProperty<T>(ref WeakReference<T> storage, T value, out T oldValue, IEqualityComparer<T> comparer = null, [CallerMemberName] string propertyName = null)
+        protected override bool SetProperty<T>(ref WeakReference<T>? storage, T? value, out T? oldValue, IEqualityComparer<T?>? comparer = null, [CallerMemberName] string? propertyName = null) 
+            where T : class
         {
             oldValue = storage?.TargetOrDefault();
-            if (IsReadOnly && !_isReadOnlyIgnoredProperties.Contains(propertyName))
+            if (IsReadOnly && (String.IsNullOrEmpty(propertyName) || !_isReadOnlyIgnoredProperties.Contains(propertyName!)))
                 return false;
 
-            var propertyWasChanged = base.SetProperty(ref storage, value, out oldValue, comparer, propertyName);
-            if (!propertyWasChanged)
+            if (!base.SetProperty(ref storage, value, out oldValue, comparer, propertyName))
                 return false;
 
-            if (_isDirtyIgnoredProperties.Contains(propertyName))
+            if (!String.IsNullOrEmpty(propertyName) && _isDirtyIgnoredProperties.Contains(propertyName!))
                 return true;
 
             if (oldValue is INotifyCollectionChanged oldCollection)

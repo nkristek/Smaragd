@@ -15,7 +15,7 @@
         /// <summary>
         /// The parent of this <see cref="IViewModel"/>.
         /// </summary>
-        IViewModel Parent { get; set; }
+        IViewModel? Parent { get; set; }
 
         /// <summary>
         /// Indicates if this <see cref="IViewModel"/> instance is read only and it is not possible to change a property value.
