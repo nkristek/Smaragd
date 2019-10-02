@@ -34,6 +34,8 @@ For most applications, it is recommended that viewmodels inherit from the [ViewM
 
 Commands may inherit from either [ViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/ViewModelCommand.cs) or [AsyncViewModelCommand<>](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Commands/AsyncViewModelCommand.cs) ([more info](https://github.com/nkristek/Smaragd/wiki/Commands)).
 
+For an overview of the provided interfaces and classes please visit the [documentation](https://github.com/nkristek/Smaragd/wiki/Home#Overview).
+
 ## Why another MVVM library?
 
 This library originated in my other project [Stein](https://github.com/nkristek/Stein) and was subsequently moved to its own repository and nuget package. The goal is to provide a great yet minimal foundation which also promotes a good code style. Nearly everything is marked virtual ([except events](https://msdn.microsoft.com/en-us/library/hy3sefw3.aspx)) so you can customize it to fit your needs.
