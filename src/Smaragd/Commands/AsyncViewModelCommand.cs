@@ -44,7 +44,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">Arguments of the event.</param>
-        protected virtual void OnContextPropertyChanging(object sender, PropertyChangingEventArgs e)
+        protected virtual void OnContextPropertyChanging(object? sender, PropertyChangingEventArgs? e)
         {
         }
 
@@ -53,7 +53,7 @@ namespace NKristek.Smaragd.Commands
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">Arguments of the event.</param>
-        protected virtual void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnContextPropertyChanged(object? sender, PropertyChangedEventArgs? e)
         {
         }
 

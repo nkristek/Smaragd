@@ -114,7 +114,7 @@ namespace NKristek.Smaragd.ViewModels
             }
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs? e)
         {
             if (e == null
             ||  String.IsNullOrEmpty(e.PropertyName)
@@ -122,7 +122,7 @@ namespace NKristek.Smaragd.ViewModels
                 IsDirty = true;
         }
 
-        private void OnChildCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnChildCollectionChanged(object? sender, NotifyCollectionChangedEventArgs? e)
         {
             IsDirty = true;
         }
