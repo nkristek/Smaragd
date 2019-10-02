@@ -14,12 +14,18 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/nkristek/Smaragd</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
-    <PackageIconUrl>https://github.com/nkristek/Smaragd/blob/master/resources/icon-256x256.png?raw=true</PackageIconUrl>
+    <PackageIcon>icon-256x256.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
     <PackageReleaseNotes>Enable nullable reference types</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\resources\icon-256x256.png" Pack="true" Visible="false" PackagePath="\" />
+  </ItemGroup>
 </Project>

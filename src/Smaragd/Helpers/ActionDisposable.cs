@@ -9,9 +9,9 @@ namespace NKristek.Smaragd.Helpers
     internal sealed class ActionDisposable
         : Disposable
     {
-        private readonly Action? _disposeManagedResourcesAction;
+        private Action? _disposeManagedResourcesAction;
 
-        private readonly Action? _disposeNativeResourcesAction;
+        private Action? _disposeNativeResourcesAction;
 
         /// <inheritdoc />
         /// <summary>
@@ -26,15 +26,14 @@ namespace NKristek.Smaragd.Helpers
         }
 
         /// <inheritdoc />
-        protected override void DisposeManagedResources()
-        {
-            _disposeManagedResourcesAction?.Invoke();
-        }
-
-        /// <inheritdoc />
-        protected override void DisposeNativeResources()
+        protected override void Dispose(bool managed = true)
         {
             _disposeNativeResourcesAction?.Invoke();
+            if (managed)
+                _disposeManagedResourcesAction?.Invoke();
+
+            _disposeNativeResourcesAction = null;
+            _disposeManagedResourcesAction = null;
         }
     }
 }
