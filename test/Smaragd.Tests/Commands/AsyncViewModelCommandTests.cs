@@ -22,30 +22,30 @@ namespace NKristek.Smaragd.Tests.Commands
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value, out _);
+                set => SetProperty(ref _testProperty, value);
             }
         }
 
         private class AsyncRelayViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            private readonly Func<TestViewModel, object, Task> _execute;
+            private readonly Func<TestViewModel?, object?, Task> _execute;
 
-            private readonly Func<TestViewModel, object, bool> _canExecute;
+            private readonly Func<TestViewModel?, object?, bool>? _canExecute;
 
-            public AsyncRelayViewModelCommand(Func<TestViewModel, object, Task> execute,
-                Func<TestViewModel, object, bool> canExecute = null)
+            public AsyncRelayViewModelCommand(Func<TestViewModel?, object?, Task> execute,
+                Func<TestViewModel?, object?, bool>? canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
 
-            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            protected override bool CanExecute(TestViewModel? viewModel, object? parameter)
             {
                 return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
             }
 
-            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            protected override async Task ExecuteAsync(TestViewModel? viewModel, object? parameter)
             {
                 await _execute.Invoke(viewModel, parameter);
             }
@@ -54,26 +54,26 @@ namespace NKristek.Smaragd.Tests.Commands
         private class AsyncConcurrentRelayViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            private readonly Func<TestViewModel, object, Task> _execute;
+            private readonly Func<TestViewModel?, object?, Task> _execute;
 
-            private readonly Func<TestViewModel, object, bool> _canExecute;
+            private readonly Func<TestViewModel?, object?, bool>? _canExecute;
 
             /// <inheritdoc />
             public override bool AllowsConcurrentExecution => true;
 
-            public AsyncConcurrentRelayViewModelCommand(Func<TestViewModel, object, Task> execute,
-                Func<TestViewModel, object, bool> canExecute = null)
+            public AsyncConcurrentRelayViewModelCommand(Func<TestViewModel?, object?, Task> execute,
+                Func<TestViewModel?, object?, bool>? canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
 
-            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            protected override bool CanExecute(TestViewModel? viewModel, object? parameter)
             {
                 return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
             }
 
-            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            protected override async Task ExecuteAsync(TestViewModel? viewModel, object? parameter)
             {
                 await _execute.Invoke(viewModel, parameter);
             }
@@ -82,7 +82,7 @@ namespace NKristek.Smaragd.Tests.Commands
         private class DefaultAsyncViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            protected override async Task ExecuteAsync(TestViewModel? viewModel, object? parameter)
             {
                 await Task.Run(() =>
                 {
@@ -106,21 +106,21 @@ namespace NKristek.Smaragd.Tests.Commands
         private class CanExecuteSourceAsyncViewModelCommand
             : AsyncViewModelCommand<TestViewModel>
         {
-            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            protected override bool CanExecute(TestViewModel? viewModel, object? parameter)
             {
-                return viewModel.TestProperty;
+                return viewModel?.TestProperty ?? false;
             }
 
             /// <inheritdoc />
-            protected override void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
+            protected override void OnContextPropertyChanged(object? sender, PropertyChangedEventArgs? e)
             {
                 if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(TestViewModel.TestProperty)))
                     NotifyCanExecuteChanged();
             }
 
-            protected override async Task ExecuteAsync(TestViewModel viewModel, object parameter)
+            protected override Task ExecuteAsync(TestViewModel? viewModel, object? parameter)
             {
-                await Task.Yield();
+                return Task.CompletedTask;
             }
         }
 
@@ -380,22 +380,33 @@ namespace NKristek.Smaragd.Tests.Commands
         [Fact]
         public async Task AllowsConcurrentExecution_true()
         {
+            using var mainSemaphore = new SemaphoreSlim(0);
+            using var commandSemaphore = new SemaphoreSlim(0);
             var actualExecutionCount = 0;
-            
+
             var command = new AsyncConcurrentRelayViewModelCommand(async (vm, para) =>
             {
                 Interlocked.Increment(ref actualExecutionCount);
-                await Task.Yield();
+                mainSemaphore.Release();
+                await commandSemaphore.WaitAsync();
             });
-            await Task.WhenAll(command.ExecuteAsync(null), command.ExecuteAsync(null));
+            // start executing the first command
+            var firstTask = command.ExecuteAsync(null);
+            // wait until the first command is really executing
+            await mainSemaphore.WaitAsync();
+            // start executing the second command
+            var secondTask = command.ExecuteAsync(null);
+            // release 2 times to firstly unlock the first command. The second release should not be necessary if the second command didn't execute (as expected), but to avoid deadlocks it should be done.
+            commandSemaphore.Release(2);
+            await Task.WhenAll(firstTask, secondTask);
             Assert.Equal(2, actualExecutionCount);
         }
 
         [Fact]
         public async Task AllowsConcurrentExecution_false()
         {
-            var mainSemaphore = new SemaphoreSlim(0);
-            var commandSemaphore = new SemaphoreSlim(0);
+            using var mainSemaphore = new SemaphoreSlim(0);
+            using var commandSemaphore = new SemaphoreSlim(0);
             var actualExecutionCount = 0;
 
             var command = new AsyncRelayViewModelCommand(async (vm, para) =>

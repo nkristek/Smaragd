@@ -9,7 +9,9 @@ namespace NKristek.Smaragd.Tests.Attributes
         [Fact]
         public void Constructor_propertyNames_null_throws_ArgumentNullException()
         {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => new PropertySourceAttribute(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Fact]

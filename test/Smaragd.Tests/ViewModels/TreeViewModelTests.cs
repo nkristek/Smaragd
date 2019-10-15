@@ -113,7 +113,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
         public void ReevaluateIsChecked_TreeChildrenNotOverridden()
         {
             var parent = new FileViewModel();
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
             var child = new FileViewModel
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
             {
                 Parent = parent,
                 IsChecked = true

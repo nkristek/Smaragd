@@ -27,13 +27,17 @@ namespace NKristek.Smaragd.Tests.Helpers
         [Fact]
         public void AddPropertyNameToNotify_PropertyNameOfNotifyingPropertyNull_ThrowsArgumentNullException()
         {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => NotificationCache.AddPropertyNameToNotify(null, FirstProperty));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Fact]
         public void AddPropertyNameToNotify_PropertyNameToNotifyNull_ThrowsArgumentNullException()
         {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => NotificationCache.AddPropertyNameToNotify(FirstProperty, null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Fact]
@@ -43,9 +47,11 @@ namespace NKristek.Smaragd.Tests.Helpers
         }
 
         [Fact]
-        public void GetPropertyNamesToNotify_propertyName_null_returns_empty_collection()
+        public void GetPropertyNamesToNotify_propertyName_null_throws_ArgumentNullException()
         {
-            Assert.Empty(NotificationCache.GetPropertyNamesToNotify(null));
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            Assert.Throws<ArgumentNullException>(() => NotificationCache.GetPropertyNamesToNotify(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Fact]

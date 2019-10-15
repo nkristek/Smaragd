@@ -13,7 +13,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(null, "1")]
         [InlineData("1", "2")]
-        public void Title_set(string initialValue, string valueToSet)
+        public void Title_set(string? initialValue, string valueToSet)
         {
             var viewModel = new TestDialogModel
             {

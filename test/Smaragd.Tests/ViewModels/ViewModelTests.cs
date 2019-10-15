@@ -16,53 +16,53 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class TestViewModel
             : ViewModel
         {
-            private object _property;
+            private object? _property;
 
-            public object Property
+            public object? Property
             {
                 get => _property;
                 set => SetProperty(ref _property, value);
             }
 
-            private WeakReference<object> _weakProperty;
+            private WeakReference<object>? _weakProperty;
 
-            public object WeakProperty
+            public object? WeakProperty
             {
                 get => _weakProperty?.TargetOrDefault();
                 set => SetProperty(ref _weakProperty, value);
             }
 
-            private object _isDirtyIgnoredProperty;
+            private object? _isDirtyIgnoredProperty;
 
             [IsDirtyIgnored]
-            public object IsDirtyIgnoredProperty
+            public object? IsDirtyIgnoredProperty
             {
                 get => _isDirtyIgnoredProperty;
                 set => SetProperty(ref _isDirtyIgnoredProperty, value);
             }
 
-            private WeakReference<object> _isDirtyIgnoredWeakProperty;
+            private WeakReference<object>? _isDirtyIgnoredWeakProperty;
 
             [IsDirtyIgnored]
-            public object IsDirtyIgnoredWeakProperty
+            public object? IsDirtyIgnoredWeakProperty
             {
                 get => _isDirtyIgnoredWeakProperty?.TargetOrDefault();
                 set => SetProperty(ref _isDirtyIgnoredWeakProperty, value);
             }
 
-            private object _isReadOnlyIgnoredProperty;
+            private object? _isReadOnlyIgnoredProperty;
 
             [IsReadOnlyIgnored]
-            public object IsReadOnlyIgnoredProperty
+            public object? IsReadOnlyIgnoredProperty
             {
                 get => _isReadOnlyIgnoredProperty;
                 set => SetProperty(ref _isReadOnlyIgnoredProperty, value);
             }
 
-            private WeakReference<object> _isReadOnlyIgnoredWeakProperty;
+            private WeakReference<object>? _isReadOnlyIgnoredWeakProperty;
 
             [IsReadOnlyIgnored]
-            public object IsReadOnlyIgnoredWeakProperty
+            public object? IsReadOnlyIgnoredWeakProperty
             {
                 get => _isReadOnlyIgnoredWeakProperty?.TargetOrDefault();
                 set => SetProperty(ref _isReadOnlyIgnoredWeakProperty, value);
@@ -76,9 +76,9 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set => SetProperty(ref _values, value);
             }
 
-            private WeakReference<ObservableCollection<int>> _weakValues;
+            private WeakReference<ObservableCollection<int>>? _weakValues;
 
-            public ObservableCollection<int> WeakValues
+            public ObservableCollection<int>? WeakValues
             {
                 get => _weakValues?.TargetOrDefault();
                 set => SetProperty(ref _weakValues, value);
@@ -93,28 +93,28 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set => SetProperty(ref _isDirtyIgnoredValues, value);
             }
 
-            private WeakReference<ObservableCollection<int>> _isDirtyIgnoredWeakValues;
+            private WeakReference<ObservableCollection<int>>? _isDirtyIgnoredWeakValues;
 
             [IsDirtyIgnored]
-            public ObservableCollection<int> IsDirtyIgnoredWeakValues
+            public ObservableCollection<int>? IsDirtyIgnoredWeakValues
             {
                 get => _isDirtyIgnoredWeakValues?.TargetOrDefault();
                 set => SetProperty(ref _isDirtyIgnoredWeakValues, value);
             }
 
-            public void NotifyPropertyChangingExternal(string propertyName)
+            public void NotifyPropertyChangingExternal(string? propertyName)
             {
-                NotifyPropertyChanging(propertyName);
+                base.NotifyPropertyChanging(propertyName);
             }
 
-            public void NotifyPropertyChangedExternal(string propertyName)
+            public void NotifyPropertyChangedExternal(string? propertyName)
             {
-                NotifyPropertyChanged(propertyName);
+                base.NotifyPropertyChanged(propertyName);
             }
 
-            public void SetErrorsExternal(IEnumerable errors, string propertyName)
+            public void SetErrorsExternal(IEnumerable? errors, string? propertyName)
             {
-                SetErrors(errors, propertyName);
+                base.SetErrors(errors, propertyName);
             }
         }
 
@@ -250,7 +250,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public virtual bool Property
             {
                 get => _property;
-                set => SetProperty(ref _property, value, out _);
+                set => SetProperty(ref _property, value);
             }
 
             private bool _isDirtyIgnoredProperty;
@@ -259,7 +259,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public virtual bool IsDirtyIgnoredProperty
             {
                 get => _isDirtyIgnoredProperty;
-                set => SetProperty(ref _isDirtyIgnoredProperty, value, out _);
+                set => SetProperty(ref _isDirtyIgnoredProperty, value);
             }
         }
 
@@ -408,18 +408,18 @@ namespace NKristek.Smaragd.Tests.ViewModels
 
         #region Parent
 
-        public static IEnumerable<object[]> Parent_set_input
+        public static IEnumerable<object?[]> Parent_set_input
         {
             get
             {
-                yield return new object[] { null, new TestViewModel() };
-                yield return new object[] { new TestViewModel(), null };
+                yield return new ViewModel?[] { null, new TestViewModel() };
+                yield return new ViewModel?[] { new TestViewModel(), null };
             }
         }
 
         [Theory]
         [MemberData(nameof(Parent_set_input))]
-        public void Parent_set(ViewModel initialValue, ViewModel valueToSet)
+        public void Parent_set(ViewModel? initialValue, ViewModel? valueToSet)
         {
             var viewModel = new TestViewModel
             {
@@ -533,7 +533,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public virtual bool Property
             {
                 get => _property;
-                set => SetProperty(ref _property, value, out _);
+                set => SetProperty(ref _property, value);
             }
 
             private bool _isReadOnlyIgnoredProperty;
@@ -542,7 +542,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public virtual bool IsReadOnlyIgnoredProperty
             {
                 get => _isReadOnlyIgnoredProperty;
-                set => SetProperty(ref _isReadOnlyIgnoredProperty, value, out _);
+                set => SetProperty(ref _isReadOnlyIgnoredProperty, value);
             }
         }
 
@@ -664,10 +664,17 @@ namespace NKristek.Smaragd.Tests.ViewModels
             [PropertySource(nameof(PropertySourceLoopFirstProperty))]
             public bool PropertySourceLoopSecondProperty { get; }
 
-            public void NotifyPropertyChangedExternal(string propertyName)
+            public void NotifyPropertyChangedExternal(string? propertyName)
             {
-                NotifyPropertyChanged(propertyName);
+                base.NotifyPropertyChanged(propertyName);
             }
+        }
+
+        [Fact]
+        public void NotifyPropertyChanged_PropertyName_null()
+        {
+            var viewModel = new PropertySourceViewModel();
+            viewModel.NotifyPropertyChangedExternal(null);
         }
 
         [Fact]
@@ -710,7 +717,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value, out _);
+                set => SetProperty(ref _testProperty, value);
             }
 
             [PropertySource(nameof(TestProperty))]
