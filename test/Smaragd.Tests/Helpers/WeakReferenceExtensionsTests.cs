@@ -12,8 +12,10 @@ namespace NKristek.Smaragd.Tests.Helpers
         [Fact]
         public void TargetOrDefault_null_weakreference_throws_ArgumentNullException()
         {
-            WeakReference<object> weakReference = null;
+            WeakReference<object>? weakReference = null;
+#pragma warning disable CS8604 // Possible null reference argument.
             Assert.Throws<ArgumentNullException>(() => weakReference.TargetOrDefault());
+#pragma warning restore CS8604 // Possible null reference argument.
         }
 
         [Fact]

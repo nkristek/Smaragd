@@ -10,9 +10,9 @@ namespace NKristek.Smaragd.Tests.Helpers
         private class DisposableImpl
             : Disposable
         {
-            public Action OnDisposeManagedResources;
+            public Action? OnDisposeManagedResources;
 
-            public Action OnDisposeNativeResources;
+            public Action? OnDisposeNativeResources;
 
             protected override void Dispose(bool managed = true)
             {
@@ -65,13 +65,17 @@ namespace NKristek.Smaragd.Tests.Helpers
         }
 
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
-        private static void CreateDisposableInstance(Action onDisposeManagedResources, Action onDisposeNativeResources)
+        private static void CreateDisposableInstance(Action? onDisposeManagedResources, Action? onDisposeNativeResources)
         {
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+#pragma warning disable IDE0067 // Dispose objects before losing scope
             var instance = new DisposableImpl
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
             {
                 OnDisposeManagedResources = onDisposeManagedResources,
                 OnDisposeNativeResources = onDisposeNativeResources
             };
+#pragma warning restore IDE0067 // Dispose objects before losing scope
         }
     }
 }

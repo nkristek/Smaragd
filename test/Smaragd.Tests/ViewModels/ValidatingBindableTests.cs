@@ -29,32 +29,32 @@ namespace NKristek.Smaragd.Tests.ViewModels
                 set => SetProperty(ref _anotherProperty, value);
             }
 
-            public void NotifyPropertyChangingExternal(string propertyName)
+            public void NotifyPropertyChangingExternal(string? propertyName)
             {
-                NotifyPropertyChanging(propertyName);
+                base.NotifyPropertyChanging(propertyName);
             }
 
-            public void NotifyPropertyChangedExternal(string propertyName)
+            public void NotifyPropertyChangedExternal(string? propertyName)
             {
-                NotifyPropertyChanged(propertyName);
+                base.NotifyPropertyChanged(propertyName);
             }
 
             public bool HasNotifiedErrorsChanged;
 
-            protected override void NotifyErrorsChanged([CallerMemberName] string propertyName = null)
+            protected override void NotifyErrorsChanged([CallerMemberName] string? propertyName = null)
             {
                 base.NotifyErrorsChanged(propertyName);
                 HasNotifiedErrorsChanged = true;
             }
 
-            public void NotifyErrorsChangedExternal(string propertyName)
+            public void NotifyErrorsChangedExternal(string? propertyName)
             {
-                NotifyErrorsChanged(propertyName);
+                base.NotifyErrorsChanged(propertyName);
             }
 
-            public void SetErrorsExternal(IEnumerable errors, [CallerMemberName] string propertyName = null)
+            public void SetErrorsExternal(IEnumerable? errors, [CallerMemberName] string? propertyName = null)
             {
-                SetErrors(errors, propertyName);
+                base.SetErrors(errors, propertyName);
             }
         }
 
@@ -165,7 +165,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [InlineData("", 2)]
         [InlineData(nameof(TestBindable.Property), 1)]
         [InlineData("NotExistingProperty", 0)]
-        public void GetErrors_with_error(string propertyName, int expectedErrorCount)
+        public void GetErrors_with_error(string? propertyName, int expectedErrorCount)
         {
             var viewModel = new TestBindable();
             viewModel.SetErrorsExternal(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestBindable.Property));
@@ -178,7 +178,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [InlineData("")]
         [InlineData(nameof(TestBindable.Property))]
         [InlineData("NotExistingProperty")]
-        public void GetErrors_without_error(string propertyName)
+        public void GetErrors_without_error(string? propertyName)
         {
             var viewModel = new TestBindable();
             viewModel.SetErrorsExternal(Enumerable.Repeat("Value has to be at least 5.", 1), nameof(TestBindable.Property));

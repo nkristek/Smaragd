@@ -9,7 +9,9 @@ namespace NKristek.Smaragd.Tests.Validation
         [Fact]
         public void FuncValidation_Func_null_throws_ArgumentNullException()
         {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             Assert.Throws<ArgumentNullException>(() => new FuncValidation<int, bool>(null));
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
         }
 
         [Theory]

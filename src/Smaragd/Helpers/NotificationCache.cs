@@ -18,7 +18,7 @@ namespace NKristek.Smaragd.Helpers
         }
 
         /// <inheritdoc />
-        /// <exception cref="ArgumentNullException">If either <paramref name="propertyNameOfNotifyingProperty"/> or <paramref name="propertyNameToNotify"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException">If either <paramref name="propertyNameOfNotifyingProperty"/> or <paramref name="propertyNameToNotify"/> is <see langword="null"/> or empty.</exception>
         /// <exception cref="ArgumentException">If <paramref name="propertyNameOfNotifyingProperty"/> and <paramref name="propertyNameToNotify"/> are equal (a property should not notify itself).</exception>
         public void AddPropertyNameToNotify(string propertyNameOfNotifyingProperty, string propertyNameToNotify)
         {
@@ -41,10 +41,11 @@ namespace NKristek.Smaragd.Helpers
         }
 
         /// <inheritdoc />
+        /// <exception cref="ArgumentNullException"><paramref name="propertyName"/> is <see langword="null"/> or empty.</exception>
         public IEnumerable<string> GetPropertyNamesToNotify(string propertyName)
         {
             if (String.IsNullOrEmpty(propertyName))
-                return Enumerable.Empty<string>();
+                throw new ArgumentNullException(nameof(propertyName));
 
             if (_cachedPropertyNamesToNotify.TryGetValue(propertyName, out var cachedPropertyNamesToNotify))
                 return cachedPropertyNamesToNotify.ToList();

@@ -17,30 +17,30 @@ namespace NKristek.Smaragd.Tests.Commands
             public bool TestProperty
             {
                 get => _testProperty;
-                set => SetProperty(ref _testProperty, value, out _);
+                set => SetProperty(ref _testProperty, value);
             }
         }
 
         private class RelayViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            private readonly Action<TestViewModel, object> _execute;
+            private readonly Action<TestViewModel?, object?> _execute;
 
-            private readonly Func<TestViewModel, object, bool> _canExecute;
+            private readonly Func<TestViewModel?, object?, bool>? _canExecute;
 
-            public RelayViewModelCommand(Action<TestViewModel, object> execute,
-                Func<TestViewModel, object, bool> canExecute = null)
+            public RelayViewModelCommand(Action<TestViewModel?, object?> execute,
+                Func<TestViewModel?, object?, bool>? canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
             }
 
-            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            protected override bool CanExecute(TestViewModel? viewModel, object? parameter)
             {
                 return _canExecute?.Invoke(viewModel, parameter) ?? base.CanExecute(viewModel, parameter);
             }
 
-            protected override void Execute(TestViewModel viewModel, object parameter)
+            protected override void Execute(TestViewModel? viewModel, object? parameter)
             {
                 _execute.Invoke(viewModel, parameter);
             }
@@ -49,7 +49,7 @@ namespace NKristek.Smaragd.Tests.Commands
         private class DefaultViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            protected override void Execute(TestViewModel viewModel, object parameter)
+            protected override void Execute(TestViewModel? viewModel, object? parameter)
             {
                 if (viewModel == null)
                     throw new ArgumentNullException(nameof(viewModel));
@@ -70,19 +70,19 @@ namespace NKristek.Smaragd.Tests.Commands
         private class CanExecuteSourceViewModelCommand
             : ViewModelCommand<TestViewModel>
         {
-            protected override bool CanExecute(TestViewModel viewModel, object parameter)
+            protected override bool CanExecute(TestViewModel? viewModel, object? parameter)
             {
-                return viewModel.TestProperty;
+                return viewModel?.TestProperty ?? false;
             }
 
             /// <inheritdoc />
-            protected override void OnContextPropertyChanged(object sender, PropertyChangedEventArgs e)
+            protected override void OnContextPropertyChanged(object? sender, PropertyChangedEventArgs? e)
             {
                 if (e == null || String.IsNullOrEmpty(e.PropertyName) || e.PropertyName.Equals(nameof(TestViewModel.TestProperty)))
                     NotifyCanExecuteChanged();
             }
 
-            protected override void Execute(TestViewModel viewModel, object parameter)
+            protected override void Execute(TestViewModel? viewModel, object? parameter)
             {
             }
         }

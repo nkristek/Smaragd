@@ -12,82 +12,82 @@ namespace NKristek.Smaragd.Tests.ViewModels
         private class TestBindable
             : Bindable
         {
-            public object PropertyStorage;
+            public object? PropertyStorage;
 
-            public object Property
+            public object? Property
             {
                 get => PropertyStorage;
                 set => SetProperty(ref PropertyStorage, value);
             }
 
-            public WeakReference<object> WeakPropertyStorage;
+            public WeakReference<object>? WeakPropertyStorage;
 
-            public object WeakProperty
+            public object? WeakProperty
             {
                 get => WeakPropertyStorage?.TargetOrDefault();
                 set => SetProperty(ref WeakPropertyStorage, value);
             }
 
-            public string StringPropertyStorage;
+            public string? StringPropertyStorage;
 
-            public string StringProperty
+            public string? StringProperty
             {
                 get => StringPropertyStorage;
                 set => SetProperty(ref StringPropertyStorage, value);
             }
 
-            public WeakReference<string> WeakStringPropertyStorage;
+            public WeakReference<string>? WeakStringPropertyStorage;
 
-            public string WeakStringProperty
+            public string? WeakStringProperty
             {
                 get => WeakStringPropertyStorage?.TargetOrDefault();
                 set => SetProperty(ref WeakStringPropertyStorage, value);
             }
 
-            public void NotifyPropertyChangingExternal(string propertyName)
+            public void NotifyPropertyChangingExternal(string? propertyName)
             {
                 NotifyPropertyChanging(propertyName);
             }
 
-            public void NotifyPropertyChangedExternal(string propertyName)
+            public void NotifyPropertyChangedExternal(string? propertyName)
             {
                 NotifyPropertyChanged(propertyName);
             }
 
-            public bool SetPropertyExternal<T>(ref T storage, T value, IEqualityComparer<T> comparer, string propertyName)
+            public bool SetPropertyExternal<T>(ref T storage, T value, IEqualityComparer<T>? comparer, string? propertyName)
             {
-                return SetProperty(ref storage, value, comparer, propertyName);
+                return base.SetProperty(ref storage, value, comparer, propertyName);
             }
 
-            public bool SetPropertyExternal<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T> comparer, string propertyName)
+            public bool SetPropertyExternal<T>(ref T storage, T value, out T oldValue, IEqualityComparer<T>? comparer, string? propertyName)
             {
-                return SetProperty(ref storage, value, out oldValue, comparer, propertyName);
+                return base.SetProperty(ref storage, value, out oldValue, comparer, propertyName);
             }
 
-            public bool SetPropertyExternal<T>(ref WeakReference<T> storage, T value, IEqualityComparer<T> comparer, string propertyName)
+            public bool SetPropertyExternal<T>(ref WeakReference<T>? storage, T? value, IEqualityComparer<T?>? comparer, string? propertyName)
                 where T : class
             {
-                return SetProperty(ref storage, value, comparer, propertyName);
+                return base.SetProperty(ref storage, value, comparer, propertyName);
             }
 
-            public bool SetPropertyExternal<T>(ref WeakReference<T> storage, T value, out T oldValue, IEqualityComparer<T> comparer, string propertyName)
+            public bool SetPropertyExternal<T>(ref WeakReference<T>? storage, T? value, out T? oldValue, IEqualityComparer<T?>? comparer, string? propertyName)
                 where T : class
             {
-                return SetProperty(ref storage, value, out oldValue, comparer, propertyName);
+                return base.SetProperty(ref storage, value, out oldValue, comparer, propertyName);
             }
         }
 
         private class StringSameLengthEqualityComparer
-            : IEqualityComparer<string>
+            : IEqualityComparer<string?>
         {
             /// <inheritdoc />
-            public bool Equals(string x, string y)
+            public bool Equals(string? x, string? y)
             {
                 return (x?.Length ?? 0) == (y?.Length ?? 0);
             }
 
             /// <inheritdoc />
-            public int GetHashCode(string obj)
+            public int GetHashCode(string? obj)
             {
                 return obj?.Length ?? 0;
             }
@@ -98,7 +98,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void NotifyPropertyChanging_raises_event_on_PropertyChanging(string propertyName)
+        public void NotifyPropertyChanging_raises_event_on_PropertyChanging(string? propertyName)
         {
             var invokedPropertyChangingEvents = new List<string>();
             var bindable = new TestBindable();
@@ -112,7 +112,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void NotifyPropertyChanged_raises_event_on_PropertyChanged(string propertyName)
+        public void NotifyPropertyChanged_raises_event_on_PropertyChanged(string? propertyName)
         {
             var invokedPropertyChangedEvents = new List<string>();
             var bindable = new TestBindable();
@@ -124,7 +124,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object))]
         [InlineData(null)]
-        public void SetProperty_sets_storage(object input)
+        public void SetProperty_sets_storage(object? input)
         {
             var bindable = new TestBindable();
             bindable.SetPropertyExternal(ref bindable.PropertyStorage, input, null, nameof(bindable.Property));
@@ -134,7 +134,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object))]
         [InlineData(null)]
-        public void SetProperty_weak_sets_storage(object input)
+        public void SetProperty_weak_sets_storage(object? input)
         {
             var bindable = new TestBindable();
             bindable.SetPropertyExternal(ref bindable.WeakPropertyStorage, input, null, nameof(bindable.WeakProperty));
@@ -144,7 +144,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(null, typeof(object))]
         [InlineData(typeof(object), null)]
-        public void SetProperty_sets_old_value_of_storage(object initialValue, object input)
+        public void SetProperty_sets_old_value_of_storage(object? initialValue, object? input)
         {
             var bindable = new TestBindable
             {
@@ -158,7 +158,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(null, typeof(object))]
         [InlineData(typeof(object), null)]
-        public void SetProperty_weak_sets_old_value_of_storage(object initialValue, object input)
+        public void SetProperty_weak_sets_old_value_of_storage(object? initialValue, object? input)
         {
             var bindable = new TestBindable
             {
@@ -204,7 +204,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object), 1)]
         [InlineData(null, 0)]
-        public void SetProperty_raises_event_on_PropertyChanging(object input, int expectedCountOfPropertyChangingEvents)
+        public void SetProperty_raises_event_on_PropertyChanging(object? input, int expectedCountOfPropertyChangingEvents)
         {
             var invokedPropertyChangingEvents = new List<string>();
             var bindable = new TestBindable();
@@ -216,7 +216,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object), 1)]
         [InlineData(null, 0)]
-        public void SetProperty_weak_raises_event_on_PropertyChanging(object input, int expectedCountOfPropertyChangingEvents)
+        public void SetProperty_weak_raises_event_on_PropertyChanging(object? input, int expectedCountOfPropertyChangingEvents)
         {
             var invokedPropertyChangingEvents = new List<string>();
             var bindable = new TestBindable();
@@ -228,7 +228,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object), 1)]
         [InlineData(null, 0)]
-        public void SetProperty_raises_event_on_PropertyChanged(object input, int expectedCountOfPropertyChangedEvents)
+        public void SetProperty_raises_event_on_PropertyChanged(object? input, int expectedCountOfPropertyChangedEvents)
         {
             var invokedPropertyChangedEvents = new List<string>();
             var bindable = new TestBindable();
@@ -240,7 +240,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(typeof(object), 1)]
         [InlineData(null, 0)]
-        public void SetProperty_weak_raises_event_on_PropertyChanged(object input, int expectedCountOfPropertyChangedEvents)
+        public void SetProperty_weak_raises_event_on_PropertyChanged(object? input, int expectedCountOfPropertyChangedEvents)
         {
             var invokedPropertyChangedEvents = new List<string>();
             var bindable = new TestBindable();
@@ -290,7 +290,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(null, typeof(object), true)]
         [InlineData(null, null, false)]
-        public void SetProperty_returns_if_value_was_different(object initialValue, object input, bool expectedResult)
+        public void SetProperty_returns_if_value_was_different(object? initialValue, object? input, bool expectedResult)
         {
             var bindable = new TestBindable
             {
@@ -302,7 +302,7 @@ namespace NKristek.Smaragd.Tests.ViewModels
         [Theory]
         [InlineData(null, typeof(object), true)]
         [InlineData(null, null, false)]
-        public void SetProperty_weak_returns_if_value_was_different(object initialValue, object input, bool expectedResult)
+        public void SetProperty_weak_returns_if_value_was_different(object? initialValue, object? input, bool expectedResult)
         {
             var bindable = new TestBindable
             {
