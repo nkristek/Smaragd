@@ -5,15 +5,15 @@ jobs:
     runs-on: windows-latest  
     steps:
 
-    - name: Install .NET
+    - name: Install .NET 3.0
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.0.100'
+        dotnet-version: 3.0.100
 
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Restore
+    - name: Restore dependencies
       run: dotnet restore
 
     - name: Build
