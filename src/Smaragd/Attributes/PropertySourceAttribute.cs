@@ -22,7 +22,6 @@ namespace NKristek.Smaragd.Attributes
         /// </summary>
         public bool InheritAttributes { get; set; }
 
-        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertySourceAttribute" /> class with one or multiple names of properties the property depends on.
         /// </summary>

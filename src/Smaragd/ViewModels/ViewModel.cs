@@ -20,7 +20,9 @@ namespace NKristek.Smaragd.ViewModels
 
         private readonly HashSet<string> _isReadOnlyIgnoredProperties = new HashSet<string>();
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewModel"/> class.
+        /// </summary>
         protected ViewModel()
         {
             InitAttributes();
