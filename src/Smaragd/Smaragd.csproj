@@ -28,4 +28,11 @@
   <ItemGroup>
     <None Include="..\..\resources\icon-256x256.png" Pack="true" Visible="false" PackagePath="\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SauceControl.InheritDoc" Version="0.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
