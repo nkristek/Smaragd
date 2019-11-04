@@ -11,7 +11,6 @@ namespace NKristek.Smaragd.Validation
     {
         private readonly Predicate<TValue> _validationPredicate;
 
-        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the <see cref="PredicateValidation{TValue}"/> class with the <paramref name="validationPredicate"/> which is used to validate the value.
         /// </summary>

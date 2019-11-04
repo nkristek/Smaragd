@@ -11,7 +11,6 @@ namespace NKristek.Smaragd.Validation
     {
         private readonly Func<TValue, TResult> _validationFunc;
 
-        /// <inheritdoc />
         /// <summary>
         /// Initializes a new instance of the <see cref="FuncValidation{TValue, TValidationResult}"/> class with the <paramref name="validationFunc"/> which is used to validate the value.
         /// </summary>
