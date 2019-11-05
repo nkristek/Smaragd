@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
     <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>5.2</Version>
+    <Version>5.2.1</Version>
     <Description>Base classes for implementing an C# .NET application using the MVVM architecture</Description>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
@@ -18,7 +18,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
     <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
-    <PackageReleaseNotes>This release enables C#8 nullable reference types and improves the build process.</PackageReleaseNotes>
+    <PackageReleaseNotes>This release improves XML documentation by expanding the inheritdoc tag.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
