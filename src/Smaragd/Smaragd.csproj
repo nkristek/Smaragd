@@ -1,48 +1,66 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Build settings -->
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
-    <RootNamespace>NKristek.Smaragd</RootNamespace>
-    <AssemblyName>NKristek.Smaragd</AssemblyName>
-    <Version>5.2.1</Version>
-    <Description>A platform-independent, lightweight library for developing .NET applications using the MVVM architecture</Description>
-    <Company>nkristek</Company>
-    <Authors>nkristek</Authors>
-    <PackageId>NKristek.Smaragd</PackageId>
-    <Copyright>Copyright © 2019 Niclas Kristek</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/nkristek/Smaragd</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
-    <PackageIcon>icon-256x256.png</PackageIcon>
+    <Features>strict</Features>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
-    <PackageReleaseNotes>This release improves XML documentation by expanding the inheritdoc tag.</PackageReleaseNotes>
-    <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
+  <!-- Package metadata -->
+  <PropertyGroup>
+    <Version>5.2.1</Version>
+    <Company>nkristek</Company>
+    <Authors>nkristek</Authors>
+    <RootNamespace>NKristek.Smaragd</RootNamespace>
+    <AssemblyName>NKristek.Smaragd</AssemblyName>
+    <PackageId>NKristek.Smaragd</PackageId>
+    <Description>A platform-independent, lightweight library for developing .NET applications using the MVVM architecture</Description>
+    <PackageTags>MVVM ViewModel INotifyPropertyChanged INotifyPropertyChanging INotifyDataErrorInfo</PackageTags>
+    <Copyright>Copyright © 2019 Niclas Kristek</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/nkristek/Smaragd</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nkristek/Smaragd.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+  
+  <!-- Package Icon -->
   <ItemGroup>
     <None Include="..\..\resources\icon-256x256.png" Pack="true" Visible="false" PackagePath="\" />
   </ItemGroup>
+  <PropertyGroup>
+    <PackageIcon>icon-256x256.png</PackageIcon>
+  </PropertyGroup>
+
+  <!-- Code Signing -->
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>Smaragd.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <!-- Replace inheritdoc tags -->
+  <ItemGroup>
+    <PackageReference Include="SauceControl.InheritDoc" Version="0.4.0" PrivateAssets="all" />
+  </ItemGroup>
   
+  <!-- Disable warning, that no inheritdoc documentation was replaced -->
   <PropertyGroup>
     <NoWarn>$(NoWarn);IDT004</NoWarn>
   </PropertyGroup>
     
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+  <!-- temporary fix for malformed .NET Standard 2.0.3 docs -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <NoWarn>$(NoWarn);IDT001</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageDownload Include="NETStandard.Library.Ref" Version="[2.1.0]" />
     <InheritDocReference Include="$([MSBuild]::EnsureTrailingSlash('$(NugetPackageRoot)'))netstandard.library.ref\2.1.0\ref\netstandard2.1\netstandard.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SauceControl.InheritDoc" Version="0.4.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>

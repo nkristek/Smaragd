@@ -1,4 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
 
 // Enable unit testing of internal classes
-[assembly: InternalsVisibleTo("NKristek.Smaragd.Tests")]
+[assembly: InternalsVisibleTo("NKristek.Smaragd.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100ed42d693fb0bd5e536e3ae2df8a38b51d15c2e292d3e8183a760c922e7c475ed9e8fc9b91c006aac008847fefcd1d8dd3f311cb20e9559af4b067d7070730c6ab7992db8a41b636f8252f3097ab43134475c3161ce5fd23ba573e6e73374768b9c1972832e385002ab271e8d99fe0e93057fa54fb84184c14cde1b453d2b32ce")]
