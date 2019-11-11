@@ -14,7 +14,7 @@
 
   <!-- Package metadata -->
   <PropertyGroup>
-    <Version>5.2.1</Version>
+    <Version>5.2.2</Version>
     <Company>nkristek</Company>
     <Authors>nkristek</Authors>
     <RootNamespace>NKristek.Smaragd</RootNamespace>
