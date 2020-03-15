@@ -10,12 +10,16 @@ For an example project, please visit my other project [Stein](https://github.com
 
 ## Features
 
-This library contains base implementations of:
-- `INotifyPropertyChanging` and `INotifyPropertyChanged`
-- `INotifyDataErrorInfo`
-- `ICommand` and asynchronous `IAsyncCommand`
+Smaragd offers base implementations of key .NET interfaces for building WPF / MVVM applications.
 
-Additionally, there are other base classes that provide additional features, for example `TreeViewModel` implements an `IsChecked` property that automatically updates its parent and children.
+![Core class diagram](./resources/diagram.png)
+
+In addition, it enables developers to:
+
+- Build dialog and tree structures via [`DialogModel`](https://github.com/nkristek/Smaragd/wiki/DialogModel) and [`TreeViewModel`](https://github.com/nkristek/Smaragd/wiki/TreeViewModel)
+- Execute commands synchronously and asynchronously via [`ViewModelCommand`](https://github.com/nkristek/Smaragd/wiki/Commands) and [`AsyncViewModelCommand`](https://github.com/nkristek/Smaragd/wiki/Commands)
+- Perform validation via [`FuncValidation`](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Validation/FuncValidation.cs) and [`PredicateValidation`](https://github.com/nkristek/Smaragd/blob/master/src/Smaragd/Validation/PredicateValidation.cs)
+- Manage state updates for interdependent properties via [`PropertySourceAttribute`](https://github.com/nkristek/Smaragd/wiki/ViewModel#propertysourceattribute)
 
 For more information, please visit the [documentation](https://github.com/nkristek/Smaragd/wiki).
 
